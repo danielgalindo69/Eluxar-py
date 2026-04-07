@@ -1,0 +1,90 @@
+import { createBrowserRouter, Outlet } from "react-router";
+import { Navbar } from "../../shared/components/layout/Navbar";
+import { Footer } from "../../shared/components/layout/Footer";
+import { Home } from "../../features/home/pages/Home";
+import { Catalog } from "../../features/products/pages/Catalog";
+import { ProductDetail } from "../../features/products/pages/ProductDetail";
+import { Cart } from "../../features/cart/pages/Cart";
+import { Checkout } from "../../features/checkout/pages/Checkout";
+import { Auth } from "../../features/auth/pages/Auth";
+import { Register } from "../../features/auth/pages/Register";
+import { ForgotPassword } from "../../features/auth/pages/ForgotPassword";
+import { Profile } from "../../features/user/pages/Profile";
+import { Addresses } from "../../features/user/pages/Addresses";
+import { Search } from "../../features/products/pages/Search";
+import { OrderConfirmation } from "../../features/orders/pages/OrderConfirmation";
+import { OrderHistory } from "../../features/orders/pages/OrderHistory";
+import { EditOrderAddress } from "../../features/orders/pages/EditOrderAddress";
+import { FragranceTest } from "../../features/IA/pages/FragranceTest";
+import { Recommendations } from "../../features/IA/pages/Recommendations";
+import { Chat } from "../../features/IA/pages/Chat";
+import { AdminLayout } from "../../features/admin/pages/AdminLayout";
+import { AdminAuth } from "../../features/admin/pages/AdminAuth";
+import { Dashboard } from "../../features/admin/pages/Dashboard";
+import { Products } from "../../features/admin/pages/Products";
+import { Orders } from "../../features/admin/pages/Orders";
+import { Users } from "../../features/admin/pages/Users";
+import { Inventory } from "../../features/admin/pages/Inventory";
+import { StockAlerts } from "../../features/admin/pages/StockAlerts";
+import { Payments } from "../../features/admin/pages/Payments";
+import { Shipping } from "../../features/admin/pages/Shipping";
+import { Banners } from "../../features/admin/pages/Banners";
+import { Prices } from "../../features/admin/pages/Prices";
+import { Categories } from "../../features/admin/pages/Categories";
+import { Images } from "../../features/admin/pages/Images";
+import React from "react";
+
+const Layout = () => {
+  return (
+    <div className="min-h-screen bg-white font-sans text-[#2B2B2B] antialiased selection:bg-[#3A4A3F] selection:text-white">
+      <Navbar />
+      <Outlet />
+      <Footer />
+    </div>
+  );
+};
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    Component: Layout,
+    children: [
+      { index: true, Component: Home },
+      { path: "catalog", Component: Catalog },
+      { path: "product/:id", Component: ProductDetail },
+      { path: "cart", Component: Cart },
+      { path: "checkout", Component: Checkout },
+      { path: "auth", Component: Auth },
+      { path: "register", Component: Register },
+      { path: "forgot-password", Component: ForgotPassword },
+      { path: "profile", Component: Profile },
+      { path: "profile/addresses", Component: Addresses },
+      { path: "search", Component: Search },
+      { path: "order-confirmation", Component: OrderConfirmation },
+      { path: "order-history", Component: OrderHistory },
+      { path: "order/:id/edit-address", Component: EditOrderAddress },
+      { path: "fragrance-test", Component: FragranceTest },
+      { path: "recommendations", Component: Recommendations },
+      { path: "chat", Component: Chat },
+    ],
+  },
+  { path: "admin/auth", Component: AdminAuth },
+  {
+    path: "/admin",
+    Component: AdminLayout,
+    children: [
+      { index: true, Component: Dashboard },
+      { path: "products", Component: Products },
+      { path: "orders", Component: Orders },
+      { path: "users", Component: Users },
+      { path: "inventory", Component: Inventory },
+      { path: "stock-alerts", Component: StockAlerts },
+      { path: "payments", Component: Payments },
+      { path: "shipping", Component: Shipping },
+      { path: "banners", Component: Banners },
+      { path: "prices", Component: Prices },
+      { path: "categories", Component: Categories },
+      { path: "images", Component: Images },
+    ],
+  },
+]);
