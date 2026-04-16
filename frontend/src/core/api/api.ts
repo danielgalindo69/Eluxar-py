@@ -77,6 +77,7 @@ export const authAPI = {
         email: data.email,
         role: data.rol,
         token: data.token,
+        pictureUrl: data.pictureUrl ?? null,
       };
       localStorage.setItem('eluxar_user', JSON.stringify(user));
       return user;

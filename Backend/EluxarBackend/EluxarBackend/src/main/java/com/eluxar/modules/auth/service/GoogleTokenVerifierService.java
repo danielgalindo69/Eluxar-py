@@ -88,8 +88,8 @@ public class GoogleTokenVerifierService {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseGet(() -> createGoogleUser(email, name, pictureUrl));
 
-        // Update picture URL if changed
-        if (pictureUrl != null && !pictureUrl.equals(usuario.getPictureUrl())) {
+        // Update picture URL if changed AND user doesn't have a custom uploaded image
+        if (pictureUrl != null && !pictureUrl.equals(usuario.getPictureUrl()) && usuario.getImageFileId() == null) {
             usuario.setPictureUrl(pictureUrl);
             usuarioRepository.save(usuario);
         }

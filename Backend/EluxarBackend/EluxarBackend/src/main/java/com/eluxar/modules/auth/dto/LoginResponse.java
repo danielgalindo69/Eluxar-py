@@ -17,4 +17,5 @@ public class LoginResponse {
     private String email;
     private String nombre;
     private String rol;
+    private String pictureUrl;
 }
