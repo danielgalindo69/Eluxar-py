@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from '../../features/products/types/products';
+import { Product } from '../../features/products/types/products';
 
 const API_BASE = '/api';
 
