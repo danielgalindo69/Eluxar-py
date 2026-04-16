@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   phone?: string;
   token: string;
+  pictureUrl?: string;
 }
 
 interface AuthContextType {

@@ -30,12 +30,18 @@ public class Usuario {
     @Column(nullable = true)
     private String passwordHash;
 
+    @Column(length = 20)
+    private String phone;
+
     @Column(columnDefinition = "VARCHAR(20) NOT NULL DEFAULT 'LOCAL'")
     @Builder.Default
     private String provider = "LOCAL"; // LOCAL or GOOGLE
 
     @Column(length = 500)
     private String pictureUrl;
+
+    @Column(length = 255)
+    private String imageFileId;
 
     @Column(nullable = false)
     @Builder.Default

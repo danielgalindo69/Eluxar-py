@@ -15,6 +15,13 @@
 	<name>eluxar-backend</name>
 	<description>Backend Sistema Eluxar - E-commerce de Perfumes</description>
 
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
 	<properties>
 		<java.version>21</java.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -166,6 +173,13 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- ImageKit SDK -->
+		<dependency>
+			<groupId>com.github.imagekit-developer</groupId>
+			<artifactId>imagekit-java</artifactId>
+			<version>2.0.1</version>
 		</dependency>
 
 	</dependencies>

@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from '../../app/types/products';
+import { Product, ProductVariant } from '../../features/products/types/products';
 
 const API_BASE = '/api';
 
@@ -9,7 +9,7 @@ const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, m
 async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('eluxar_token');
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...options.headers,
   };
@@ -468,5 +468,17 @@ export const aiAPI = {
     if (message.toLowerCase().includes('regalo')) return { reply: 'Para regalo, nuestro Black Amber es una elección segura. Viene en un estuche premium y su aroma es universalmente apreciado. ¿Deseas que lo añada a tu bolsa?' };
     if (message.toLowerCase().includes('durar') || message.toLowerCase().includes('larga duración')) return { reply: 'Si buscas máxima duración, los Extrait de Parfum son ideales. Con concentraciones del 25-30%, nuestras fragancias pueden durar más de 12 horas. Oud Marine y Black Amber son los más longevos.' };
     return { reply: responses.default };
+  },
+};
+
+// ─── User Profile ─────────────────────────────────────────────
+export const userAPI = {
+  async uploadProfileImage(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient<{ imageUrl: string }>('/usuarios/profile/image', {
+      method: 'POST',
+      body: formData,
+    });
   },
 };
