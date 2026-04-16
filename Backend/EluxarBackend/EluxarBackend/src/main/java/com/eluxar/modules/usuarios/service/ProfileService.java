@@ -1,6 +1,5 @@
 package com.eluxar.modules.usuarios.service;
 
-import com.eluxar.exception.ResourceNotFoundException;
 import com.eluxar.modules.usuarios.dto.ProfileUpdateRequest;
 import com.eluxar.modules.usuarios.entity.Usuario;
 import com.eluxar.modules.usuarios.repository.UsuarioRepository;

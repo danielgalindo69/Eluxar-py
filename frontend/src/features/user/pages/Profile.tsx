@@ -51,6 +51,7 @@ export const Profile = () => {
     if (!validatePassword()) return;
     setIsSaving(true);
     try {
+      //hay que implementar la recuperacion de contraseña
       await authAPI.changePassword(passwordData.oldPassword, passwordData.newPassword);
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordChange(false);
