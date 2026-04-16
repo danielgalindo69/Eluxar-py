@@ -110,6 +110,27 @@ export const authAPI = {
     localStorage.removeItem('eluxar_user');
     return { success: true };
   },
+  async googleLogin(credential: string) {
+    const data = await apiClient<any>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ token: credential }),
+    });
+
+    if (data.token) {
+      localStorage.setItem('eluxar_token', data.token);
+      const user = {
+        id: String(data.userId),
+        name: data.nombre,
+        email: data.email,
+        role: data.rol,
+        token: data.token,
+        pictureUrl: data.pictureUrl ?? null,
+      };
+      localStorage.setItem('eluxar_user', JSON.stringify(user));
+      return user;
+    }
+    throw new Error('Google login failed: No token received');
+  },
   // Keep mocks for things not yet in backend
   async forgotPassword(_email: string) {
     return { success: true, message: 'Se ha enviado un enlace de recuperación a tu correo.' };

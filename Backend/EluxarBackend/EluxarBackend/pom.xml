@@ -24,6 +24,12 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+
 		<!-- ================================ -->
 		<!-- SPRING CORE                      -->
 		<!-- ================================ -->
@@ -52,9 +58,11 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<!-- Google API Client - for GoogleIdTokenVerifier (no client_secret needed) -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>2.4.0</version>
 		</dependency>
 
 		<!-- JWT - terceros, no está en Initializr -->

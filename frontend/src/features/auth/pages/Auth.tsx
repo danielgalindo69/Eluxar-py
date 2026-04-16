@@ -3,13 +3,14 @@ import { useState } from "react";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
+import { GoogleLogin } from "@react-oauth/google";
 
 export const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { login, isLoading } = useAuth();
+  const { login, loginWithGoogle, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const validate = () => {
@@ -30,6 +31,20 @@ export const Auth = () => {
       navigate('/');
     } catch {
       toast.error('Credenciales incorrectas');
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) {
+      toast.error('Error al obtener credencial de Google');
+      return;
+    }
+    try {
+      await loginWithGoogle(credentialResponse.credential);
+      toast.success('¡Bienvenido a Eluxar!');
+      navigate('/');
+    } catch {
+      toast.error('Error al iniciar sesión con Google');
     }
   };
 
@@ -102,9 +117,18 @@ export const Auth = () => {
            </div>
 
            <div className="flex flex-col space-y-4">
-              <button className="w-full border border-[#EDEDED] py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#EDEDED] transition-colors flex items-center justify-center space-x-3">
-                 <span>Acceder con Google</span>
-              </button>
+              {/* Google Login — reemplaza el botón placeholder */}
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error('Error al iniciar sesión con Google')}
+                  theme="outline"
+                  shape="rectangular"
+                  text="signin_with"
+                  locale="es"
+                  width={400}
+                />
+              </div>
            </div>
         </div>
       </div>

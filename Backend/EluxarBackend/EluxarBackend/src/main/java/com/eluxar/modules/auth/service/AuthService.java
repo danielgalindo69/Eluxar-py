@@ -35,6 +35,10 @@ public class AuthService {
             throw new LockedException("Cuenta bloqueada. Contacta al administrador.");
         }
 
+        if (usuario.getPasswordHash() == null) {
+            throw new BadCredentialsException("Esta cuenta usa Google. Inicia sesión con Google.");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
             int intentos = usuario.getIntentosFallidos() + 1;
             usuario.setIntentosFallidos(intentos);

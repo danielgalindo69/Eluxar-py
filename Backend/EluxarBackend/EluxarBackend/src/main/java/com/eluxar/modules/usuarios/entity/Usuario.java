@@ -27,8 +27,15 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String passwordHash;
+
+    @Column(columnDefinition = "VARCHAR(20) NOT NULL DEFAULT 'LOCAL'")
+    @Builder.Default
+    private String provider = "LOCAL"; // LOCAL or GOOGLE
+
+    @Column(length = 500)
+    private String pictureUrl;
 
     @Column(nullable = false)
     @Builder.Default
