@@ -132,9 +132,23 @@ export const authAPI = {
     }
     throw new Error('Google login failed: No token received');
   },
-  // Keep mocks for things not yet in backend
-  async forgotPassword(_email: string) {
-    return { success: true, message: 'Se ha enviado un enlace de recuperación a tu correo.' };
+  async forgotPassword(email: string) {
+    return apiClient<any>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+  async verifyResetCode(email: string, code: string) {
+    return apiClient<any>('/auth/verify-reset-code', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+  },
+  async resetPassword(email: string, code: string, newPassword: string) {
+    return apiClient<any>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, code, newPassword }),
+    });
   },
   async updateProfile(data: { name?: string; email?: string; phone?: string }) {
     return apiClient<any>('/usuarios/perfil', {
