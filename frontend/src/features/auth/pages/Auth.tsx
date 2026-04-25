@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
@@ -27,7 +27,7 @@ export const Auth = () => {
     if (!validate()) return;
     try {
       await login(email, password);
-      toast.success('¡Bienvenido a Eluxar!');
+      toast.success('¡Bienvenido a Eluxar!', { duration: 1500 });
       navigate('/');
     } catch {
       toast.error('Credenciales incorrectas');
@@ -41,7 +41,7 @@ export const Auth = () => {
     }
     try {
       await loginWithGoogle(credentialResponse.credential);
-      toast.success('¡Bienvenido a Eluxar!');
+      toast.success('¡Bienvenido a Eluxar!', { duration: 1500 });
       navigate('/');
     } catch {
       toast.error('Error al iniciar sesión con Google');
@@ -57,17 +57,6 @@ export const Auth = () => {
            <p className="text-[#2B2B2B]/40 text-[10px] uppercase tracking-[0.2em] font-bold">
              Accede a tu perfil exclusivo de Eluxar
            </p>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="bg-[#EDEDED] p-6 space-y-3">
-          <p className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F]">Credenciales Demo</p>
-          <div className="grid grid-cols-1 gap-2 text-[11px] text-[#2B2B2B]/60">
-            <p><strong>Admin:</strong> admin@eluxar.com</p>
-            <p><strong>Empleado:</strong> empleado@eluxar.com</p>
-            <p><strong>Cliente:</strong> cualquier@correo.com</p>
-            <p className="text-[10px] text-[#2B2B2B]/30 italic">Contraseña: cualquier valor</p>
-          </div>
         </div>
 
         {/* Form */}
@@ -125,7 +114,6 @@ export const Auth = () => {
                   theme="outline"
                   shape="rectangular"
                   text="signin_with"
-                  locale="es"
                   width={400}
                 />
               </div>

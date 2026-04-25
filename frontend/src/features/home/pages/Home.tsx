@@ -6,11 +6,20 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { Product } from "../../products/types/products";
 import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
+import { toast } from "sonner";
 
 
 export const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    toast.success('¡Suscripción confirmada! Bienvenido al Eluxar Journal.');
+    setNewsletterEmail('');
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -170,10 +179,10 @@ export const Home = () => {
            <p className="text-[#2B2B2B]/60 text-base mb-10 font-light max-w-lg mx-auto">
              Acceso exclusivo a nuevos lanzamientos y notas técnicas de perfumería.
            </p>
-           <div className="flex w-full max-w-md border-b border-[#111111] pb-2">
-              <input type="email" placeholder="Correo electrónico" className="flex-1 bg-transparent border-none outline-none text-sm font-light uppercase tracking-widest" />
-              <button className="text-[10px] uppercase tracking-widest font-bold">Unirse</button>
-           </div>
+           <form onSubmit={handleNewsletter} className="flex w-full max-w-md border-b border-[#111111] pb-2">
+              <input type="email" value={newsletterEmail} onChange={e => setNewsletterEmail(e.target.value)} placeholder="Correo electrónico" className="flex-1 bg-transparent border-none outline-none text-sm font-light uppercase tracking-widest" />
+              <button type="submit" className="text-[10px] uppercase tracking-widest font-bold hover:text-[#3A4A3F] transition-colors">Unirse</button>
+           </form>
          </div>
       </section>
     </main>

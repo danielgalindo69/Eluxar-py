@@ -1,26 +1,10 @@
 import { Link } from "react-router";
-import { PRODUCTS } from "../../products/types/products";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Trash2, Plus, Minus, ArrowRight, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useCart } from "../context/CartContext";
 
 export const Cart = () => {
-  // Mock cart items
-  const [cartItems, setCartItems] = useState([
-    { ...PRODUCTS[0], quantity: 1 },
-    { ...PRODUCTS[2], quantity: 1 }
-  ]);
-
-  const updateQuantity = (id: string, delta: number) => {
-    setCartItems(prev => prev.map(item => 
-      item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-    ));
-  };
-
-  const subtotal = cartItems.reduce((acc, item) => {
-    const price = parseFloat(item.price.replace("€", ""));
-    return acc + (price * item.quantity);
-  }, 0);
+  const { items, removeItem, updateQuantity, subtotal } = useCart();
 
   return (
     <main className="pt-32 pb-24 bg-white min-h-screen px-6">
@@ -30,7 +14,7 @@ export const Cart = () => {
         <div className="flex flex-col lg:flex-row gap-20">
           {/* List Section */}
           <div className="flex-1 space-y-12">
-            {cartItems.length > 0 ? (
+            {items.length > 0 ? (
               <>
                 <div className="hidden md:grid grid-cols-6 border-b border-[#EDEDED] pb-6 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/40">
                   <div className="col-span-3">Producto</div>
@@ -39,16 +23,19 @@ export const Cart = () => {
                   <div className="text-right">Total</div>
                 </div>
 
-                {cartItems.map((item) => (
-                  <div key={item.id} className="grid grid-cols-1 md:grid-cols-6 gap-6 items-center border-b border-[#EDEDED] pb-12">
+                {items.map((item) => (
+                  <div key={`${item.productId}-${item.volume}`} className="grid grid-cols-1 md:grid-cols-6 gap-6 items-center border-b border-[#EDEDED] pb-12">
                     <div className="col-span-3 flex items-center space-x-6">
-                       <div className="w-24 aspect-square bg-[#EDEDED] overflow-hidden">
+                       <div className="w-24 aspect-square bg-[#EDEDED] overflow-hidden shrink-0">
                           <ImageWithFallback src={item.image} alt={item.name} className="w-full h-full object-cover" />
                        </div>
                        <div className="space-y-1">
                           <h3 className="text-sm font-bold uppercase tracking-widest">{item.name}</h3>
-                          <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">{item.type} | {item.specs.volume}</p>
-                          <button className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 hover:text-[#111111] pt-2 flex items-center space-x-2">
+                          <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">{item.type} | {item.volume}</p>
+                          <button
+                            onClick={() => removeItem(item.productId, item.volume)}
+                            className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 hover:text-red-500 pt-2 flex items-center space-x-2 transition-colors"
+                          >
                              <Trash2 size={12} />
                              <span>Eliminar</span>
                           </button>
@@ -57,14 +44,24 @@ export const Cart = () => {
 
                     <div className="flex justify-center">
                        <div className="flex items-center space-x-4 border border-[#EDEDED] px-3 py-1">
-                          <button onClick={() => updateQuantity(item.id, -1)} className="text-[#2B2B2B]/40 hover:text-[#111111]"><Minus size={12} /></button>
+                          <button
+                            onClick={() => updateQuantity(item.productId, item.volume, item.quantity - 1)}
+                            className="text-[#2B2B2B]/40 hover:text-[#111111] transition-colors"
+                          >
+                            <Minus size={12} />
+                          </button>
                           <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, 1)} className="text-[#2B2B2B]/40 hover:text-[#111111]"><Plus size={12} /></button>
+                          <button
+                            onClick={() => updateQuantity(item.productId, item.volume, item.quantity + 1)}
+                            className="text-[#2B2B2B]/40 hover:text-[#111111] transition-colors"
+                          >
+                            <Plus size={12} />
+                          </button>
                        </div>
                     </div>
 
-                    <div className="hidden md:block text-right text-xs font-bold">{item.price}</div>
-                    <div className="text-right text-sm font-bold">{(parseFloat(item.price.replace("€", "")) * item.quantity).toFixed(2)}€</div>
+                    <div className="hidden md:block text-right text-xs font-bold">{item.price.toFixed(2)}€</div>
+                    <div className="text-right text-sm font-bold">{(item.price * item.quantity).toFixed(2)}€</div>
                   </div>
                 ))}
 
@@ -75,14 +72,14 @@ export const Cart = () => {
             ) : (
               <div className="text-center py-20 space-y-6">
                  <p className="text-[#2B2B2B]/40 text-sm font-light uppercase tracking-widest">Tu bolsa está vacía</p>
-                 <Link to="/catalog" className="inline-block bg-[#111111] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold">Explorar Colección</Link>
+                 <Link to="/catalog" className="inline-block bg-[#111111] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] transition-colors">Explorar Colección</Link>
               </div>
             )}
           </div>
 
           {/* Summary Section */}
           <div className="w-full lg:w-[400px]">
-             <div className="bg-[#EDEDED] p-10 space-y-10">
+             <div className="bg-[#EDEDED] p-10 space-y-10 sticky top-32">
                 <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] mb-8">Resumen del Pedido</h3>
                 
                 <div className="space-y-6">
@@ -105,7 +102,10 @@ export const Cart = () => {
                 </div>
 
                 <div className="space-y-4">
-                   <Link to="/checkout" className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5">
+                   <Link
+                     to={items.length > 0 ? "/checkout" : "#"}
+                     className={`w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 ${items.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
+                   >
                       <span>Tramitar Pedido</span>
                       <ArrowRight size={14} />
                    </Link>
@@ -120,7 +120,7 @@ export const Cart = () => {
                    <h4 className="text-[10px] uppercase tracking-widest font-bold mb-4">¿Tienes un código?</h4>
                    <div className="flex border-b border-[#2B2B2B]/20 pb-2">
                       <input type="text" placeholder="INTRODUCIR CÓDIGO" className="bg-transparent border-none outline-none text-[10px] w-full font-bold uppercase placeholder:text-[#2B2B2B]/20" />
-                      <button className="text-[10px] font-bold hover:text-[#3A4A3F]">Aplicar</button>
+                      <button className="text-[10px] font-bold hover:text-[#3A4A3F] transition-colors">Aplicar</button>
                    </div>
                 </div>
              </div>

@@ -156,6 +156,12 @@ export const authAPI = {
       body: JSON.stringify(data),
     });
   },
+  async changePassword(oldPassword: string, newPassword: string) {
+    return apiClient<any>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+  },
 };
 
 // ─── Products ────────────────────────────────────────────────

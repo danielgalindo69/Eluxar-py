@@ -1,10 +1,36 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { ChevronRight, ShieldCheck, Truck, CreditCard } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "../../cart/context/CartContext";
+import { useAuth } from "../../auth/context/AuthContext";
 
 export const Checkout = () => {
   const [activeStep, setActiveStep] = useState(1);
+  const { items, subtotal, clearCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: '',
+    city: '',
+    zip: '',
+    province: '',
+    country: 'España',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleFinishOrder = () => {
+    clearCart();
+    navigate('/order-confirmation');
+  };
 
   return (
     <main className="pt-24 pb-24 bg-white min-h-screen px-6">
@@ -21,8 +47,6 @@ export const Checkout = () => {
               <span className={activeStep >= 2 ? "text-[#111111]" : ""}>Dirección</span>
               <ChevronRight size={12} strokeWidth={3} />
               <span className={activeStep >= 3 ? "text-[#111111]" : ""}>Pago</span>
-              <ChevronRight size={12} strokeWidth={3} />
-              <span className={activeStep >= 4 ? "text-[#111111]" : ""}>Confirmación</span>
            </div>
 
            {/* Step 1: Personal Information */}
@@ -33,24 +57,24 @@ export const Checkout = () => {
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Nombre</label>
-                     <input type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="firstName" value={formData.firstName} onChange={handleChange} type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Apellidos</label>
-                     <input type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="lastName" value={formData.lastName} onChange={handleChange} type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="md:col-span-2 flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Correo Electrónico</label>
-                     <input type="email" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="email" value={formData.email} onChange={handleChange} type="email" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="md:col-span-2 flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Teléfono</label>
-                     <input type="tel" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                </div>
 
                <div className="pt-10 flex items-center justify-between border-t border-[#EDEDED]">
-                  <Link to="/cart" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 hover:text-[#111111]">
+                  <Link to="/cart" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 hover:text-[#111111] transition-colors">
                      Volver al Carrito
                   </Link>
                   <button onClick={() => setActiveStep(2)} className="bg-[#111111] text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5">
@@ -68,33 +92,35 @@ export const Checkout = () => {
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="md:col-span-2 flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Dirección</label>
-                     <input type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="address" value={formData.address} onChange={handleChange} type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Ciudad</label>
-                     <input type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="city" value={formData.city} onChange={handleChange} type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Código Postal</label>
-                     <input type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="zip" value={formData.zip} onChange={handleChange} type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Provincia</label>
-                     <input type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
+                     <input name="province" value={formData.province} onChange={handleChange} type="text" className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all" />
                   </div>
                   <div className="flex flex-col space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">País</label>
-                     <select className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all appearance-none cursor-pointer">
+                     <select name="country" value={formData.country} onChange={handleChange} className="bg-[#EDEDED] border-none outline-none p-4 text-sm font-medium focus:ring-1 focus:ring-[#3A4A3F] transition-all appearance-none cursor-pointer">
                         <option>España</option>
                         <option>Francia</option>
                         <option>Portugal</option>
                         <option>Italia</option>
+                        <option>Alemania</option>
+                        <option>Reino Unido</option>
                      </select>
                   </div>
                </div>
 
                <div className="pt-10 flex items-center justify-between border-t border-[#EDEDED]">
-                  <button onClick={() => setActiveStep(1)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 hover:text-[#111111]">
+                  <button onClick={() => setActiveStep(1)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 hover:text-[#111111] transition-colors">
                      Anterior
                   </button>
                   <button onClick={() => setActiveStep(3)} className="bg-[#111111] text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5">
@@ -149,27 +175,9 @@ export const Checkout = () => {
                      <ShieldCheck size={14} />
                      <span>Pago 100% Seguro</span>
                   </div>
-                  <button onClick={() => setActiveStep(4)} className="bg-[#111111] text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5">
+                  <button onClick={handleFinishOrder} className="bg-[#111111] text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5">
                      Finalizar Compra
                   </button>
-               </div>
-             </div>
-           )}
-
-           {/* Step 4: Confirmation */}
-           {activeStep === 4 && (
-             <div className="space-y-12 text-center">
-               <div className="w-20 h-20 rounded-full bg-[#3A4A3F] mx-auto flex items-center justify-center">
-                  <ShieldCheck size={40} className="text-white" />
-               </div>
-               <h2 className="text-3xl font-light text-[#111111] tracking-tight">Pedido Confirmado</h2>
-               <p className="text-sm text-[#2B2B2B]/60 max-w-md mx-auto">
-                  Gracias por tu compra. Recibirás un correo de confirmación con los detalles de tu pedido y el seguimiento de envío.
-               </p>
-               <div className="pt-8">
-                  <Link to="/catalog" className="inline-block bg-[#111111] text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5">
-                     Volver a la Tienda
-                  </Link>
                </div>
              </div>
            )}
@@ -181,36 +189,30 @@ export const Checkout = () => {
               <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] mb-8">Pedido Eluxar</h3>
               
               <div className="space-y-6">
-                 <div className="flex space-x-4">
-                    <div className="w-16 aspect-square bg-white shrink-0 overflow-hidden">
-                       <ImageWithFallback src="https://images.unsplash.com/photo-1760920250029-36af9369a0bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwZXJmdW1lJTIwYm90dGxlJTIwd2hpdGUlMjBzdHVkaW8lMjBwaG90b2dyYXBoeXxlbnwxfHx8fDE3NzE3MTg3OTl8MA" alt="item" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                       <div className="flex justify-between items-start">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest">Santal & Bergamot</h4>
-                          <span className="text-[10px] font-bold">185.00€</span>
+                {items.length > 0 ? (
+                  items.map((item) => (
+                    <div key={`${item.productId}-${item.volume}`} className="flex space-x-4">
+                       <div className="w-16 aspect-square bg-white shrink-0 overflow-hidden">
+                          <ImageWithFallback src={item.image} alt={item.name} className="w-full h-full object-cover" />
                        </div>
-                       <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">Extrait de Parfum | 100ml</p>
-                    </div>
-                 </div>
-                 <div className="flex space-x-4">
-                    <div className="w-16 aspect-square bg-white shrink-0 overflow-hidden">
-                       <ImageWithFallback src="https://images.unsplash.com/photo-1646069762371-132db4250a74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuaWNoZSUyMHBlcmZ1bWUlMjBib3R0bGUlMjBncmV5JTIwYmFja2dyb3VuZHxlbnwxfHx8fDE3NzE3MTg3OTl8MA" alt="item" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                       <div className="flex justify-between items-start">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest">Iris Concrete</h4>
-                          <span className="text-[10px] font-bold">155.00€</span>
+                       <div className="flex-1 flex flex-col justify-between py-1">
+                          <div className="flex justify-between items-start">
+                             <h4 className="text-[10px] font-bold uppercase tracking-widest">{item.name}</h4>
+                             <span className="text-[10px] font-bold">{(item.price * item.quantity).toFixed(2)}€</span>
+                          </div>
+                          <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">{item.type} | {item.volume} × {item.quantity}</p>
                        </div>
-                       <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">Pure Oil | 50ml</p>
                     </div>
-                 </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-[#2B2B2B]/40 font-light">Tu bolsa está vacía.</p>
+                )}
               </div>
 
               <div className="pt-8 border-t border-[#2B2B2B]/10 space-y-4">
                  <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold">
                     <span>Subtotal</span>
-                    <span>340.00€</span>
+                    <span>{subtotal.toFixed(2)}€</span>
                  </div>
                  <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold">
                     <span>Envío</span>
@@ -218,7 +220,7 @@ export const Checkout = () => {
                  </div>
                  <div className="pt-6 border-t border-[#2B2B2B]/10 flex justify-between items-end">
                     <span className="text-[10px] uppercase tracking-widest font-bold">Total</span>
-                    <span className="text-2xl font-light tracking-tight">340.00€</span>
+                    <span className="text-2xl font-light tracking-tight">{subtotal.toFixed(2)}€</span>
                  </div>
               </div>
 

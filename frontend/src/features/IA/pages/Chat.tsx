@@ -23,12 +23,17 @@ export const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isFirstRender = useRef(true);
 
-  const scrollToBottom = () => {
+  useEffect(() => {
+    // Skip scroll on the initial mount — only scroll when the conversation
+    // is active (user sent a message or bot is typing/replied).
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => { scrollToBottom(); }, [messages, isTyping]);
+  }, [messages, isTyping]);
 
   const handleSend = async () => {
     if (!input.trim()) return;

@@ -37,7 +37,7 @@ export const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Link to="/catalog" className="bg-[#111111] text-white px-10 py-4 text-sm uppercase tracking-widest hover:bg-[#3A4A3F] transition-colors duration-300">
+            <Link to="/fragrance-test" className="bg-[#111111] text-white px-10 py-4 text-sm uppercase tracking-widest hover:bg-[#3A4A3F] transition-colors duration-300">
               Descubre tu aroma con IA
             </Link>
             <Link to="/catalog" className="border border-[#111111] text-[#111111] px-10 py-4 text-sm uppercase tracking-widest hover:bg-[#111111] hover:text-white transition-all duration-300 flex items-center group">

@@ -129,9 +129,11 @@ export const Navbar = () => {
 
           <Link to="/cart" className="text-[#2B2B2B] hover:opacity-60 transition-opacity relative">
             <ShoppingBag size={20} strokeWidth={1.5} />
-            <span className="absolute -top-1 -right-1 bg-[#3A4A3F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-              {itemCount}
-            </span>
+            {itemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#3A4A3F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                {itemCount}
+              </span>
+            )}
           </Link>
         </div>
       </div>

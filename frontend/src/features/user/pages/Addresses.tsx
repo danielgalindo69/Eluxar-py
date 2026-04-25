@@ -138,32 +138,34 @@ export const Addresses = () => {
         <AnimatePresence>
           {isFormOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-6">
-              <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="bg-white w-full max-w-lg p-10 space-y-8 relative">
+              <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="bg-white w-full max-w-lg p-8 space-y-6 relative max-h-[90vh] overflow-y-auto">
                 <button onClick={closeForm} className="absolute top-4 right-4 text-[#2B2B2B]/40 hover:text-[#111111]"><X size={20} /></button>
                 <h2 className="text-lg font-light text-[#111111] tracking-tight">{editingId ? 'Editar Dirección' : 'Nueva Dirección'}</h2>
 
-                {[
-                  { key: 'label', label: 'Nombre (ej: Casa, Oficina)', placeholder: 'Casa' },
-                  { key: 'street', label: 'Calle y Número', placeholder: 'Calle Mayor 10, 3ºA' },
-                  { key: 'city', label: 'Ciudad', placeholder: 'Madrid' },
-                  { key: 'state', label: 'Provincia/Estado', placeholder: 'Madrid' },
-                  { key: 'zip', label: 'Código Postal', placeholder: '28001' },
-                  { key: 'country', label: 'País', placeholder: 'España' },
-                ].map(field => (
-                  <div key={field.key} className="flex flex-col space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">{field.label}</label>
-                    <div className="border-b border-[#2B2B2B]/20 py-2 focus-within:border-[#111111] transition-colors">
-                      <input type="text" value={(formData as any)[field.key]}
-                        onChange={e => { setFormData(prev => ({ ...prev, [field.key]: e.target.value })); if (errors[field.key]) setErrors(prev => { const n = { ...prev }; delete n[field.key]; return n; }); }}
-                        placeholder={field.placeholder}
-                        className="bg-transparent border-none outline-none w-full text-sm font-medium placeholder:text-[#2B2B2B]/20" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  {[
+                    { key: 'label', label: 'Nombre (ej: Casa)', placeholder: 'Casa', col: 'col-span-full' },
+                    { key: 'street', label: 'Calle y Número', placeholder: 'Calle Mayor 10, 3ºA', col: 'col-span-full' },
+                    { key: 'city', label: 'Ciudad', placeholder: 'Madrid', col: '' },
+                    { key: 'state', label: 'Provincia/Estado', placeholder: 'Madrid', col: '' },
+                    { key: 'zip', label: 'Código Postal', placeholder: '28001', col: '' },
+                    { key: 'country', label: 'País', placeholder: 'España', col: '' },
+                  ].map(field => (
+                    <div key={field.key} className={`flex flex-col space-y-1 ${field.col}`}>
+                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">{field.label}</label>
+                      <div className="border-b border-[#2B2B2B]/20 py-1.5 focus-within:border-[#111111] transition-colors">
+                        <input type="text" value={(formData as any)[field.key]}
+                          onChange={e => { setFormData(prev => ({ ...prev, [field.key]: e.target.value })); if (errors[field.key]) setErrors(prev => { const n = { ...prev }; delete n[field.key]; return n; }); }}
+                          placeholder={field.placeholder}
+                          className="bg-transparent border-none outline-none w-full text-sm font-medium placeholder:text-[#2B2B2B]/20" />
+                      </div>
+                      {errors[field.key] && <span className="text-red-500 text-[10px] uppercase tracking-widest mt-1">{errors[field.key]}</span>}
                     </div>
-                    {errors[field.key] && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors[field.key]}</span>}
-                  </div>
-                ))}
+                  ))}
+                </div>
 
                 <button onClick={handleSave}
-                  className="w-full bg-[#111111] text-white py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all">
+                  className="w-full bg-[#111111] text-white py-4 mt-2 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all">
                   {editingId ? 'Actualizar Dirección' : 'Guardar Dirección'}
                 </button>
               </motion.div>

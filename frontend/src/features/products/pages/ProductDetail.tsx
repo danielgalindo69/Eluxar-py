@@ -1,17 +1,22 @@
-import { useParams, Link } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import { Product } from "../types/products";
 import { productsAPI } from "../../../core/api/api";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
-import { Plus, Minus, ArrowLeft, Share2, Loader2 } from "lucide-react";
+import { Plus, Minus, ArrowLeft, Share2, Loader2, ShoppingBag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useCart } from "../../cart/context/CartContext";
+import { toast } from "sonner";
 
 export const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("details");
 
   useEffect(() => {
@@ -32,6 +37,27 @@ export const ProductDetail = () => {
 
     fetchProduct();
   }, [id]);
+
+  const selectedVariant = product?.variants?.[selectedVariantIndex];
+  const currentPrice = selectedVariant?.price ?? parseFloat((product?.price ?? '0').replace('€', ''));
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addItem({
+      productId: product.id,
+      name: product.name,
+      type: product.type,
+      image: product.image,
+      volume: selectedVariant?.volume ?? product.specs.volume,
+      price: currentPrice,
+    }, quantity);
+    toast.success(`${product.name} añadido a la bolsa`, {
+      action: {
+        label: 'Ver bolsa',
+        onClick: () => navigate('/cart'),
+      },
+    });
+  };
 
   if (isLoading) return (
     <div className="pt-40 pb-24 flex flex-col items-center justify-center space-y-4">
@@ -91,7 +117,9 @@ export const ProductDetail = () => {
              <div className="space-y-4">
                 <span className="text-[10px] uppercase tracking-[0.4em] text-[#3A4A3F] font-bold">{product.type}</span>
                 <h1 className="text-4xl md:text-5xl font-light text-[#111111] tracking-tight">{product.name}</h1>
-                <p className="text-xl text-[#2B2B2B] font-medium tracking-tight">{product.price}</p>
+                <p className="text-xl text-[#2B2B2B] font-medium tracking-tight">
+                  {currentPrice.toFixed(2)}€
+                </p>
              </div>
 
              <p className="text-[#2B2B2B]/60 text-base font-light leading-relaxed">
@@ -119,33 +147,64 @@ export const ProductDetail = () => {
 
              {/* Purchase Actions */}
              <div className="space-y-6 pt-6">
-                <div className="flex items-center space-x-12">
+                {/* Variant Selector */}
+                {product.variants && product.variants.length > 1 && (
+                  <div className="flex flex-col space-y-3">
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Formato</span>
+                    <div className="flex flex-wrap gap-3">
+                      {product.variants.map((variant, idx) => (
+                        <button
+                          key={variant.volume}
+                          onClick={() => setSelectedVariantIndex(idx)}
+                          className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border transition-all ${
+                            selectedVariantIndex === idx
+                              ? 'border-[#111111] bg-[#111111] text-white'
+                              : 'border-[#EDEDED] hover:border-[#111111] text-[#2B2B2B]'
+                          }`}
+                        >
+                          {variant.volume} — {variant.price.toFixed(2)}€
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Single variant display */}
+                {(!product.variants || product.variants.length <= 1) && (
+                  <div className="flex flex-col space-y-3">
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Formato</span>
+                    <div className="border border-[#111111] px-4 py-2 text-center text-xs uppercase tracking-widest font-bold w-fit">
+                      {product.specs.volume}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-6">
                    <div className="flex flex-col space-y-3">
                       <span className="text-[10px] uppercase tracking-widest font-bold">Cantidad</span>
                       <div className="flex items-center space-x-6 border border-[#EDEDED] px-4 py-2">
-                         <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-[#2B2B2B]/40 hover:text-[#111111]"><Minus size={14} /></button>
+                         <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-[#2B2B2B]/40 hover:text-[#111111] transition-colors"><Minus size={14} /></button>
                          <span className="text-sm font-medium w-4 text-center">{quantity}</span>
-                         <button onClick={() => setQuantity(quantity + 1)} className="text-[#2B2B2B]/40 hover:text-[#111111]"><Plus size={14} /></button>
-                      </div>
-                   </div>
-                   <div className="flex flex-col space-y-3 flex-1">
-                      <span className="text-[10px] uppercase tracking-widest font-bold">Formato</span>
-                      <div className="border border-[#111111] px-4 py-2 text-center text-xs uppercase tracking-widest font-bold">
-                         {product.specs.volume}
+                         <button onClick={() => setQuantity(quantity + 1)} className="text-[#2B2B2B]/40 hover:text-[#111111] transition-colors"><Plus size={14} /></button>
                       </div>
                    </div>
                 </div>
 
-                <button className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all duration-300 shadow-lg shadow-black/5">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleAddToCart}
+                  className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all duration-300 shadow-lg shadow-black/5 flex items-center justify-center gap-3"
+                >
+                   <ShoppingBag size={16} strokeWidth={1.5} />
                    Añadir a la Bolsa
-                </button>
+                </motion.button>
                 
                 <p className="text-center text-[10px] uppercase tracking-[0.1em] text-[#2B2B2B]/40 font-bold">
                    Envío express gratuito en toda la colección
                 </p>
              </div>
 
-             {/* Technical Details Accordion-like */}
+             {/* Technical Details Tabs */}
              <div className="border-t border-[#EDEDED] pt-10">
                 <div className="flex space-x-8 border-b border-[#EDEDED] mb-8">
                    <button 
@@ -178,8 +237,8 @@ export const ProductDetail = () => {
                             <span className="text-xs uppercase tracking-widest font-bold">25% Aceite Puro</span>
                          </div>
                          <div className="flex flex-col space-y-1">
-                            <span className="text-[10px] text-[#2B2B2B]/40 uppercase tracking-widest font-bold">Ingredientes</span>
-                            <span className="text-xs uppercase tracking-widest font-bold underline cursor-pointer hover:text-[#3A4A3F]">Ver Lista</span>
+                            <span className="text-[10px] text-[#2B2B2B]/40 uppercase tracking-widest font-bold">Familia Olfativa</span>
+                            <span className="text-xs uppercase tracking-widest font-bold">{product.olfactoryFamily || '—'}</span>
                          </div>
                       </div>
                    ) : (

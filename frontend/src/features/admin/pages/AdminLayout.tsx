@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link, Outlet, useLocation, Navigate } from "react-router";
+import { Link, Outlet, useLocation, Navigate, useNavigate } from "react-router";
 import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Tag, DollarSign, Megaphone, Menu, X } from "lucide-react";
 import { useAuth } from '../../auth/context/AuthContext';
+import { ScrollToTop } from '../../../shared/components/ScrollToTop';
 
 export const AdminLayout = () => {
-  const { user, hasRole, isLoading } = useAuth();
+  const { user, hasRole, isLoading, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
@@ -31,8 +33,14 @@ export const AdminLayout = () => {
     return location.pathname.startsWith(path);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-[#EDEDED] font-sans text-[#2B2B2B] antialiased flex">
+      <ScrollToTop />
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-[#EDEDED] z-50 flex items-center justify-between p-4">
         <Link to="/" className="text-lg font-light tracking-[0.3em] uppercase text-[#111111]">Eluxar</Link>
@@ -75,10 +83,13 @@ export const AdminLayout = () => {
         </nav>
 
         <div className="p-4 border-t border-[#EDEDED]">
-          <Link to="/" className="flex items-center gap-3 px-4 py-3 text-sm text-[#2B2B2B] hover:bg-[#EDEDED] transition-colors">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
+          >
             <LogOut size={18} strokeWidth={1.5} />
-            <span className="uppercase tracking-widest text-[10px] font-bold">Salir</span>
-          </Link>
+            <span className="uppercase tracking-widest text-[10px] font-bold">Cerrar Sesión</span>
+          </button>
         </div>
       </aside>
 

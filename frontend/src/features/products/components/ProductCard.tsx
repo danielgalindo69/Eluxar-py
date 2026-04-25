@@ -1,8 +1,10 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Product } from "../types/products";
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useCart } from "../../cart/context/CartContext";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +12,27 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { addItem } = useCart();
+  const navigate = useNavigate();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const defaultVariant = product.variants?.[0];
+    addItem({
+      productId: product.id,
+      name: product.name,
+      type: product.type,
+      image: product.image,
+      volume: defaultVariant?.volume ?? product.specs.volume,
+      price: defaultVariant?.price ?? parseFloat(product.price.replace('€', '')),
+    });
+    toast.success(`${product.name} añadido a la bolsa`, {
+      action: {
+        label: 'Ver bolsa',
+        onClick: () => navigate('/cart'),
+      },
+    });
+  };
 
   return (
     <div 
@@ -27,10 +50,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           
           <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
             <button 
-              onClick={(e) => {
-                e.preventDefault();
-                // Add to cart logic here
-              }}
+              onClick={handleAddToCart}
               className="w-full bg-white text-[#111111] py-3 text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#111111] hover:text-white transition-colors duration-300 border border-[#111111]"
             >
               <Plus size={14} />

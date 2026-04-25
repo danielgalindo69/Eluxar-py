@@ -27,7 +27,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+const SESSION_TIMEOUT = 60 * 60 * 1000; // 60 minutes
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -40,6 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('eluxar_user');
+    localStorage.removeItem('eluxar_token');
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   }, []);
 
