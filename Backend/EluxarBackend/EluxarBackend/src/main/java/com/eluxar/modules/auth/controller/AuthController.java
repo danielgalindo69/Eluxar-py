@@ -1,11 +1,14 @@
 package com.eluxar.modules.auth.controller;
 
 import com.eluxar.common.ApiResponse;
+import com.eluxar.modules.auth.dto.ForgotPasswordRequest;
 import com.eluxar.modules.auth.dto.GoogleAuthRequest;
 import com.eluxar.modules.auth.dto.GoogleAuthResponse;
 import com.eluxar.modules.auth.dto.LoginRequest;
 import com.eluxar.modules.auth.dto.LoginResponse;
 import com.eluxar.modules.auth.dto.RegisterRequest;
+import com.eluxar.modules.auth.dto.ResetPasswordRequest;
+import com.eluxar.modules.auth.dto.VerifyCodeRequest;
 import com.eluxar.modules.auth.service.AuthService;
 import com.eluxar.modules.auth.service.GoogleTokenVerifierService;
 import com.eluxar.modules.auth.service.PasswordResetService;
@@ -67,7 +70,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     @Operation(summary = "Solicitar código de restablecimiento de contraseña")
-    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody com.eluxar.modules.auth.dto.ForgotPasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         passwordResetService.generateAndSendResetCode(request.getEmail());
         // Siempre respondemos con éxito para prevenir enumeración de usuarios
         return ResponseEntity.ok(ApiResponse.success("Si el email está registrado, se ha enviado un código de recuperación.", null));
@@ -75,14 +78,14 @@ public class AuthController {
 
     @PostMapping("/verify-reset-code")
     @Operation(summary = "Verificar código ingresado para recuperar contraseña")
-    public ResponseEntity<ApiResponse<Void>> verifyResetCode(@Valid @RequestBody com.eluxar.modules.auth.dto.VerifyCodeRequest request) {
+    public ResponseEntity<ApiResponse<Void>> verifyResetCode(@Valid @RequestBody VerifyCodeRequest request) {
         passwordResetService.verifyCode(request.getEmail(), request.getCode());
         return ResponseEntity.ok(ApiResponse.success("Código verificado exitosamente", null));
     }
 
     @PostMapping("/reset-password")
     @Operation(summary = "Establecer la nueva contraseña con un código válido")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody com.eluxar.modules.auth.dto.ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         passwordResetService.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword());
         return ResponseEntity.ok(ApiResponse.success("Contraseña actualizada exitosamente", null));
     }

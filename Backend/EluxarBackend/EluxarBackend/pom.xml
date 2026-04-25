@@ -113,16 +113,10 @@
 		</dependency>
 
 		<!-- ================================ -->
-		<!-- EMAIL                            -->
+		<!-- EMAIL (Resend via HTTP)          -->
 		<!-- ================================ -->
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-
-		<!-- Freemarker para templates HTML de emails -->
-		<!-- Reemplaza Thymeleaf ya que el frontend es React -->
+		<!-- Freemarker: renderiza el template HTML antes de enviarlo via Resend API -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-freemarker</artifactId>
