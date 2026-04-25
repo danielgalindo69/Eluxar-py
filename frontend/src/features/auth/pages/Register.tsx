@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -44,11 +44,11 @@ export const Register = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center px-6 pt-32 pb-24">
+    <main className="min-h-screen bg-white dark:bg-[#161616] flex items-center justify-center px-6 pt-32 pb-24">
       <div className="max-w-md w-full space-y-12">
         <div className="text-center space-y-4">
-          <h1 className="text-3xl font-light text-[#111111] tracking-tight uppercase tracking-[0.3em]">Crear Cuenta</h1>
-          <p className="text-[#2B2B2B]/40 text-[10px] uppercase tracking-[0.2em] font-bold">
+          <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight uppercase tracking-[0.3em]">Crear Cuenta</h1>
+          <p className="text-[#2B2B2B]/40 dark:text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">
             Únete a la experiencia exclusiva de alta perfumería
           </p>
         </div>
@@ -57,19 +57,19 @@ export const Register = () => {
           {/* Name & Last Name */}
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col space-y-2">
-              <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Nombre</label>
-              <div className="relative border-b border-[#2B2B2B]/20 py-2 group focus-within:border-[#111111] transition-colors">
-                <User className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111]" size={16} />
-                <input type="text" value={formData.firstName} onChange={(e) => update('firstName', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm font-medium pr-10" />
+              <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Nombre</label>
+              <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
+                <User className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111] dark:text-white" size={16} />
+                <input type="text" value={formData.firstName} onChange={(e) => update('firstName', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
               </div>
               {errors.firstName && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.firstName}</span>}
             </div>
 
             <div className="flex flex-col space-y-2">
-              <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Apellido</label>
-              <div className="relative border-b border-[#2B2B2B]/20 py-2 group focus-within:border-[#111111] transition-colors">
-                <User className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111]" size={16} />
-                <input type="text" value={formData.lastName} onChange={(e) => update('lastName', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm font-medium pr-10" />
+              <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Apellido</label>
+              <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
+                <User className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111] dark:text-white" size={16} />
+                <input type="text" value={formData.lastName} onChange={(e) => update('lastName', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
               </div>
               {errors.lastName && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.lastName}</span>}
             </div>
@@ -77,37 +77,37 @@ export const Register = () => {
 
           {/* Email */}
           <div className="flex flex-col space-y-2">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Correo Electrónico</label>
-            <div className="relative border-b border-[#2B2B2B]/20 py-2 group focus-within:border-[#111111] transition-colors">
-              <Mail className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111]" size={16} />
-              <input type="email" value={formData.email} onChange={(e) => update('email', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm font-medium pr-10" />
+            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Correo Electrónico</label>
+            <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
+              <Mail className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111] dark:text-white" size={16} />
+              <input type="email" value={formData.email} onChange={(e) => update('email', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
             </div>
             {errors.email && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.email}</span>}
           </div>
 
           {/* Password */}
           <div className="flex flex-col space-y-2">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Contraseña</label>
-            <div className="relative border-b border-[#2B2B2B]/20 py-2 group focus-within:border-[#111111] transition-colors">
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111]">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Contraseña</label>
+            <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-              <input type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => update('password', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm font-medium pr-10" />
+              <input type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => update('password', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
             </div>
             {errors.password && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.password}</span>}
             <div className="flex gap-1 mt-1">
-              {[1,2,3,4].map(i => (
-                <div key={i} className={`h-0.5 flex-1 transition-colors ${formData.password.length >= i * 3 ? 'bg-[#3A4A3F]' : 'bg-[#EDEDED]'}`} />
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className={`h-0.5 flex-1 transition-colors ${formData.password.length >= i * 3 ? 'bg-[#3A4A3F]' : 'bg-[#EDEDED] dark:bg-white/5'}`} />
               ))}
             </div>
           </div>
 
           {/* Confirm Password */}
           <div className="flex flex-col space-y-2">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Confirmar Contraseña</label>
-            <div className="relative border-b border-[#2B2B2B]/20 py-2 group focus-within:border-[#111111] transition-colors">
-              <Lock className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111]" size={16} />
-              <input type="password" value={formData.confirmPassword} onChange={(e) => update('confirmPassword', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm font-medium pr-10" />
+            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Confirmar Contraseña</label>
+            <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
+              <Lock className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111] dark:text-white" size={16} />
+              <input type="password" value={formData.confirmPassword} onChange={(e) => update('confirmPassword', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
             </div>
             {errors.confirmPassword && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.confirmPassword}</span>}
           </div>
@@ -115,12 +115,12 @@ export const Register = () => {
           {/* Terms */}
           <div className="flex items-start space-x-3">
             <button type="button" onClick={() => { setAcceptTerms(!acceptTerms); if (errors.terms) setErrors(prev => { const n = { ...prev }; delete n.terms; return n; }); }}
-              className={`w-5 h-5 border flex items-center justify-center mt-0.5 shrink-0 transition-colors ${acceptTerms ? 'bg-[#111111] border-[#111111]' : 'border-[#2B2B2B]/20'}`}
+              className={`w-5 h-5 border flex items-center justify-center mt-0.5 shrink-0 transition-colors ${acceptTerms ? 'bg-[#111111] border-[#111111]' : 'border-[#2B2B2B]/20 dark:border-white/20'}`}
             >
               {acceptTerms && <Check size={12} className="text-white" />}
             </button>
-            <span className="text-[11px] text-[#2B2B2B]/60 leading-relaxed">
-              Acepto los <a href="#" className="underline hover:text-[#111111]">Términos y Condiciones</a> y la <a href="#" className="underline hover:text-[#111111]">Política de Privacidad</a> de Eluxar.
+            <span className="text-[11px] text-[#2B2B2B]/60 dark:text-white/60 leading-relaxed">
+              Acepto los <a href="#" className="underline hover:text-[#111111] dark:text-white">Términos y Condiciones</a> y la <a href="#" className="underline hover:text-[#111111] dark:text-white">Política de Privacidad</a> de Eluxar.
             </span>
           </div>
           {errors.terms && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.terms}</span>}
@@ -133,8 +133,8 @@ export const Register = () => {
           </button>
         </form>
 
-        <div className="text-center pt-8 border-t border-[#EDEDED]">
-          <Link to="/auth" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 hover:text-[#111111] transition-colors">
+        <div className="text-center pt-8 border-t border-[#EDEDED] dark:border-white/8">
+          <Link to="/auth" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white transition-colors">
             ¿Ya tienes cuenta? Inicia sesión
           </Link>
         </div>

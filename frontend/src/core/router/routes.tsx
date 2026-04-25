@@ -35,11 +35,11 @@ import { Images } from "../../features/admin/pages/Images";
 import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
 import { NotFound } from "../../features/shared/pages/NotFound";
 import { ScrollToTop } from "../../shared/components/ScrollToTop";
-import React from "react";
+
 
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-white font-sans text-[#2B2B2B] antialiased selection:bg-[#3A4A3F] selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white">
       <ScrollToTop />
       <Navbar />
       <Outlet />

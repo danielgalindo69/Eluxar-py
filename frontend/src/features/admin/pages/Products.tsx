@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Search, Loader2, X, Package, Tag, Hash, Image as ImageIcon, Sparkles } from "lucide-react";
+﻿import React, { useState, useEffect } from "react";
+import { Plus, Edit2, Trash2, Search, Loader2, X, Package, Image as ImageIcon, Sparkles } from "lucide-react";
 import { productsAPI, categoriesAPI, brandsAPI } from "../../../core/api/api";
 import { Product } from "../../products/types/products";
 import { toast } from "sonner";
@@ -47,8 +47,8 @@ export const Products = () => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-light text-[#111111] tracking-tight">Gestión de Productos</h1>
-          <p className="text-sm text-[#2B2B2B]/60 mt-2">Administra el catálogo de perfumes</p>
+          <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Productos</h1>
+          <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra el catálogo de perfumes</p>
         </div>
         <button 
           onClick={() => {
@@ -63,21 +63,21 @@ export const Products = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white border border-[#EDEDED] p-4">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40" size={20} strokeWidth={1.5} />
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={20} strokeWidth={1.5} />
           <input
             type="text"
             placeholder="Buscar productos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[#EDEDED] border-none outline-none text-sm"
+            className="w-full pl-12 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 focus:bg-white dark:focus:bg-[#111111] transition-all"
           />
         </div>
       </div>
 
       {/* Products Table */}
-      <div className="bg-white border border-[#EDEDED]">
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
@@ -87,42 +87,47 @@ export const Products = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[#EDEDED] bg-[#EDEDED]">
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] px-6 py-4">Imagen</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] px-6 py-4">Nombre</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] px-6 py-4">Tipo</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] px-6 py-4">Precio</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] px-6 py-4">Stock</th>
-                  <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] px-6 py-4">Acciones</th>
+                <tr className="border-b border-[#EDEDED] dark:border-white/8 bg-[#EDEDED] dark:bg-white/5">
+                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Imagen</th>
+                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Nombre</th>
+                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Tipo</th>
+                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Precio</th>
+                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Stock</th>
+                  <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map((product) => (
-                    <tr key={product.id} className="border-b border-[#EDEDED] hover:bg-[#EDEDED]/30 transition-colors">
-                      <td className="px-6 py-4">
-                        <img src={product.image} alt={product.name} className="w-12 h-12 object-cover" />
+                    <tr key={product.id} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-2">
+                        <img src={product.image} alt={product.name} className="w-10 h-10 object-cover" />
                       </td>
-                      <td className="px-6 py-4 text-sm text-[#2B2B2B]">{product.name}</td>
-                      <td className="px-6 py-4 text-sm text-[#2B2B2B]/60">{product.type}</td>
-                      <td className="px-6 py-4 text-sm text-[#2B2B2B] font-bold">{product.price}</td>
-                      <td className="px-6 py-4">
-                        <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? 'text-[#3A4A3F]' : 'text-red-500'}`}>
-                          {product.stock > 0 ? `En stock (${product.stock})` : 'Sin stock'}
-                        </span>
+                      <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white/80">{product.name}</td>
+                      <td className="px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40">{product.type}</td>
+                      <td className="px-4 py-2 text-sm text-[#2B2B2B] font-bold">{product.price}</td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                          <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? 'text-[#3A4A3F]' : 'text-red-500'}`}>
+                            {product.stock > 0 ? `En stock (${product.stock})` : 'Sin stock'}
+                          </span>
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button 
+                            title="Editar Producto"
                             onClick={() => {
                               setEditingProduct(product);
                               setIsModalOpen(true);
                             }}
-                            className="p-2 hover:bg-[#EDEDED] transition-colors"
+                            className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors"
                           >
                             <Edit2 size={16} className="text-[#2B2B2B]" strokeWidth={1.5} />
                           </button>
                           <button 
+                            title="Eliminar Producto"
                             onClick={() => handleDelete(product.id)}
                             className="p-2 hover:bg-red-50 transition-colors"
                           >
@@ -232,7 +237,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[#111111]/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-2xl shadow-2xl border border-[#EDEDED] overflow-hidden">
+      <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-2xl shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden">
         <div className="bg-[#3A4A3F] p-6 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
              <div className="w-8 h-8 bg-white/10 flex items-center justify-center">

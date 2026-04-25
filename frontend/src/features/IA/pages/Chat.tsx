@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Bot, User } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
@@ -61,16 +61,16 @@ export const Chat = () => {
   const quickActions = ['Perfumes para hombre', 'Perfumes para mujer', 'Quiero un regalo', 'Larga duración'];
 
   return (
-    <main className="pt-24 bg-white min-h-screen flex flex-col">
+    <main className="pt-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen flex flex-col">
       <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col px-6">
         {/* Header */}
-        <div className="py-8 border-b border-[#EDEDED]">
+        <div className="py-8 border-b border-[#EDEDED] dark:border-white/8 dark:border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#3A4A3F] flex items-center justify-center">
               <Sparkles size={18} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-light text-[#111111] tracking-tight">Asistente Eluxar</h1>
+              <h1 className="text-lg font-light text-[#111111] dark:text-white tracking-tight">Asistente Eluxar</h1>
               <p className="text-[10px] uppercase tracking-widest text-[#3A4A3F] font-bold">Asesoría de fragancias IA</p>
             </div>
           </div>
@@ -88,9 +88,9 @@ export const Chat = () => {
                     <Bot size={14} className="text-white" />
                   </div>
                 )}
-                <div className={`max-w-[75%] ${msg.role === 'user' ? 'bg-[#111111] text-white p-5' : 'bg-[#EDEDED] p-5'}`}>
-                  <p className="text-sm font-light leading-relaxed">{msg.text}</p>
-                  <p className={`text-[9px] mt-3 uppercase tracking-widest ${msg.role === 'user' ? 'text-white/40' : 'text-[#2B2B2B]/30'}`}>
+                <div className={`max-w-[75%] ${msg.role === 'user' ? 'bg-[#111111] dark:bg-[#3A4A3F] text-white p-5' : 'bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] p-5'}`}>
+                  <p className="text-sm font-light leading-relaxed dark:text-white">{msg.text}</p>
+                  <p className={`text-[9px] mt-3 uppercase tracking-widest ${msg.role === 'user' ? 'text-white/40' : 'text-[#2B2B2B] dark:text-[#EDEDED]/30 dark:text-white/30'}`}>
                     {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -109,7 +109,7 @@ export const Chat = () => {
               <div className="w-8 h-8 bg-[#3A4A3F] flex items-center justify-center shrink-0">
                 <Bot size={14} className="text-white" />
               </div>
-              <div className="bg-[#EDEDED] p-5 flex items-center gap-1">
+              <div className="bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] p-5 flex items-center gap-1">
                 <span className="w-2 h-2 bg-[#2B2B2B]/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <span className="w-2 h-2 bg-[#2B2B2B]/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-2 h-2 bg-[#2B2B2B]/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -124,7 +124,7 @@ export const Chat = () => {
           <div className="flex flex-wrap gap-2 mb-4">
             {quickActions.map(action => (
               <button key={action} onClick={() => { setInput(action); inputRef.current?.focus(); }}
-                className="border border-[#EDEDED] px-4 py-2 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 hover:border-[#111111] hover:text-[#111111] transition-colors">
+                className="border border-[#EDEDED] dark:border-white/8 dark:border-white/10 px-4 py-2 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-[#EDEDED]/60 dark:text-white/50 hover:border-[#111111] dark:hover:border-white hover:text-[#111111] dark:text-white dark:hover:text-white transition-colors">
                 {action}
               </button>
             ))}
@@ -132,7 +132,7 @@ export const Chat = () => {
         )}
 
         {/* Input */}
-        <div className="border-t border-[#EDEDED] py-6">
+        <div className="border-t border-[#EDEDED] dark:border-white/8 dark:border-white/10 py-6">
           <div className="flex items-center gap-4">
             <input
               ref={inputRef}
@@ -142,10 +142,10 @@ export const Chat = () => {
               onKeyDown={handleKeyDown}
               placeholder="Escribe tu mensaje..."
               disabled={isTyping}
-              className="flex-1 bg-[#EDEDED] px-6 py-4 text-sm font-light outline-none placeholder:text-[#2B2B2B]/30 disabled:opacity-50"
+              className="flex-1 bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] px-6 py-4 text-sm font-light outline-none text-[#111111] dark:text-white placeholder:text-[#2B2B2B] dark:text-[#EDEDED]/30 dark:placeholder:text-white/30 disabled:opacity-50"
             />
             <button onClick={handleSend} disabled={!input.trim() || isTyping}
-              className="bg-[#111111] text-white p-4 hover:bg-[#3A4A3F] transition-colors disabled:opacity-30">
+              className="bg-[#111111] dark:bg-white dark:bg-[#161616] text-white dark:text-[#111111] dark:text-white  p-4 hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] dark:bg-white/5 transition-colors disabled:opacity-30">
               <Send size={18} />
             </button>
           </div>

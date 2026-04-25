@@ -53,43 +53,43 @@ export const Images = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-light text-[#111111] tracking-tight">Imágenes</h1>
-        <p className="text-sm text-[#2B2B2B]/60 mt-2">Gestión de imágenes por producto</p>
+        <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Imágenes</h1>
+        <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Gestión de imágenes por producto</p>
       </div>
 
       {/* Product Selector */}
       <div className="space-y-2">
-        <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Seleccionar Producto</label>
+        <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Seleccionar Producto</label>
         <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}
-          className="w-full max-w-md bg-white border border-[#EDEDED] px-4 py-3 text-sm outline-none">
+          className="w-full max-w-md bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 text-[#111111] dark:text-white px-4 py-3 text-sm outline-none">
           {PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.name} — {p.brand}</option>)}
         </select>
       </div>
 
       {/* Upload Zone */}
-      <div className={`border-2 border-dashed p-12 text-center transition-colors ${dragOver ? 'border-[#3A4A3F] bg-green-50/30' : 'border-[#EDEDED]'}`}
+      <div className={`border-2 border-dashed p-12 text-center transition-colors ${dragOver ? 'border-[#3A4A3F] bg-green-50/30 dark:bg-[#3A4A3F]/10' : 'border-[#EDEDED] dark:border-white/15'}`}
         onDragOver={e => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={e => { e.preventDefault(); setDragOver(false); handleFileUpload(e.dataTransfer.files); }}
       >
-        <Upload size={32} className="mx-auto text-[#2B2B2B]/20 mb-4" />
-        <p className="text-sm text-[#2B2B2B]/60 font-light mb-2">Arrastra imágenes aquí o</p>
+        <Upload size={32} className="mx-auto text-[#2B2B2B]/20 dark:text-white/20 mb-4" />
+        <p className="text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light mb-2">Arrastra imágenes aquí o</p>
         <label className="inline-block bg-[#111111] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold cursor-pointer hover:bg-[#3A4A3F] transition-colors">
           Seleccionar Archivos
           <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e => handleFileUpload(e.target.files)} className="hidden" />
         </label>
-        <p className="text-[10px] text-[#2B2B2B]/30 mt-4 uppercase tracking-widest">JPEG, PNG o WEBP • Máximo 2MB</p>
+        <p className="text-[10px] text-[#2B2B2B]/30 dark:text-white/30 mt-4 uppercase tracking-widest">JPEG, PNG o WEBP • Máximo 2MB</p>
       </div>
 
       {/* Image Grid */}
       <div>
-        <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#111111] mb-6">
+        <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#111111] dark:text-white mb-6">
           Imágenes de {product?.name} ({selectedImages.length})
         </h2>
         {selectedImages.length === 0 ? (
-          <div className="bg-white border border-[#EDEDED] p-12 text-center">
+          <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
             <ImageIcon size={48} className="mx-auto text-[#2B2B2B]/20 mb-4" />
-            <p className="text-sm text-[#2B2B2B]/40">No hay imágenes para este producto</p>
+            <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">No hay imágenes para este producto</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

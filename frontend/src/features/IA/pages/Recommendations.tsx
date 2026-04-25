@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { aiAPI } from "../../../core/api/api";
 import { PRODUCTS } from "../../products/types/products";
 import { ProductCard } from "../../products/components/ProductCard";
@@ -22,24 +22,24 @@ export const Recommendations = () => {
   }, []);
 
   if (isLoading) return (
-    <main className="pt-32 pb-24 bg-white min-h-screen px-6 flex items-center justify-center">
+    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6 flex items-center justify-center">
       <div className="text-center space-y-4">
         <Sparkles className="mx-auto text-[#3A4A3F] animate-pulse" size={32} />
-        <p className="text-[#2B2B2B]/40 text-sm font-light uppercase tracking-widest">Personalizando tus recomendaciones...</p>
+        <p className="text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/30 text-sm font-light uppercase tracking-widest">Personalizando tus recomendaciones...</p>
       </div>
     </main>
   );
 
   return (
-    <main className="pt-32 pb-24 bg-white min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-6">
             <Sparkles className="text-[#3A4A3F]" size={28} />
-            <h1 className="text-4xl font-light text-[#111111] tracking-tight">Recomendaciones para Ti</h1>
+            <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight">Recomendaciones para Ti</h1>
           </div>
-          <p className="text-sm text-[#2B2B2B]/60 font-light max-w-xl">
+          <p className="text-sm text-[#2B2B2B] dark:text-[#EDEDED]/60 dark:text-white/50 font-light max-w-xl">
             Fragancias seleccionadas especialmente para ti, basadas en tu perfil olfativo y preferencias de compra.
           </p>
         </div>
@@ -56,9 +56,9 @@ export const Recommendations = () => {
               {/* Why Recommended Tooltip */}
               {reasons[product.id] && (
                 <div className="mt-4 relative">
-                  <div className="flex items-start gap-2 bg-[#EDEDED] p-4">
+                  <div className="flex items-start gap-2 bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] p-4">
                     <Info size={14} className="text-[#3A4A3F] shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-[#2B2B2B]/60 font-light leading-relaxed">{reasons[product.id]}</p>
+                    <p className="text-[11px] text-[#2B2B2B] dark:text-[#EDEDED]/60 dark:text-white/50 font-light leading-relaxed">{reasons[product.id]}</p>
                   </div>
                 </div>
               )}
@@ -68,7 +68,7 @@ export const Recommendations = () => {
 
         {/* CTA */}
         <div className="text-center mt-20 space-y-6">
-          <p className="text-sm text-[#2B2B2B]/40 font-light">¿Quieres descubrir más fragancias perfectas para ti?</p>
+          <p className="text-sm text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/40 font-light">¿Quieres descubrir más fragancias perfectas para ti?</p>
           <Link to="/fragrance-test"
             className="inline-flex items-center gap-2 bg-[#3A4A3F] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors">
             <Sparkles size={14} /> Hacer el Test Olfativo
