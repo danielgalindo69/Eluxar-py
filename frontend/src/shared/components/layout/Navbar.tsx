@@ -43,10 +43,7 @@ export const Navbar = () => {
 
   return (
         <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? "bg-white/90 dark:bg-[#111111]/90 backdrop-blur-md py-4 border-b border-[#111111]/5 dark:border-white/5 shadow-sm"
-          : "bg-transparent py-6"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? "bg-white/90 dark:bg-[#111111]/90 backdrop-blur-md py-4 border-[#111111]/5 dark:border-white/5 shadow-sm" : "bg-transparent py-6 border-transparent"}`}
     >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Mobile Menu Button */}
