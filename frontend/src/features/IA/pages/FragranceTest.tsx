@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { aiAPI } from "../../../core/api/api";
 import { PRODUCTS } from "../../products/types/products";
 import { ProductCard } from "../../products/components/ProductCard";
@@ -124,17 +124,24 @@ export const FragranceTest = () => {
               <h2 className="text-2xl font-light text-[#111111] dark:text-white text-center">{currentQuestion.question}</h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {currentQuestion.options.map(option => (
-                  <button key={option} onClick={() => handleAnswer(currentQuestion.id, option)}
-                    className={`p-6 border text-left transition-all ${
-                      answers[currentQuestion.id] === option
-                        ? 'border-[#3A4A3F] bg-[#3A4A3F] text-white'
-                        : 'border-[#EDEDED] dark:border-white/8 dark:border-white/15 hover:border-[#111111] dark:hover:border-white text-[#111111] dark:text-white'
-                    }`}
-                  >
-                    <span className="text-sm uppercase tracking-widest font-bold">{option}</span>
-                  </button>
-                ))}
+                {currentQuestion.options.map(option => {
+                  const isSelected = answers[currentQuestion.id] === option;
+                  return (
+                    <button key={option} onClick={() => handleAnswer(currentQuestion.id, option)}
+                      className={`relative w-full p-6 text-left transition-all duration-300 flex items-center group overflow-hidden ${
+                        isSelected
+                          ? 'bg-[#EDEDED]/30 dark:bg-white/5 border-2 border-[#111111] dark:border-white'
+                          : 'bg-transparent border-2 border-[#EDEDED]/50 dark:border-white/10 hover:border-[#111111]/30 dark:hover:border-white/30 hover:bg-[#EDEDED]/10 dark:hover:bg-white/5'
+                      }`}
+                    >
+                      <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-transform duration-300 origin-left ${isSelected ? 'bg-[#111111] dark:bg-white scale-x-100' : 'bg-transparent scale-x-0'}`} />
+                      
+                      <span className={`text-[15px] transition-all pl-3 ${isSelected ? 'text-[#111111] dark:text-white font-medium translate-x-1' : 'text-[#2B2B2B] dark:text-white/70 font-light group-hover:text-[#111111] dark:group-hover:text-white group-hover:translate-x-1'}`}>
+                        {option}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
           )}

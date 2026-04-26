@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Bot, User } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
@@ -21,19 +21,7 @@ export const Chat = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    // Skip scroll on the initial mount — only scroll when the conversation
-    // is active (user sent a message or bot is typing/replied).
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -116,7 +104,6 @@ export const Chat = () => {
               </div>
             </motion.div>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Quick Actions */}
