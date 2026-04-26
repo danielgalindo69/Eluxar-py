@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { UserPlus, Edit2, Ban } from "lucide-react";
 
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
@@ -6,14 +6,7 @@ const tableWrapClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:
 const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-6 py-4";
 
 export const Users = () => {
-  const users = [
-    { id: "1", name: "Ana García", email: "ana.garcia@example.com", role: "Cliente", joined: "15 Ene 2026", orders: 12 },
-    { id: "2", name: "Carlos López", email: "carlos.lopez@example.com", role: "Cliente", joined: "18 Ene 2026", orders: 8 },
-    { id: "3", name: "María Torres", email: "maria.torres@example.com", role: "Cliente", joined: "22 Ene 2026", orders: 5 },
-    { id: "4", name: "Jorge Ruiz", email: "jorge.ruiz@example.com", role: "Cliente", joined: "02 Feb 2026", orders: 3 },
-    { id: "5", name: "Laura Sanz", email: "laura.sanz@example.com", role: "Cliente", joined: "05 Feb 2026", orders: 7 },
-    { id: "6", name: "Pedro Martín", email: "pedro.martin@example.com", role: "Admin", joined: "10 Dic 2025", orders: 0 },
-  ];
+  const users: any[] = [];
 
   return (
     <div className="space-y-8">

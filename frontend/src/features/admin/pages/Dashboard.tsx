@@ -22,12 +22,7 @@ const conversionData = [
 const CHART_COLORS = ['#3A4A3F', '#4A5568'];
 
 export const Dashboard = () => {
-  const stats = [
-    { label: "Ventas totales", value: "€24,580", icon: TrendingUp, change: "+12.5%" },
-    { label: "Pedidos", value: "142", icon: ShoppingCart, change: "+8.2%" },
-    { label: "Productos", value: "48", icon: Package, change: "+4" },
-    { label: "Usuarios", value: "1,248", icon: Users, change: "+24%" },
-  ];
+  const stats: any[] = [];
 
   // Shared tooltip style for dark mode compatibility
   const tooltipStyle = {

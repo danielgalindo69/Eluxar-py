@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, Navigate, useNavigate } from "react-router";
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Tag, DollarSign, Megaphone, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Tag, DollarSign, Megaphone, Menu, X, Sun, Moon } from "lucide-react";
 import { useAuth } from '../../auth/context/AuthContext';
+import { useTheme } from "next-themes";
 import { ScrollToTop } from '../../../shared/components/ScrollToTop';
 
 export const AdminLayout = () => {
@@ -10,6 +11,8 @@ export const AdminLayout = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
   if (!user || !hasRole("ADMIN")) return <Navigate to="/auth" state={{ from: location }} replace />;
@@ -90,7 +93,18 @@ export const AdminLayout = () => {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-[#EDEDED] dark:border-white/8">
+        <div className="p-4 border-t border-[#EDEDED] dark:border-white/8 space-y-2">
+          <button
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            title={isDesktopCollapsed ? (isDark ? "Modo Claro" : "Modo Oscuro") : undefined}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-[#2B2B2B] dark:text-white/70 hover:bg-[#F5F5F5] dark:hover:bg-white/5 transition-colors ${isDesktopCollapsed ? 'lg:justify-center' : ''}`}
+          >
+            {isDark ? <Sun size={18} strokeWidth={1.5} className="shrink-0" /> : <Moon size={18} strokeWidth={1.5} className="shrink-0" />}
+            <span className={`uppercase tracking-widest text-[10px] font-bold whitespace-nowrap transition-opacity duration-300 ${isDesktopCollapsed ? 'lg:opacity-0 lg:hidden' : 'opacity-100'}`}>
+              {isDark ? "Modo Claro" : "Modo Oscuro"}
+            </span>
+          </button>
+          
           <button
             onClick={handleLogout}
             title={isDesktopCollapsed ? "Cerrar Sesión" : undefined}

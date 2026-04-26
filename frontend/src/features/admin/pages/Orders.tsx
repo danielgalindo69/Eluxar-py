@@ -1,4 +1,4 @@
-import { Eye, Download } from "lucide-react";
+﻿import { Eye, Download } from "lucide-react";
 
 // Shared dark-compatible class strings
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
@@ -8,16 +8,7 @@ const tdClass = "px-4 py-2 text-sm text-[#2B2B2B] dark:text-white/80";
 const tdMutedClass = "px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40";
 
 export const Orders = () => {
-  const orders = [
-    { id: "#1247", date: "22 Feb 2026", client: "Ana García", product: "Santal & Bergamot", total: "€185.00", status: "Enviado" },
-    { id: "#1246", date: "22 Feb 2026", client: "Carlos López", product: "Oud Marine", total: "€210.00", status: "Procesando" },
-    { id: "#1245", date: "21 Feb 2026", client: "María Torres", product: "Iris Concrete", total: "€155.00", status: "Entregado" },
-    { id: "#1244", date: "21 Feb 2026", client: "Jorge Ruiz", product: "Black Amber", total: "€195.00", status: "Enviado" },
-    { id: "#1243", date: "20 Feb 2026", client: "Laura Sanz", product: "Santal & Bergamot", total: "€185.00", status: "Entregado" },
-    { id: "#1242", date: "20 Feb 2026", client: "Pedro Martín", product: "Oud Marine", total: "€210.00", status: "Entregado" },
-    { id: "#1241", date: "19 Feb 2026", client: "Isabel Castro", product: "Iris Concrete", total: "€155.00", status: "Cancelado" },
-    { id: "#1240", date: "19 Feb 2026", client: "Miguel Ángel", product: "Black Amber", total: "€195.00", status: "Enviado" },
-  ];
+  const orders: any[] = [];
 
   return (
     <div className="space-y-8">

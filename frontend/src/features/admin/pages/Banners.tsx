@@ -106,9 +106,9 @@ export const Banners = () => {
       <AnimatePresence>
         {showForm && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="bg-white dark:bg-[#1A1A1A] w-full max-w-lg p-10 space-y-6 relative">
+            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 shadow-2xl w-full max-w-lg p-10 space-y-6 relative">
               <button onClick={closeForm} className="absolute top-4 right-4 text-[#2B2B2B]/40 hover:text-[#111111]"><X size={20} /></button>
-              <h2 className="text-lg font-light">{editingId ? 'Editar Banner' : 'Nuevo Banner'}</h2>
+              <h2 className="text-lg font-light text-[#111111] dark:text-white tracking-tight">{editingId ? 'Editar Banner' : 'Nuevo Banner'}</h2>
 
               {[
                 { key: 'title', label: 'Título', placeholder: 'Nombre del banner' },
@@ -116,17 +116,16 @@ export const Banners = () => {
                 { key: 'link', label: 'Enlace', placeholder: '/catalog' },
               ].map(f => (
                 <div key={f.key} className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">{f.label}</label>
-                  <input type="text" value={(formData as any)[f.key]} onChange={e => setFormData(p => ({ ...p, [f.key]: e.target.value }))}
-                    placeholder={f.placeholder} className="w-full border border-[#EDEDED] px-4 py-3 text-sm outline-none" />
-                </div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">{f.label}</label>
+                  <div className="border-b border-[#2B2B2B]/20 dark:border-white/20 py-1.5 focus-within:border-[#111111] dark:focus-within:border-white transition-colors"><input type="text" value={(formData as any)[f.key]} onChange={e => setFormData(p => ({ ...p, [f.key]: e.target.value }))}
+                    placeholder={f.placeholder} className="bg-transparent border-none outline-none w-full text-sm text-[#111111] dark:text-white font-medium placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/20" /></div></div>
               ))}
 
               {formData.imageUrl && (
                 <div className="h-40 bg-[#EDEDED] overflow-hidden"><img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" /></div>
               )}
 
-              <button onClick={handleSave} className="w-full bg-[#111111] text-white py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F]">
+              <button onClick={handleSave} className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-4 mt-6 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#2B2B2B] dark:hover:bg-[#E5E5E5] transition-all">
                 {editingId ? 'Actualizar' : 'Crear Banner'}
               </button>
             </motion.div>

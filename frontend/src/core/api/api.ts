@@ -1,4 +1,4 @@
-import { Product } from '../../features/products/types/products';
+﻿import { Product } from '../../features/products/types/products';
 
 const API_BASE = '/api';
 
@@ -206,10 +206,7 @@ export interface Address {
   isDefault: boolean;
 }
 
-const mockAddresses: Address[] = [
-  { id: '1', label: 'Casa', street: 'Calle del Perfume 42', city: 'Madrid', state: 'Madrid', zip: '28001', country: 'España', isDefault: true },
-  { id: '2', label: 'Oficina', street: 'Av. de la Fragancia 15', city: 'Barcelona', state: 'Cataluña', zip: '08002', country: 'España', isDefault: false },
-];
+const mockAddresses: Address[] = [];
 
 export const addressAPI = {
   async getAll() { await delay(300); return [...mockAddresses]; },
@@ -254,31 +251,7 @@ export interface Order {
   trackingNumber?: string;
 }
 
-export const MOCK_ORDERS: Order[] = [
-  {
-    id: 'ORD-2026-1247', date: '2026-03-15', status: 'Enviado',
-    items: [{ productId: '1', name: 'Santal & Bergamot', image: '', volume: '100ml', quantity: 1, price: 185 }],
-    total: 185, address: 'Calle del Perfume 42, Madrid', paymentMethod: 'Visa ****4242', trackingNumber: 'ES123456789',
-  },
-  {
-    id: 'ORD-2026-1246', date: '2026-03-12', status: 'Entregado',
-    items: [
-      { productId: '2', name: 'Oud Marine', image: '', volume: '100ml', quantity: 1, price: 210 },
-      { productId: '3', name: 'Iris Concrete', image: '', volume: '50ml', quantity: 2, price: 155 },
-    ],
-    total: 520, address: 'Av. de la Fragancia 15, Barcelona', paymentMethod: 'Mastercard ****8821',
-  },
-  {
-    id: 'ORD-2026-1245', date: '2026-03-10', status: 'Procesando',
-    items: [{ productId: '4', name: 'Black Amber', image: '', volume: '100ml', quantity: 1, price: 195 }],
-    total: 195, address: 'Calle del Perfume 42, Madrid', paymentMethod: 'PayPal',
-  },
-  {
-    id: 'ORD-2026-1244', date: '2026-03-05', status: 'Entregado',
-    items: [{ productId: '1', name: 'Santal & Bergamot', image: '', volume: '50ml', quantity: 1, price: 125 }],
-    total: 125, address: 'Calle del Perfume 42, Madrid', paymentMethod: 'Visa ****4242',
-  },
-];
+export const MOCK_ORDERS: Order[] = [];
 
 export const ordersAPI = {
   async getAll() { await delay(); return [...MOCK_ORDERS]; },
@@ -298,13 +271,7 @@ export interface InventoryMovement {
   notes: string;
 }
 
-export const MOCK_INVENTORY: InventoryMovement[] = [
-  { id: '1', productId: '1', productName: 'Santal & Bergamot', type: 'Entrada', quantity: 50, date: '2026-03-15', user: 'Admin', notes: 'Lote nuevo proveedor Francia' },
-  { id: '2', productId: '2', productName: 'Oud Marine', type: 'Salida', quantity: 5, date: '2026-03-14', user: 'Admin', notes: 'Venta online' },
-  { id: '3', productId: '3', productName: 'Iris Concrete', type: 'Entrada', quantity: 30, date: '2026-03-13', user: 'Empleado1', notes: 'Reposición almacén' },
-  { id: '4', productId: '4', productName: 'Black Amber', type: 'Salida', quantity: 12, date: '2026-03-12', user: 'Admin', notes: 'Pedidos acumulados' },
-  { id: '5', productId: '1', productName: 'Santal & Bergamot', type: 'Salida', quantity: 3, date: '2026-03-11', user: 'Empleado1', notes: 'Muestra showroom' },
-];
+export const MOCK_INVENTORY: InventoryMovement[] = [];
 
 export const inventoryAPI = {
   async getMovements() { await delay(); return [...MOCK_INVENTORY]; },
@@ -350,12 +317,7 @@ export interface Payment {
   date: string;
 }
 
-export const MOCK_PAYMENTS: Payment[] = [
-  { id: 'PAY-001', orderId: 'ORD-2026-1247', client: 'Ana García', amount: 185, method: 'Visa ****4242', status: 'Confirmado', date: '2026-03-15' },
-  { id: 'PAY-002', orderId: 'ORD-2026-1246', client: 'Carlos López', amount: 520, method: 'Mastercard ****8821', status: 'Confirmado', date: '2026-03-12' },
-  { id: 'PAY-003', orderId: 'ORD-2026-1245', client: 'María Torres', amount: 195, method: 'PayPal', status: 'Pendiente', date: '2026-03-10' },
-  { id: 'PAY-004', orderId: 'ORD-2026-1244', client: 'Jorge Ruiz', amount: 125, method: 'Visa ****1234', status: 'Rechazado', date: '2026-03-05' },
-];
+export const MOCK_PAYMENTS: Payment[] = [];
 
 export const paymentsAPI = {
   async getAll() { await delay(); return [...MOCK_PAYMENTS]; },
@@ -375,11 +337,7 @@ export interface Shipment {
   estimatedDelivery: string;
 }
 
-export const MOCK_SHIPMENTS: Shipment[] = [
-  { id: 'SHP-001', orderId: 'ORD-2026-1247', client: 'Ana García', address: 'Calle del Perfume 42, Madrid', carrier: 'DHL Express', trackingNumber: 'ES123456789', status: 'En tránsito', date: '2026-03-15', estimatedDelivery: '2026-03-18' },
-  { id: 'SHP-002', orderId: 'ORD-2026-1246', client: 'Carlos López', address: 'Av. de la Fragancia 15, Barcelona', carrier: 'SEUR', trackingNumber: 'ES987654321', status: 'Entregado', date: '2026-03-12', estimatedDelivery: '2026-03-14' },
-  { id: 'SHP-003', orderId: 'ORD-2026-1245', client: 'María Torres', address: 'Gran Vía 100, Valencia', carrier: 'Correos Express', trackingNumber: 'ES456789123', status: 'Preparando', date: '2026-03-10', estimatedDelivery: '2026-03-17' },
-];
+export const MOCK_SHIPMENTS: Shipment[] = [];
 
 export const shippingAPI = {
   async getAll() { await delay(); return [...MOCK_SHIPMENTS]; },
@@ -396,11 +354,7 @@ export interface Banner {
   order: number;
 }
 
-export const MOCK_BANNERS: Banner[] = [
-  { id: '1', title: 'Nueva Colección Primavera', imageUrl: 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1200', link: '/catalog', active: true, order: 1 },
-  { id: '2', title: 'Test Olfativo IA', imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1200', link: '/fragrance-test', active: true, order: 2 },
-  { id: '3', title: 'Envío Gratis', imageUrl: 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1200', link: '/catalog', active: false, order: 3 },
-];
+export const MOCK_BANNERS: Banner[] = [];
 
 export const bannersAPI = {
   async getAll() { await delay(); return [...MOCK_BANNERS]; },
