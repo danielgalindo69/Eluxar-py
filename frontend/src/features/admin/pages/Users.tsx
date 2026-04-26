@@ -1,5 +1,4 @@
-﻿import React from "react";
-import { UserPlus, Edit2, Ban } from "lucide-react";
+﻿import { UserPlus, Edit2, Ban } from "lucide-react";
 
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
 const tableWrapClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
