@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { PRODUCTS } from "../../products/types/products";
-import { Upload, Trash2, ImageIcon, X, Sparkles, Loader2 } from "lucide-react";
+import { Upload, Trash2, ImageIcon, Sparkles, Loader2, CheckCircle2, ChevronDown } from "lucide-react";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { aiAPI } from "../../../core/api/api";

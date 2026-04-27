@@ -81,6 +81,7 @@ public class ImageIaService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
         headers.set("Accept", "application/json");
+        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -122,6 +123,7 @@ public class ImageIaService {
         headers.set("Authorization", "Bearer " + apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Accept", "application/json");
+        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
         String prompt = "luxury black background, soft shadows, golden reflections, cinematic lighting";
         if (estilo != null && !estilo.trim().isEmpty()) {
