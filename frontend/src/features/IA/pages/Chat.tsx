@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Send, Sparkles, Bot, User } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
