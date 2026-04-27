@@ -1,5 +1,4 @@
-﻿import React from "react";
-import { Package, ShoppingCart, Users, TrendingUp, DollarSign, BarChart3, Target } from "lucide-react";
+﻿import { DollarSign, BarChart3, Target } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 
 const salesData = [
