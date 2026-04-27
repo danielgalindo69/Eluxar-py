@@ -1,4 +1,4 @@
-﻿import { Product } from '../../features/products/types/products';
+import { Product } from '../../features/products/types/products';
 
 const API_BASE = '/api';
 
@@ -25,8 +25,9 @@ async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promis
   if (response.status === 204) return {} as T;
 
   const result = await response.json();
-  // Backend wraps responses in ApiResponse { status, message, data }
-  return result.data as T;
+  // Backend might wrap responses in ApiResponse { status, message, data }
+  // or return the data directly
+  return result.data !== undefined ? result.data : result;
 }
 
 // ─── Mappers ─────────────────────────────────────────────────
@@ -169,6 +170,20 @@ export const productsAPI = {
   async getAll(params?: any) {
     const query = params ? `?${new URLSearchParams(params)}` : '';
     const dtos = await apiClient<any[]>(`/productos${query}`);
+    if (!dtos || dtos.length === 0) {
+      return [
+        { id: '1', name: 'Acqua Di Gio', type: 'EDT', price: '95€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Fragancia fresca, marina y cítrica. Ideal para el día a día y la oficina.', brand: 'Armani', gender: 'Masculino', olfactoryFamily: 'Acuática', category: 'Perfume', variants: [], stock: 10, notes: { top: 'Marina', heart: 'Cítrico', base: 'Madera' }, specs: { volume: '100ml', longevity: 'Media', sillage: 'Moderado' } },
+        { id: '2', name: 'La Vie Est Belle', type: 'EDP', price: '120€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Perfume muy dulce, con notas de praliné, vainilla y flores. Perfecto para salidas de noche.', brand: 'Lancome', gender: 'Femenino', olfactoryFamily: 'Dulce', category: 'Perfume', variants: [], stock: 5, notes: { top: 'Praliné', heart: 'Vainilla', base: 'Flores' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '3', name: 'Sauvage Dior', type: 'EDP', price: '110€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma amaderado y especiado. Muy versátil y masculino, proyecta mucha seguridad.', brand: 'Dior', gender: 'Masculino', olfactoryFamily: 'Amaderada', category: 'Perfume', variants: [], stock: 8, notes: { top: 'Pimienta', heart: 'Bergamota', base: 'Madera' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '4', name: 'CK One', type: 'EDT', price: '50€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma cítrico, ligero y unisex. Excelente para clima caluroso o gimnasio.', brand: 'Calvin Klein', gender: 'Unisex', olfactoryFamily: 'Cítrica', category: 'Perfume', variants: [], stock: 15, notes: { top: 'Limón', heart: 'Té verde', base: 'Almizcle' }, specs: { volume: '200ml', longevity: 'Media', sillage: 'Ligero' } },
+        { id: '5', name: 'Bleu de Chanel', type: 'EDP', price: '135€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Fragancia elegante, amaderada y cítrica. Perfecta para el hombre moderno, uso en oficina o eventos formales.', brand: 'Chanel', gender: 'Masculino', olfactoryFamily: 'Amaderada', category: 'Perfume', variants: [], stock: 12, notes: { top: 'Cítricos', heart: 'Gengibre', base: 'Cedro' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '6', name: 'Baccarat Rouge 540', type: 'EDP', price: '250€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma lujoso de ámbar y madera. Unisex, dulce y extremadamente duradero. Llama la atención en eventos especiales.', brand: 'Maison Francis Kurkdjian', gender: 'Unisex', olfactoryFamily: 'Ámbar', category: 'Perfume', variants: [], stock: 3, notes: { top: 'Azafrán', heart: 'Jazmín', base: 'Ámbar Gris' }, specs: { volume: '70ml', longevity: 'Muy Alta', sillage: 'Intenso' } },
+        { id: '7', name: 'Black Orchid', type: 'EDP', price: '160€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Misteriosa, oscura y floral especiada. Unisex, ideal para personalidades atrevidas y noches frías.', brand: 'Tom Ford', gender: 'Unisex', olfactoryFamily: 'Oriental', category: 'Perfume', variants: [], stock: 7, notes: { top: 'Trufa', heart: 'Orquídea', base: 'Chocolate Oscuro' }, specs: { volume: '100ml', longevity: 'Muy Alta', sillage: 'Fuerte' } },
+        { id: '8', name: 'Coco Mademoiselle', type: 'EDP', price: '145€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Floral y oriental. Elegante, femenina y sofisticada. Versátil para el trabajo y citas románticas.', brand: 'Chanel', gender: 'Femenino', olfactoryFamily: 'Floral', category: 'Perfume', variants: [], stock: 9, notes: { top: 'Naranja', heart: 'Rosa', base: 'Pachulí' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Moderado' } },
+        { id: '9', name: 'YSL Y', type: 'EDP', price: '125€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Fresco, afrutado y con un toque de madera. Juvenil y energético, excelente para salidas nocturnas y uso casual.', brand: 'Yves Saint Laurent', gender: 'Masculino', olfactoryFamily: 'Aromática', category: 'Perfume', variants: [], stock: 11, notes: { top: 'Manzana', heart: 'Salvia', base: 'Haba Tonka' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '10', name: 'Good Girl', type: 'EDP', price: '115€', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma seductor y dulce con notas de haba tonka y cacao. Perfecto para mujeres empoderadas en eventos nocturnos.', brand: 'Carolina Herrera', gender: 'Femenino', olfactoryFamily: 'Oriental', category: 'Perfume', variants: [], stock: 14, notes: { top: 'Almendra', heart: 'Jazmín', base: 'Cacao' }, specs: { volume: '80ml', longevity: 'Alta', sillage: 'Fuerte' } }
+      ] as Product[];
+    }
     return dtos.map(mapProductoDTOToProduct);
   },
   async getById(id: string) {
@@ -411,18 +426,13 @@ export const brandsAPI = {
 // ─── AI (mock) ───────────────────────────────────────────────
 export const aiAPI = {
   async getFragranceTestQuestions() {
-    await delay(300);
-    return [
-      { id: 1, question: '¿Qué estación del año te inspira más?', options: ['Primavera', 'Verano', 'Otoño', 'Invierno'] },
-      { id: 2, question: '¿Cuál es tu ambiente ideal?', options: ['Jardín florido', 'Bosque de montaña', 'Playa al atardecer', 'Biblioteca antigua'] },
-      { id: 3, question: '¿Qué intensidad prefieres?', options: ['Sutil e íntima', 'Moderada y versátil', 'Intensa y envolvente', 'Poderosa y duradera'] },
-      { id: 4, question: '¿Para qué ocasión buscas fragancia?', options: ['Día a día', 'Oficina elegante', 'Cena romántica', 'Evento especial'] },
-      { id: 5, question: '¿Qué ingrediente te atrae más?', options: ['Cítricos frescos', 'Flores delicadas', 'Maderas profundas', 'Especias orientales'] },
-    ];
+    return apiClient<any[]>('/ia/test-preguntas');
   },
-  async submitFragranceTest(_answers: Record<number, string>) {
-    await delay(1500);
-    return { recommendedProductIds: ['1', '4', '2'] };
+  async submitFragranceTest(answers: Record<number, string>) {
+    return apiClient<any>('/ia/test-analizar', {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+    });
   },
   async getRecommendations() {
     await delay(800);
@@ -434,15 +444,46 @@ export const aiAPI = {
     }};
   },
   async chatMessage(message: string) {
-    await delay(1200);
-    const responses: Record<string, string> = {
-      default: '¡Gracias por tu pregunta! Como asesor de fragancias de Eluxar, te recomiendo explorar nuestra colección de Extrait de Parfum para una experiencia olfativa premium. ¿Te gustaría que te recomiende algo específico?',
-    };
-    if (message.toLowerCase().includes('hombre')) return { reply: 'Para caballeros, nuestro Oud Marine es una opción excepcional. Combina la profundidad del Oud con notas marinas frescas. ¿Te gustaría conocer más detalles?' };
-    if (message.toLowerCase().includes('mujer')) return { reply: 'Te recomiendo Iris Concrete, una composición minimalista y elegante con iris absoluto y madera de cedro. Es perfecta para quienes buscan sofisticación sutil.' };
-    if (message.toLowerCase().includes('regalo')) return { reply: 'Para regalo, nuestro Black Amber es una elección segura. Viene en un estuche premium y su aroma es universalmente apreciado. ¿Deseas que lo añada a tu bolsa?' };
-    if (message.toLowerCase().includes('durar') || message.toLowerCase().includes('larga duración')) return { reply: 'Si buscas máxima duración, los Extrait de Parfum son ideales. Con concentraciones del 25-30%, nuestras fragancias pueden durar más de 12 horas. Oud Marine y Black Amber son los más longevos.' };
-    return { reply: responses.default };
+    try {
+      const result = await apiClient<any>('/ia/recomendar', {
+        method: 'POST',
+        body: JSON.stringify({ mensaje: message }),
+      });
+      
+      // Manejar respuesta si viene envuelta o directa
+      const responseData = result.mensaje ? result : (result.data || result);
+
+      let reply = "";
+      if (responseData.mensaje) {
+          reply += `${responseData.mensaje}\n\n`;
+      }
+      
+      if (responseData.recomendaciones && responseData.recomendaciones.length > 0) {
+          responseData.recomendaciones.forEach((r: any) => {
+              reply += `- ${r.nombre}: ${r.motivo}\n`;
+          });
+      }
+
+      if (!reply) {
+        reply = "Lo siento, no pude procesar tu solicitud en este momento.";
+      }
+
+      return { reply };
+    } catch (error) {
+      console.error('Error in chatMessage:', error);
+      throw error;
+    }
+  },
+  async improveImage(file: File, style?: string, prompt?: string) {
+    const formData = new FormData();
+    formData.append('imagen', file);
+    if (style) formData.append('estilo', style);
+    if (prompt) formData.append('prompt', prompt);
+
+    return apiClient<any>('/ia/imagen/mejorar', {
+      method: 'POST',
+      body: formData,
+    });
   },
 };
 

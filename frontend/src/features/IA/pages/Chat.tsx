@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Bot, User } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
@@ -89,7 +89,7 @@ export const Chat = () => {
                   </div>
                 )}
                 <div className={`max-w-[75%] ${msg.role === 'user' ? 'bg-[#111111] dark:bg-[#3A4A3F] text-white p-5' : 'bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] p-5'}`}>
-                  <p className="text-sm font-light leading-relaxed dark:text-white">{msg.text}</p>
+                  <p className="text-sm font-light leading-relaxed dark:text-white whitespace-pre-wrap">{msg.text}</p>
                   <p className={`text-[9px] mt-3 uppercase tracking-widest ${msg.role === 'user' ? 'text-white/40' : 'text-[#2B2B2B] dark:text-[#EDEDED]/30 dark:text-white/30'}`}>
                     {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                   </p>

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { PRODUCTS } from "../../products/types/products";
-import { Upload, Trash2, ImageIcon, X } from "lucide-react";
+import { Upload, Trash2, ImageIcon, X, Sparkles, Loader2 } from "lucide-react";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { toast } from "sonner";
+import { aiAPI } from "../../../core/api/api";
 
 interface ProductImage {
   id: string;
@@ -20,6 +21,12 @@ export const Images = () => {
   );
   const [deleteTarget, setDeleteTarget] = useState<{ productId: string; imageId: string } | null>(null);
   const [dragOver, setDragOver] = useState(false);
+
+  // IA Enhancement State
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [aiFile, setAiFile] = useState<File | null>(null);
+  const [aiStyle, setAiStyle] = useState("");
+  const [aiPrompt, setAiPrompt] = useState("");
 
   const selectedImages = images[selectedProduct] || [];
   const product = PRODUCTS.find(p => p.id === selectedProduct);
@@ -48,6 +55,40 @@ export const Images = () => {
     setImages(prev => ({ ...prev, [deleteTarget.productId]: prev[deleteTarget.productId].filter(i => i.id !== deleteTarget.imageId) }));
     setDeleteTarget(null);
     toast.success('Imagen eliminada');
+  };
+
+  const handleAIEnhance = async () => {
+    if (!aiFile) {
+      toast.error("Por favor selecciona una imagen primero");
+      return;
+    }
+    setIsEnhancing(true);
+    const loadingToast = toast.loading("Mejorando imagen con IA (Esto puede tardar)...");
+    
+    try {
+      const result = await aiAPI.improveImage(aiFile, aiStyle, aiPrompt);
+      if (result && result.imagen_url) {
+        const newImage: ProductImage = { 
+          id: crypto.randomUUID(), 
+          url: result.imagen_url, 
+          name: `IA_Mejorada_${aiFile.name}` 
+        };
+        setImages(prev => ({ 
+          ...prev, 
+          [selectedProduct]: [...(prev[selectedProduct] || []), newImage] 
+        }));
+        toast.success("Imagen mejorada exitosamente", { id: loadingToast });
+        setAiFile(null);
+        setAiStyle("");
+        setAiPrompt("");
+      } else {
+        throw new Error(result?.mensaje || "Error desconocido");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "No se pudo mejorar la imagen con IA", { id: loadingToast });
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   return (
@@ -79,6 +120,52 @@ export const Images = () => {
           <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e => handleFileUpload(e.target.files)} className="hidden" />
         </label>
         <p className="text-[10px] text-[#2B2B2B]/30 dark:text-white/30 mt-4 uppercase tracking-widest">JPEG, PNG o WEBP • Máximo 2MB</p>
+      </div>
+
+      {/* Mejora con IA Zone */}
+      <div className="bg-gradient-to-r from-purple-900/10 to-[#111111]/5 border border-purple-500/20 p-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <Sparkles size={120} className="text-purple-500" />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-purple-500/20 text-purple-600 dark:text-purple-400">
+              <Sparkles size={24} />
+            </div>
+            <div>
+              <h2 className="text-[14px] uppercase tracking-widest font-bold text-[#111111] dark:text-white">Mejorar con IA</h2>
+              <p className="text-[10px] text-[#2B2B2B]/60 dark:text-white/60 uppercase tracking-widest mt-1">Sube una foto base y nuestra IA generará un escenario premium automáticamente.</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+            <label className={`col-span-1 border ${aiFile ? 'border-purple-500 bg-purple-500/10' : 'border-[#EDEDED] dark:border-white/10 bg-white dark:bg-[#161616] hover:border-purple-500/50'} text-[#111111] dark:text-white px-4 py-3 text-sm cursor-pointer transition-colors flex items-center justify-center text-center`}>
+              <span className="truncate">{aiFile ? aiFile.name : "+ Seleccionar Foto"}</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setAiFile(e.target.files?.[0] || null)} className="hidden" />
+            </label>
+            <input 
+              type="text" 
+              placeholder="Estilo (Ej: elegante, oscuro, minimalista)" 
+              value={aiStyle} 
+              onChange={e => setAiStyle(e.target.value)} 
+              className="col-span-1 bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-purple-500/50 transition-colors"
+            />
+            <input 
+              type="text" 
+              placeholder="Prompt adicional (Ej: luces de neón, agua)" 
+              value={aiPrompt} 
+              onChange={e => setAiPrompt(e.target.value)} 
+              className="col-span-1 bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-purple-500/50 transition-colors"
+            />
+            <button 
+              disabled={!aiFile || isEnhancing} 
+              onClick={handleAIEnhance}
+              className="col-span-1 bg-purple-600 text-white py-3 text-[10px] uppercase tracking-[0.2em] font-bold disabled:opacity-50 hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+            >
+              {isEnhancing ? <><Loader2 size={16} className="animate-spin" /> Procesando...</> : <><Sparkles size={16} /> Generar</>}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Image Grid */}

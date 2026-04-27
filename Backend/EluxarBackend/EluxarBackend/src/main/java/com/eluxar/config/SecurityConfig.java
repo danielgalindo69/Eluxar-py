@@ -44,6 +44,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/marcas/**").permitAll()
+                // IA
+                .requestMatchers("/api/ia/**").permitAll()
+                // Archivos públicos
+                .requestMatchers("/uploads/**").permitAll()
                 // Admin exclusivo
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMIN")

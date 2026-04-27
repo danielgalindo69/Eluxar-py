@@ -1,6 +1,6 @@
-﻿import { useState, useEffect } from "react";
-import { aiAPI } from "../../../core/api/api";
-import { PRODUCTS } from "../../products/types/products";
+import { useState, useEffect } from "react";
+import { aiAPI, productsAPI } from "../../../core/api/api";
+import { Product } from "../../products/types/products";
 import { ProductCard } from "../../products/components/ProductCard";
 import { Sparkles, ArrowRight, ArrowLeft, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -16,11 +16,22 @@ export const FragranceTest = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [results, setResults] = useState<string[] | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    aiAPI.getFragranceTestQuestions().then(q => { setQuestions(q); setIsLoading(false); });
+    Promise.all([
+      aiAPI.getFragranceTestQuestions(),
+      productsAPI.getAll()
+    ]).then(([q, p]) => {
+      setQuestions(q);
+      setAllProducts(p);
+      setIsLoading(false);
+    }).catch(e => {
+      console.error(e);
+      setIsLoading(false);
+    });
   }, []);
 
   const handleAnswer = (questionId: number, option: string) => {
@@ -53,7 +64,7 @@ export const FragranceTest = () => {
   const progress = questions.length > 0 ? ((currentStep + 1) / questions.length) * 100 : 0;
   const currentQuestion = questions[currentStep];
   const allAnswered = questions.length > 0 && Object.keys(answers).length === questions.length;
-  const recommendedProducts = results ? PRODUCTS.filter(p => results.includes(p.id)) : [];
+  const recommendedProducts = results ? allProducts.filter(p => results.includes(p.id)) : [];
 
   if (isLoading) return (
     <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6 flex items-center justify-center">
