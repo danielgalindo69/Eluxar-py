@@ -24,7 +24,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       type: product.type,
       image: product.image,
       volume: defaultVariant?.volume ?? product.specs.volume,
-      price: defaultVariant?.price ?? parseFloat(product.price.replace('€', '')),
+      price: defaultVariant?.price ?? parseFloat(product.price.replace('COP', '')),
     });
     toast.success(`${product.name} añadido a la bolsa`, {
       action: {

@@ -29,9 +29,13 @@ public class InventarioService {
     }
 
     public InventarioDTO obtenerPorVariante(Long varianteId) {
-        return inventarioRepository.findByVarianteId(varianteId)
-                .map(this::toDTO)
+        return buscarPorVariante(varianteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventario para variante", varianteId));
+    }
+
+    public java.util.Optional<InventarioDTO> buscarPorVariante(Long varianteId) {
+        return inventarioRepository.findByVarianteId(varianteId)
+                .map(this::toDTO);
     }
 
     @Transactional
@@ -40,10 +44,16 @@ public class InventarioService {
                 .orElseGet(() -> {
                     var variante = varianteRepository.findById(varianteId)
                             .orElseThrow(() -> new ResourceNotFoundException("ProductoVariante", varianteId));
-                    return inventarioRepository.save(Inventario.builder().variante(variante).build());
+                    return inventarioRepository.save(Inventario.builder()
+                            .variante(variante)
+                            .stockActual(0)
+                            .stockReservado(0)
+                            .stockMinimo(5)
+                            .build());
                 });
 
-        int cantidadMovimiento = stockActual - inventario.getStockActual();
+        int actual = inventario.getStockActual() != null ? inventario.getStockActual() : 0;
+        int cantidadMovimiento = stockActual - actual;
         inventario.setStockActual(stockActual);
         if (stockMinimo != null) {
             inventario.setStockMinimo(stockMinimo);
@@ -65,16 +75,19 @@ public class InventarioService {
 
     private InventarioDTO toDTO(Inventario inv) {
         var variante = inv.getVariante();
+        int actual = inv.getStockActual() != null ? inv.getStockActual() : 0;
+        int minimo = inv.getStockMinimo() != null ? inv.getStockMinimo() : 5;
+        
         return InventarioDTO.builder()
                 .id(inv.getId())
                 .varianteId(variante.getId())
                 .sku(variante.getSku())
                 .productoNombre(variante.getProducto() != null ? variante.getProducto().getNombre() : null)
                 .tamanoMl(variante.getTamanoMl())
-                .stockActual(inv.getStockActual())
-                .stockReservado(inv.getStockReservado())
-                .stockMinimo(inv.getStockMinimo())
-                .stockBajo(inv.getStockActual() <= inv.getStockMinimo())
+                .stockActual(actual)
+                .stockReservado(inv.getStockReservado() != null ? inv.getStockReservado() : 0)
+                .stockMinimo(minimo)
+                .stockBajo(actual <= minimo)
                 .build();
     }
 }

@@ -52,7 +52,7 @@ export const Payments = () => {
                   <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">{p.id}</td>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{p.orderId}</td>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{p.client}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">{p.amount.toFixed(2)}€</td>
+                  <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">{p.amount.toFixed(2)}COP</td>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40">{p.method}</td>
                   <td className="px-6 py-4">
                     <span className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 ${statusColors[p.status] || ''}`}>{p.status}</span>

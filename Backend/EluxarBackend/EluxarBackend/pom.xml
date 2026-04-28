@@ -176,6 +176,13 @@
 			<version>2.0.1</version>
 		</dependency>
 
+		<!-- Cloudinary SDK - almacenamiento de imágenes de productos -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.39.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

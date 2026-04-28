@@ -48,7 +48,7 @@ export const OrderConfirmation = () => {
                     <p className="text-sm font-bold uppercase tracking-widest">{item.name}</p>
                     <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest">{item.volume} × {item.quantity}</p>
                   </div>
-                  <span className="text-sm font-bold">{(item.price * item.quantity).toFixed(2)}€</span>
+                  <span className="text-sm font-bold">{(item.price * item.quantity).toFixed(2)}COP</span>
                 </div>
               ))}
             </div>
@@ -58,7 +58,7 @@ export const OrderConfirmation = () => {
 
           <div className="pt-4 border-t border-[#2B2B2B]/10 flex justify-between items-end">
             <span className="text-[10px] uppercase tracking-widest font-bold">Total</span>
-            <span className="text-2xl font-light tracking-tight">{subtotal > 0 ? subtotal.toFixed(2) : '0.00'}€</span>
+            <span className="text-2xl font-light tracking-tight">{subtotal > 0 ? subtotal.toFixed(2) : '0.00'}COP</span>
           </div>
         </motion.div>
 

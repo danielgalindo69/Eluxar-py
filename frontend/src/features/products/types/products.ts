@@ -1,4 +1,5 @@
-﻿export interface ProductVariant {
+export interface ProductVariant {
+  id?: number;
   volume: string;
   price: number;
   stock: number;

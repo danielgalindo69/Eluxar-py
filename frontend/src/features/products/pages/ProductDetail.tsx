@@ -39,7 +39,7 @@ export const ProductDetail = () => {
   }, [id]);
 
   const selectedVariant = product?.variants?.[selectedVariantIndex];
-  const currentPrice = selectedVariant?.price ?? parseFloat((product?.price ?? '0').replace('€', ''));
+  const currentPrice = selectedVariant?.price ?? parseFloat((product?.price ?? '0').replace('COP', ''));
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -118,7 +118,7 @@ export const ProductDetail = () => {
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#3A4A3F] dark:text-[#A5BAA8] font-bold">{product.type}</span>
               <h1 className="text-4xl md:text-5xl font-light text-[#111111] dark:text-white tracking-tight">{product.name}</h1>
               <p className="text-xl text-[#2B2B2B] dark:text-[#EDEDED] font-medium tracking-tight">
-                {currentPrice.toFixed(2)}€
+                {currentPrice.toFixed(2)}COP
               </p>
             </div>
 
@@ -161,7 +161,7 @@ export const ProductDetail = () => {
                             : 'border-[#EDEDED] dark:border-white/8 hover:border-[#111111] text-[#2B2B2B] dark:text-[#EDEDED]'
                           }`}
                       >
-                        {variant.volume} — {variant.price.toFixed(2)}€
+                        {variant.volume} — {variant.price.toFixed(2)}COP
                       </button>
                     ))}
                   </div>

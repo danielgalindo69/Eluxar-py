@@ -63,7 +63,7 @@ export const Prices = () => {
                             className="border border-[#3A4A3F] dark:border-[#3A4A3F] dark:bg-[#111111] dark:text-white px-3 py-1 text-sm w-24 outline-none" autoFocus />
                         ) : (
                           <span className="text-sm font-bold text-[#111111] dark:text-white flex items-center gap-2">
-                            {prices[product.id]?.[variant.volume] || variant.price}€
+                            {prices[product.id]?.[variant.volume] || variant.price}COP
                             {isSaved && <Check size={14} className="text-[#3A4A3F]" />}
                           </span>
                         )}
@@ -91,7 +91,7 @@ export const Prices = () => {
       </div>
 
       <ConfirmDialog open={!!confirmSave} onOpenChange={o => !o && setConfirmSave(null)} title="Confirmar Cambio de Precio"
-        description={`¿Confirmas actualizar el precio a ${confirmSave?.price}€?`} onConfirm={handleSave} />
+        description={`¿Confirmas actualizar el precio a ${confirmSave?.price}COP?`} onConfirm={handleSave} />
     </div>
   );
 };

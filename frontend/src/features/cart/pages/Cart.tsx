@@ -60,8 +60,8 @@ export const Cart = () => {
                                  </div>
                               </div>
 
-                              <div className="hidden md:block text-right text-xs font-bold">{item.price.toFixed(2)}€</div>
-                              <div className="text-right text-sm font-bold">{(item.price * item.quantity).toFixed(2)}€</div>
+                              <div className="hidden md:block text-right text-xs font-bold">{item.price.toFixed(2)}COP</div>
+                              <div className="text-right text-sm font-bold">{(item.price * item.quantity).toFixed(2)}COP</div>
                            </div>
                         ))}
 
@@ -85,7 +85,7 @@ export const Cart = () => {
                      <div className="space-y-6">
                         <div className="flex justify-between text-xs font-light uppercase tracking-widest">
                            <span>Subtotal</span>
-                           <span className="font-bold">{subtotal.toFixed(2)}€</span>
+                           <span className="font-bold">{subtotal.toFixed(2)}COP</span>
                         </div>
                         <div className="flex justify-between text-xs font-light uppercase tracking-widest">
                            <span>Envío Express</span>
@@ -97,7 +97,7 @@ export const Cart = () => {
                         </div>
                         <div className="pt-6 border-t border-[#2B2B2B]/10 flex justify-between items-end">
                            <span className="text-[10px] uppercase tracking-widest font-bold">Total Estimado</span>
-                           <span className="text-2xl font-light tracking-tight">{subtotal.toFixed(2)}€</span>
+                           <span className="text-2xl font-light tracking-tight">{subtotal.toFixed(2)}COP</span>
                         </div>
                      </div>
 

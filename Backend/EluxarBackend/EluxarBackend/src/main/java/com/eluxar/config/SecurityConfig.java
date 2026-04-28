@@ -50,7 +50,8 @@ public class SecurityConfig {
                 .requestMatchers("/uploads/**").permitAll()
                 // Admin exclusivo
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMIN")
+                //se cambio solo para el testeo
+                .requestMatchers(HttpMethod.POST, "/api/productos/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/categorias/**").hasRole("ADMIN")

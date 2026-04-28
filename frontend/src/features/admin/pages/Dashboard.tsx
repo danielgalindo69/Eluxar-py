@@ -134,11 +134,11 @@ export const Dashboard = () => {
               </thead>
               <tbody>
                 {[
-                  { id: "#1247", client: "Ana García", total: "€185.00", status: "Enviado" },
-                  { id: "#1246", client: "Carlos López", total: "€210.00", status: "Procesando" },
-                  { id: "#1245", client: "María Torres", total: "€155.00", status: "Entregado" },
-                  { id: "#1244", client: "Jorge Ruiz", total: "€195.00", status: "Enviado" },
-                  { id: "#1243", client: "Laura Sanz", total: "€185.00", status: "Entregado" },
+                  { id: "#1247", client: "Ana García", total: "COP 185.00", status: "Enviado" },
+                  { id: "#1246", client: "Carlos López", total: "COP 210.00", status: "Procesando" },
+                  { id: "#1245", client: "María Torres", total: "COP 155.00", status: "Entregado" },
+                  { id: "#1244", client: "Jorge Ruiz", total: "COP 195.00", status: "Enviado" },
+                  { id: "#1243", client: "Laura Sanz", total: "COP 185.00", status: "Entregado" },
                 ].map((order, index) => (
                   <tr key={index} className="border-b border-[#EDEDED] dark:border-white/8 last:border-0">
                     <td className="py-3 text-sm text-[#2B2B2B] dark:text-white/80">{order.id}</td>

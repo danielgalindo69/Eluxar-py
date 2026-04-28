@@ -202,7 +202,7 @@ export const Checkout = () => {
                        <div className="flex-1 flex flex-col justify-between py-1">
                           <div className="flex justify-between items-start">
                              <h4 className="text-[10px] font-bold uppercase tracking-widest dark:text-white">{item.name}</h4>
-                             <span className="text-[10px] font-bold dark:text-white">{(item.price * item.quantity).toFixed(2)}€</span>
+                             <span className="text-[10px] font-bold dark:text-white">{(item.price * item.quantity).toFixed(2)}COP</span>
                           </div>
                           <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 font-bold">{item.type} | {item.volume} × {item.quantity}</p>
                        </div>
@@ -216,7 +216,7 @@ export const Checkout = () => {
               <div className="pt-8 border-t border-[#2B2B2B]/10 dark:border-white/10 space-y-4">
                  <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold dark:text-white">
                     <span>Subtotal</span>
-                    <span>{subtotal.toFixed(2)}€</span>
+                    <span>{subtotal.toFixed(2)}COP</span>
                  </div>
                  <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold dark:text-white">
                     <span>Envío</span>
@@ -224,7 +224,7 @@ export const Checkout = () => {
                  </div>
                  <div className="pt-6 border-t border-[#2B2B2B]/10 dark:border-white/10 flex justify-between items-end dark:text-white">
                     <span className="text-[10px] uppercase tracking-widest font-bold">Total</span>
-                    <span className="text-2xl font-light tracking-tight">{subtotal.toFixed(2)}€</span>
+                    <span className="text-2xl font-light tracking-tight">{subtotal.toFixed(2)}COP</span>
                  </div>
               </div>
 

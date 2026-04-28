@@ -51,7 +51,7 @@ export const Catalog = () => {
   // Reset page when filters change
   useEffect(() => { setCurrentPage(1); }, [activeFilter, activePriceRange, sortOption]);
 
-  const parsePrice = (priceStr: string) => parseFloat(priceStr.replace('€', '').replace(',', '.'));
+  const parsePrice = (priceStr: string) => parseFloat(priceStr.replace('COP', '').replace(',', '.'));
 
   const filteredAndSorted = useMemo(() => {
     let result = products;
@@ -162,9 +162,9 @@ export const Catalog = () => {
               <ul className="space-y-4">
                 {([
                   { value: 'all', label: 'Todos los precios' },
-                  { value: 'under150', label: 'Menos de 150€' },
-                  { value: '150to200', label: '150€ – 200€' },
-                  { value: 'over200', label: 'Más de 200€' },
+                  { value: 'under150', label: 'Menos de 150COP' },
+                  { value: '150to200', label: '150COP – 200COP' },
+                  { value: 'over200', label: 'Más de 200COP' },
                 ] as { value: PriceRange; label: string }[]).map((item) => (
                   <li key={item.value} className="flex items-center space-x-3 cursor-pointer group" onClick={() => setActivePriceRange(item.value)}>
                     <div className={`w-3 h-3 border transition-colors ${activePriceRange === item.value ? 'border-[#3A4A3F] dark:border-[#A5BAA8] bg-[#3A4A3F] dark:bg-[#A5BAA8]' : 'border-[#EDEDED] dark:border-white/8 group-hover:border-[#111111]'}`} />

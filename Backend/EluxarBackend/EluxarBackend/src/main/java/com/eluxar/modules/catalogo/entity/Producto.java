@@ -36,9 +36,14 @@ public class Producto {
     @JoinColumn(name = "marca_id")
     private Marca marca;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
-    private Categoria categoria;
+    /**
+     * Categoría del producto representada como Enum.
+     * Reemplaza la antigua relación FK con la tabla "categorias".
+     * Valores: CABALLERO, DAMA, NINO, NINA.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categoria", length = 20)
+    private CategoriaEnum categoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familia_olfativa_id")
@@ -52,3 +57,4 @@ public class Producto {
     @Builder.Default
     private List<ProductoImagen> imagenes = new ArrayList<>();
 }
+
