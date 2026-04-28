@@ -1,4 +1,4 @@
-import { Product } from '../../features/products/types/products';
+﻿import { Product } from '../../features/products/types/products';
 
 const API_BASE = '/api';
 
@@ -25,8 +25,9 @@ async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promis
   if (response.status === 204) return {} as T;
 
   const result = await response.json();
-  // Backend wraps responses in ApiResponse { status, message, data }
-  return result.data as T;
+  // Backend might wrap responses in ApiResponse { status, message, data }
+  // or return the data directly
+  return result.data !== undefined ? result.data : result;
 }
 
 // ─── Mappers ─────────────────────────────────────────────────
@@ -34,7 +35,7 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
   id: String(dto.id),
   name: dto.nombre || '',
   type: dto.categoria || '',
-  price: `${dto.variantes?.[0]?.precioVenta || 0}€`,
+  price: `${dto.variantes?.[0]?.precioVenta || 0} COP`,
   image: dto.imagenes?.[0] || 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1080',
   hoverImage: dto.imagenes?.[1],
   description: dto.descripcion || '',
@@ -43,6 +44,7 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
   olfactoryFamily: dto.familiaOlfativa || '',
   category: dto.categoria || '',
   variants: (dto.variantes || []).map((v: any) => ({
+    id: v.id,
     volume: `${v.tamanoMl}ml`,
     price: v.precioVenta,
     stock: v.stockActual
@@ -156,6 +158,12 @@ export const authAPI = {
       body: JSON.stringify(data),
     });
   },
+  async changePassword(oldPassword: string, newPassword: string) {
+    return apiClient<any>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+  },
 };
 
 // ─── Products ────────────────────────────────────────────────
@@ -163,6 +171,20 @@ export const productsAPI = {
   async getAll(params?: any) {
     const query = params ? `?${new URLSearchParams(params)}` : '';
     const dtos = await apiClient<any[]>(`/productos${query}`);
+    if (!dtos || dtos.length === 0) {
+      return [
+        { id: '1', name: 'Acqua Di Gio', type: 'EDT', price: '95COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Fragancia fresca, marina y cítrica. Ideal para el día a día y la oficina.', brand: 'Armani', gender: 'Masculino', olfactoryFamily: 'Acuática', category: 'Perfume', variants: [], stock: 10, notes: { top: 'Marina', heart: 'Cítrico', base: 'Madera' }, specs: { volume: '100ml', longevity: 'Media', sillage: 'Moderado' } },
+        { id: '2', name: 'La Vie Est Belle', type: 'EDP', price: '120COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Perfume muy dulce, con notas de praliné, vainilla y flores. Perfecto para salidas de noche.', brand: 'Lancome', gender: 'Femenino', olfactoryFamily: 'Dulce', category: 'Perfume', variants: [], stock: 5, notes: { top: 'Praliné', heart: 'Vainilla', base: 'Flores' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '3', name: 'Sauvage Dior', type: 'EDP', price: '110COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma amaderado y especiado. Muy versátil y masculino, proyecta mucha seguridad.', brand: 'Dior', gender: 'Masculino', olfactoryFamily: 'Amaderada', category: 'Perfume', variants: [], stock: 8, notes: { top: 'Pimienta', heart: 'Bergamota', base: 'Madera' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '4', name: 'CK One', type: 'EDT', price: '50COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma cítrico, ligero y unisex. Excelente para clima caluroso o gimnasio.', brand: 'Calvin Klein', gender: 'Unisex', olfactoryFamily: 'Cítrica', category: 'Perfume', variants: [], stock: 15, notes: { top: 'Limón', heart: 'Té verde', base: 'Almizcle' }, specs: { volume: '200ml', longevity: 'Media', sillage: 'Ligero' } },
+        { id: '5', name: 'Bleu de Chanel', type: 'EDP', price: '135COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Fragancia elegante, amaderada y cítrica. Perfecta para el hombre moderno, uso en oficina o eventos formales.', brand: 'Chanel', gender: 'Masculino', olfactoryFamily: 'Amaderada', category: 'Perfume', variants: [], stock: 12, notes: { top: 'Cítricos', heart: 'Gengibre', base: 'Cedro' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '6', name: 'Baccarat Rouge 540', type: 'EDP', price: '250COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma lujoso de ámbar y madera. Unisex, dulce y extremadamente duradero. Llama la atención en eventos especiales.', brand: 'Maison Francis Kurkdjian', gender: 'Unisex', olfactoryFamily: 'Ámbar', category: 'Perfume', variants: [], stock: 3, notes: { top: 'Azafrán', heart: 'Jazmín', base: 'Ámbar Gris' }, specs: { volume: '70ml', longevity: 'Muy Alta', sillage: 'Intenso' } },
+        { id: '7', name: 'Black Orchid', type: 'EDP', price: '160COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Misteriosa, oscura y floral especiada. Unisex, ideal para personalidades atrevidas y noches frías.', brand: 'Tom Ford', gender: 'Unisex', olfactoryFamily: 'Oriental', category: 'Perfume', variants: [], stock: 7, notes: { top: 'Trufa', heart: 'Orquídea', base: 'Chocolate Oscuro' }, specs: { volume: '100ml', longevity: 'Muy Alta', sillage: 'Fuerte' } },
+        { id: '8', name: 'Coco Mademoiselle', type: 'EDP', price: '145COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Floral y oriental. Elegante, femenina y sofisticada. Versátil para el trabajo y citas románticas.', brand: 'Chanel', gender: 'Femenino', olfactoryFamily: 'Floral', category: 'Perfume', variants: [], stock: 9, notes: { top: 'Naranja', heart: 'Rosa', base: 'Pachulí' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Moderado' } },
+        { id: '9', name: 'YSL Y', type: 'EDP', price: '125COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Fresco, afrutado y con un toque de madera. Juvenil y energético, excelente para salidas nocturnas y uso casual.', brand: 'Yves Saint Laurent', gender: 'Masculino', olfactoryFamily: 'Aromática', category: 'Perfume', variants: [], stock: 11, notes: { top: 'Manzana', heart: 'Salvia', base: 'Haba Tonka' }, specs: { volume: '100ml', longevity: 'Alta', sillage: 'Fuerte' } },
+        { id: '10', name: 'Good Girl', type: 'EDP', price: '115COP', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800', description: 'Aroma seductor y dulce con notas de haba tonka y cacao. Perfecto para mujeres empoderadas en eventos nocturnos.', brand: 'Carolina Herrera', gender: 'Femenino', olfactoryFamily: 'Oriental', category: 'Perfume', variants: [], stock: 14, notes: { top: 'Almendra', heart: 'Jazmín', base: 'Cacao' }, specs: { volume: '80ml', longevity: 'Alta', sillage: 'Fuerte' } }
+      ] as Product[];
+    }
     return dtos.map(mapProductoDTOToProduct);
   },
   async getById(id: string) {
@@ -186,6 +208,18 @@ export const productsAPI = {
       method: 'DELETE',
     });
   },
+  /**
+   * Sube hasta 3 imágenes de un producto a Cloudinary.
+   * Se llama después de crear/actualizar el producto.
+   */
+  async uploadImages(id: string, files: File[]) {
+    const formData = new FormData();
+    files.forEach(file => formData.append('imagenes', file));
+    return apiClient<any>(`/productos/${id}/imagenes`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
 };
 
 // ─── Addresses ───────────────────────────────────────────────
@@ -200,10 +234,7 @@ export interface Address {
   isDefault: boolean;
 }
 
-const mockAddresses: Address[] = [
-  { id: '1', label: 'Casa', street: 'Calle del Perfume 42', city: 'Madrid', state: 'Madrid', zip: '28001', country: 'España', isDefault: true },
-  { id: '2', label: 'Oficina', street: 'Av. de la Fragancia 15', city: 'Barcelona', state: 'Cataluña', zip: '08002', country: 'España', isDefault: false },
-];
+const mockAddresses: Address[] = [];
 
 export const addressAPI = {
   async getAll() { await delay(300); return [...mockAddresses]; },
@@ -248,31 +279,7 @@ export interface Order {
   trackingNumber?: string;
 }
 
-export const MOCK_ORDERS: Order[] = [
-  {
-    id: 'ORD-2026-1247', date: '2026-03-15', status: 'Enviado',
-    items: [{ productId: '1', name: 'Santal & Bergamot', image: '', volume: '100ml', quantity: 1, price: 185 }],
-    total: 185, address: 'Calle del Perfume 42, Madrid', paymentMethod: 'Visa ****4242', trackingNumber: 'ES123456789',
-  },
-  {
-    id: 'ORD-2026-1246', date: '2026-03-12', status: 'Entregado',
-    items: [
-      { productId: '2', name: 'Oud Marine', image: '', volume: '100ml', quantity: 1, price: 210 },
-      { productId: '3', name: 'Iris Concrete', image: '', volume: '50ml', quantity: 2, price: 155 },
-    ],
-    total: 520, address: 'Av. de la Fragancia 15, Barcelona', paymentMethod: 'Mastercard ****8821',
-  },
-  {
-    id: 'ORD-2026-1245', date: '2026-03-10', status: 'Procesando',
-    items: [{ productId: '4', name: 'Black Amber', image: '', volume: '100ml', quantity: 1, price: 195 }],
-    total: 195, address: 'Calle del Perfume 42, Madrid', paymentMethod: 'PayPal',
-  },
-  {
-    id: 'ORD-2026-1244', date: '2026-03-05', status: 'Entregado',
-    items: [{ productId: '1', name: 'Santal & Bergamot', image: '', volume: '50ml', quantity: 1, price: 125 }],
-    total: 125, address: 'Calle del Perfume 42, Madrid', paymentMethod: 'Visa ****4242',
-  },
-];
+export const MOCK_ORDERS: Order[] = [];
 
 export const ordersAPI = {
   async getAll() { await delay(); return [...MOCK_ORDERS]; },
@@ -292,13 +299,7 @@ export interface InventoryMovement {
   notes: string;
 }
 
-export const MOCK_INVENTORY: InventoryMovement[] = [
-  { id: '1', productId: '1', productName: 'Santal & Bergamot', type: 'Entrada', quantity: 50, date: '2026-03-15', user: 'Admin', notes: 'Lote nuevo proveedor Francia' },
-  { id: '2', productId: '2', productName: 'Oud Marine', type: 'Salida', quantity: 5, date: '2026-03-14', user: 'Admin', notes: 'Venta online' },
-  { id: '3', productId: '3', productName: 'Iris Concrete', type: 'Entrada', quantity: 30, date: '2026-03-13', user: 'Empleado1', notes: 'Reposición almacén' },
-  { id: '4', productId: '4', productName: 'Black Amber', type: 'Salida', quantity: 12, date: '2026-03-12', user: 'Admin', notes: 'Pedidos acumulados' },
-  { id: '5', productId: '1', productName: 'Santal & Bergamot', type: 'Salida', quantity: 3, date: '2026-03-11', user: 'Empleado1', notes: 'Muestra showroom' },
-];
+export const MOCK_INVENTORY: InventoryMovement[] = [];
 
 export const inventoryAPI = {
   async getMovements() { await delay(); return [...MOCK_INVENTORY]; },
@@ -344,12 +345,7 @@ export interface Payment {
   date: string;
 }
 
-export const MOCK_PAYMENTS: Payment[] = [
-  { id: 'PAY-001', orderId: 'ORD-2026-1247', client: 'Ana García', amount: 185, method: 'Visa ****4242', status: 'Confirmado', date: '2026-03-15' },
-  { id: 'PAY-002', orderId: 'ORD-2026-1246', client: 'Carlos López', amount: 520, method: 'Mastercard ****8821', status: 'Confirmado', date: '2026-03-12' },
-  { id: 'PAY-003', orderId: 'ORD-2026-1245', client: 'María Torres', amount: 195, method: 'PayPal', status: 'Pendiente', date: '2026-03-10' },
-  { id: 'PAY-004', orderId: 'ORD-2026-1244', client: 'Jorge Ruiz', amount: 125, method: 'Visa ****1234', status: 'Rechazado', date: '2026-03-05' },
-];
+export const MOCK_PAYMENTS: Payment[] = [];
 
 export const paymentsAPI = {
   async getAll() { await delay(); return [...MOCK_PAYMENTS]; },
@@ -369,11 +365,7 @@ export interface Shipment {
   estimatedDelivery: string;
 }
 
-export const MOCK_SHIPMENTS: Shipment[] = [
-  { id: 'SHP-001', orderId: 'ORD-2026-1247', client: 'Ana García', address: 'Calle del Perfume 42, Madrid', carrier: 'DHL Express', trackingNumber: 'ES123456789', status: 'En tránsito', date: '2026-03-15', estimatedDelivery: '2026-03-18' },
-  { id: 'SHP-002', orderId: 'ORD-2026-1246', client: 'Carlos López', address: 'Av. de la Fragancia 15, Barcelona', carrier: 'SEUR', trackingNumber: 'ES987654321', status: 'Entregado', date: '2026-03-12', estimatedDelivery: '2026-03-14' },
-  { id: 'SHP-003', orderId: 'ORD-2026-1245', client: 'María Torres', address: 'Gran Vía 100, Valencia', carrier: 'Correos Express', trackingNumber: 'ES456789123', status: 'Preparando', date: '2026-03-10', estimatedDelivery: '2026-03-17' },
-];
+export const MOCK_SHIPMENTS: Shipment[] = [];
 
 export const shippingAPI = {
   async getAll() { await delay(); return [...MOCK_SHIPMENTS]; },
@@ -390,11 +382,7 @@ export interface Banner {
   order: number;
 }
 
-export const MOCK_BANNERS: Banner[] = [
-  { id: '1', title: 'Nueva Colección Primavera', imageUrl: 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1200', link: '/catalog', active: true, order: 1 },
-  { id: '2', title: 'Test Olfativo IA', imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1200', link: '/fragrance-test', active: true, order: 2 },
-  { id: '3', title: 'Envío Gratis', imageUrl: 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1200', link: '/catalog', active: false, order: 3 },
-];
+export const MOCK_BANNERS: Banner[] = [];
 
 export const bannersAPI = {
   async getAll() { await delay(); return [...MOCK_BANNERS]; },
@@ -451,18 +439,13 @@ export const brandsAPI = {
 // ─── AI (mock) ───────────────────────────────────────────────
 export const aiAPI = {
   async getFragranceTestQuestions() {
-    await delay(300);
-    return [
-      { id: 1, question: '¿Qué estación del año te inspira más?', options: ['Primavera', 'Verano', 'Otoño', 'Invierno'] },
-      { id: 2, question: '¿Cuál es tu ambiente ideal?', options: ['Jardín florido', 'Bosque de montaña', 'Playa al atardecer', 'Biblioteca antigua'] },
-      { id: 3, question: '¿Qué intensidad prefieres?', options: ['Sutil e íntima', 'Moderada y versátil', 'Intensa y envolvente', 'Poderosa y duradera'] },
-      { id: 4, question: '¿Para qué ocasión buscas fragancia?', options: ['Día a día', 'Oficina elegante', 'Cena romántica', 'Evento especial'] },
-      { id: 5, question: '¿Qué ingrediente te atrae más?', options: ['Cítricos frescos', 'Flores delicadas', 'Maderas profundas', 'Especias orientales'] },
-    ];
+    return apiClient<any[]>('/ia/test-preguntas');
   },
-  async submitFragranceTest(_answers: Record<number, string>) {
-    await delay(1500);
-    return { recommendedProductIds: ['1', '4', '2'] };
+  async submitFragranceTest(answers: Record<number, string>) {
+    return apiClient<any>('/ia/test-analizar', {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+    });
   },
   async getRecommendations() {
     await delay(800);
@@ -474,15 +457,46 @@ export const aiAPI = {
     }};
   },
   async chatMessage(message: string) {
-    await delay(1200);
-    const responses: Record<string, string> = {
-      default: '¡Gracias por tu pregunta! Como asesor de fragancias de Eluxar, te recomiendo explorar nuestra colección de Extrait de Parfum para una experiencia olfativa premium. ¿Te gustaría que te recomiende algo específico?',
-    };
-    if (message.toLowerCase().includes('hombre')) return { reply: 'Para caballeros, nuestro Oud Marine es una opción excepcional. Combina la profundidad del Oud con notas marinas frescas. ¿Te gustaría conocer más detalles?' };
-    if (message.toLowerCase().includes('mujer')) return { reply: 'Te recomiendo Iris Concrete, una composición minimalista y elegante con iris absoluto y madera de cedro. Es perfecta para quienes buscan sofisticación sutil.' };
-    if (message.toLowerCase().includes('regalo')) return { reply: 'Para regalo, nuestro Black Amber es una elección segura. Viene en un estuche premium y su aroma es universalmente apreciado. ¿Deseas que lo añada a tu bolsa?' };
-    if (message.toLowerCase().includes('durar') || message.toLowerCase().includes('larga duración')) return { reply: 'Si buscas máxima duración, los Extrait de Parfum son ideales. Con concentraciones del 25-30%, nuestras fragancias pueden durar más de 12 horas. Oud Marine y Black Amber son los más longevos.' };
-    return { reply: responses.default };
+    try {
+      const result = await apiClient<any>('/ia/recomendar', {
+        method: 'POST',
+        body: JSON.stringify({ mensaje: message }),
+      });
+      
+      // Manejar respuesta si viene envuelta o directa
+      const responseData = result.mensaje ? result : (result.data || result);
+
+      let reply = "";
+      if (responseData.mensaje) {
+          reply += `${responseData.mensaje}\n\n`;
+      }
+      
+      if (responseData.recomendaciones && responseData.recomendaciones.length > 0) {
+          responseData.recomendaciones.forEach((r: any) => {
+              reply += `- ${r.nombre}: ${r.motivo}\n`;
+          });
+      }
+
+      if (!reply) {
+        reply = "Lo siento, no pude procesar tu solicitud en este momento.";
+      }
+
+      return { reply };
+    } catch (error) {
+      console.error('Error in chatMessage:', error);
+      throw error;
+    }
+  },
+  async improveImage(file: File, style?: string, prompt?: string) {
+    const formData = new FormData();
+    formData.append('imagen', file);
+    if (style) formData.append('estilo', style);
+    if (prompt) formData.append('prompt', prompt);
+
+    return apiClient<any>('/ia/imagen/mejorar', {
+      method: 'POST',
+      body: formData,
+    });
   },
 };
 

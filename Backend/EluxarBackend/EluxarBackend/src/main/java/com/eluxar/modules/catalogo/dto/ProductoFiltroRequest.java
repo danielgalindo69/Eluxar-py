@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 public class ProductoFiltroRequest {
 
     private String nombre;
-    private Long categoriaId;
+    /** Filtro por categoría usando el valor del Enum: CABALLERO, DAMA, NINO, NINA */
+    private String categoria;
     private Long marcaId;
     private BigDecimal precioMin;
     private BigDecimal precioMax;

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
 import { userAPI } from '../../../core/api/api';
 import { Edit2 } from 'lucide-react';
@@ -51,7 +51,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({ displayName }) 
     return (
         <div className="flex flex-col items-center">
             {/* Profile Image Circle */}
-            <div className="w-44 h-44 rounded-full overflow-hidden border border-[#EDEDED] mb-6 shadow-sm">
+            <div className="w-44 h-44 rounded-full overflow-hidden border border-[#EDEDED] dark:border-white/8 mb-6 shadow-sm">
                 <img 
                     src={optimizedImageUrl} 
                     alt="Profile" 
@@ -60,7 +60,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({ displayName }) 
             </div>
 
             {/* User Info from mockup */}
-            <h2 className="text-2xl font-light text-[#111111] mb-2">{nameToDisplay}</h2>
+            <h2 className="text-2xl font-light text-[#111111] dark:text-white mb-2">{nameToDisplay}</h2>
             <div className="mb-8 font-bold text-[10px] tracking-[0.2em] uppercase bg-[#3A4A3F] text-white px-6 py-2 rounded-sm shadow-sm">
                 {user?.role || 'CLIENTE'}
             </div>
@@ -69,7 +69,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({ displayName }) 
             <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex items-center gap-3 py-3 px-8 border border-[#EDEDED] bg-[#F7F7F7] hover:bg-white text-[11px] uppercase tracking-[0.1em] font-medium text-[#111111]/70 hover:text-[#111111] transition-all rounded-md shadow-sm"
+                className="flex items-center gap-3 py-3 px-8 border border-[#EDEDED] dark:border-white/8 bg-[#F7F7F7] hover:bg-white dark:bg-[#161616] text-[11px] uppercase tracking-[0.1em] font-medium text-[#111111]/70 hover:text-[#111111] dark:text-white transition-all rounded-md shadow-sm"
             >
                 <Edit2 size={14} className="opacity-50" />
                 {isUploading ? 'Subiendo...' : 'Editar imagen'}

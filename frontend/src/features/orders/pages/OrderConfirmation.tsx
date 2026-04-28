@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+﻿import { Link } from "react-router";
 import { CheckCircle, Package, ArrowRight } from "lucide-react";
 import { useCart } from "../../cart/context/CartContext";
 import { motion } from "motion/react";
@@ -11,7 +11,7 @@ export const OrderConfirmation = () => {
   const orderItems = items.length > 0 ? items : [];
 
   return (
-    <main className="pt-32 pb-24 bg-white min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
       <div className="max-w-2xl mx-auto text-center">
         {/* Success Animation */}
         <motion.div
@@ -26,8 +26,8 @@ export const OrderConfirmation = () => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h1 className="text-4xl font-light text-[#111111] tracking-tight mb-4">¡Pedido Confirmado!</h1>
-          <p className="text-sm text-[#2B2B2B]/60 font-light mb-2">
+          <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4">¡Pedido Confirmado!</h1>
+          <p className="text-sm text-[#2B2B2B]/60 dark:text-white/60 font-light mb-2">
             Tu pedido ha sido procesado exitosamente
           </p>
           <p className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] mb-16">
@@ -37,8 +37,8 @@ export const OrderConfirmation = () => {
 
         {/* Order Summary */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-          className="bg-[#EDEDED] p-10 text-left space-y-8 mb-12">
-          <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111]">Resumen del Pedido</h2>
+          className="bg-[#EDEDED] dark:bg-white/5 p-10 text-left space-y-8 mb-12">
+          <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white">Resumen del Pedido</h2>
 
           {orderItems.length > 0 ? (
             <div className="space-y-6">
@@ -46,25 +46,25 @@ export const OrderConfirmation = () => {
                 <div key={i} className="flex items-center justify-between border-b border-[#2B2B2B]/10 pb-4 last:border-0">
                   <div>
                     <p className="text-sm font-bold uppercase tracking-widest">{item.name}</p>
-                    <p className="text-[10px] text-[#2B2B2B]/40 uppercase tracking-widest">{item.volume} × {item.quantity}</p>
+                    <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest">{item.volume} × {item.quantity}</p>
                   </div>
-                  <span className="text-sm font-bold">{(item.price * item.quantity).toFixed(2)}€</span>
+                  <span className="text-sm font-bold">{(item.price * item.quantity).toFixed(2)}COP</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#2B2B2B]/40 font-light">Los detalles del pedido han sido registrados.</p>
+            <p className="text-sm text-[#2B2B2B]/40 dark:text-white/40 font-light">Los detalles del pedido han sido registrados.</p>
           )}
 
           <div className="pt-4 border-t border-[#2B2B2B]/10 flex justify-between items-end">
             <span className="text-[10px] uppercase tracking-widest font-bold">Total</span>
-            <span className="text-2xl font-light tracking-tight">{subtotal > 0 ? subtotal.toFixed(2) : '0.00'}€</span>
+            <span className="text-2xl font-light tracking-tight">{subtotal > 0 ? subtotal.toFixed(2) : '0.00'}COP</span>
           </div>
         </motion.div>
 
         {/* Delivery Info */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-          className="flex items-center justify-center gap-3 mb-12 text-[#2B2B2B]/60">
+          className="flex items-center justify-center gap-3 mb-12 text-[#2B2B2B]/60 dark:text-white/60">
           <Package size={18} />
           <span className="text-sm font-light">Entrega estimada: 3-5 días hábiles</span>
         </motion.div>

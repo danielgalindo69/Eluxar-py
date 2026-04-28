@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { aiAPI } from "../../../core/api/api";
-import { PRODUCTS } from "../../products/types/products";
+import { aiAPI, productsAPI } from "../../../core/api/api";
+import { Product } from "../../products/types/products";
 import { ProductCard } from "../../products/components/ProductCard";
 import { Sparkles, ArrowRight, ArrowLeft, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -16,11 +16,22 @@ export const FragranceTest = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [results, setResults] = useState<string[] | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    aiAPI.getFragranceTestQuestions().then(q => { setQuestions(q); setIsLoading(false); });
+    Promise.all([
+      aiAPI.getFragranceTestQuestions(),
+      productsAPI.getAll()
+    ]).then(([q, p]) => {
+      setQuestions(q);
+      setAllProducts(p);
+      setIsLoading(false);
+    }).catch(e => {
+      console.error(e);
+      setIsLoading(false);
+    });
   }, []);
 
   const handleAnswer = (questionId: number, option: string) => {
@@ -53,23 +64,23 @@ export const FragranceTest = () => {
   const progress = questions.length > 0 ? ((currentStep + 1) / questions.length) * 100 : 0;
   const currentQuestion = questions[currentStep];
   const allAnswered = questions.length > 0 && Object.keys(answers).length === questions.length;
-  const recommendedProducts = results ? PRODUCTS.filter(p => results.includes(p.id)) : [];
+  const recommendedProducts = results ? allProducts.filter(p => results.includes(p.id)) : [];
 
   if (isLoading) return (
-    <main className="pt-32 pb-24 bg-white min-h-screen px-6 flex items-center justify-center">
-      <p className="text-[#2B2B2B]/40 text-sm font-light uppercase tracking-widest">Preparando tu test olfativo...</p>
+    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6 flex items-center justify-center">
+      <p className="text-[#2B2B2B] dark:text-[#EDEDED]/40 text-sm font-light uppercase tracking-widest">Preparando tu test olfativo...</p>
     </main>
   );
 
   if (results) return (
-    <main className="pt-32 pb-24 bg-white min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <Sparkles className="text-[#3A4A3F]" size={28} />
-            <h1 className="text-4xl font-light text-[#111111] tracking-tight">Tus Fragancias Ideales</h1>
+            <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight">Tus Fragancias Ideales</h1>
           </div>
-          <p className="text-sm text-[#2B2B2B]/60 font-light max-w-xl mx-auto">
+          <p className="text-sm text-[#2B2B2B] dark:text-[#EDEDED]/60 dark:text-white/50 font-light max-w-xl mx-auto">
             Basándonos en tus preferencias olfativas, nuestra IA ha seleccionado estas fragancias especialmente para ti.
           </p>
         </motion.div>
@@ -84,7 +95,7 @@ export const FragranceTest = () => {
 
         <div className="text-center">
           <button onClick={handleReset}
-            className="inline-flex items-center gap-2 border border-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white transition-colors">
+            className="inline-flex items-center gap-2 border border-[#111111] dark:border-white text-[#111111] dark:text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white dark:bg-[#161616] hover:text-white dark:hover:text-[#111111] dark:text-white transition-colors">
             <RotateCcw size={14} /> Repetir Test
           </button>
         </div>
@@ -93,15 +104,15 @@ export const FragranceTest = () => {
   );
 
   return (
-    <main className="pt-32 pb-24 bg-white min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <Sparkles className="text-[#3A4A3F]" size={28} />
-            <h1 className="text-4xl font-light text-[#111111] tracking-tight">Test Olfativo</h1>
+            <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight">Test Olfativo</h1>
           </div>
-          <p className="text-sm text-[#2B2B2B]/60 font-light">
+          <p className="text-sm text-[#2B2B2B] dark:text-[#EDEDED]/60 dark:text-white/50 font-light">
             Responde 5 preguntas y descubre tu fragancia ideal
           </p>
         </div>
@@ -109,10 +120,10 @@ export const FragranceTest = () => {
         {/* Progress Bar */}
         <div className="mb-12">
           <div className="flex justify-between mb-3">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Pregunta {currentStep + 1} de {questions.length}</span>
+            <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-[#EDEDED]/40">Pregunta {currentStep + 1} de {questions.length}</span>
             <span className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F]">{Math.round(progress)}%</span>
           </div>
-          <div className="h-1 bg-[#EDEDED]">
+          <div className="h-1 bg-[#EDEDED] dark:bg-white/5 dark:bg-white/10">
             <motion.div className="h-full bg-[#3A4A3F]" animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
           </div>
         </div>
@@ -121,29 +132,36 @@ export const FragranceTest = () => {
         <AnimatePresence mode="wait">
           {currentQuestion && (
             <motion.div key={currentQuestion.id} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3 }} className="space-y-8">
-              <h2 className="text-2xl font-light text-[#111111] text-center">{currentQuestion.question}</h2>
+              <h2 className="text-2xl font-light text-[#111111] dark:text-white text-center">{currentQuestion.question}</h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {currentQuestion.options.map(option => (
-                  <button key={option} onClick={() => handleAnswer(currentQuestion.id, option)}
-                    className={`p-6 border text-left transition-all ${
-                      answers[currentQuestion.id] === option
-                        ? 'border-[#3A4A3F] bg-[#3A4A3F] text-white'
-                        : 'border-[#EDEDED] hover:border-[#111111]'
-                    }`}
-                  >
-                    <span className="text-sm uppercase tracking-widest font-bold">{option}</span>
-                  </button>
-                ))}
+                {currentQuestion.options.map(option => {
+                  const isSelected = answers[currentQuestion.id] === option;
+                  return (
+                    <button key={option} onClick={() => handleAnswer(currentQuestion.id, option)}
+                      className={`relative w-full p-6 text-left transition-all duration-300 flex items-center group overflow-hidden ${
+                        isSelected
+                          ? 'bg-[#EDEDED]/30 dark:bg-white/5 border-2 border-[#111111] dark:border-white'
+                          : 'bg-transparent border-2 border-[#EDEDED]/50 dark:border-white/10 hover:border-[#111111]/30 dark:hover:border-white/30 hover:bg-[#EDEDED]/10 dark:hover:bg-white/5'
+                      }`}
+                    >
+                      <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-transform duration-300 origin-left ${isSelected ? 'bg-[#111111] dark:bg-white scale-x-100' : 'bg-transparent scale-x-0'}`} />
+                      
+                      <span className={`text-[15px] transition-all pl-3 ${isSelected ? 'text-[#111111] dark:text-white font-medium translate-x-1' : 'text-[#2B2B2B] dark:text-white/70 font-light group-hover:text-[#111111] dark:group-hover:text-white group-hover:translate-x-1'}`}>
+                        {option}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-12 pt-8 border-t border-[#EDEDED]">
+        <div className="flex items-center justify-between mt-12 pt-8 border-t border-[#EDEDED] dark:border-white/8 dark:border-white/10">
           <button onClick={handlePrev} disabled={currentStep === 0}
-            className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 hover:text-[#111111] disabled:opacity-30 disabled:hover:text-[#2B2B2B]/40 transition-colors">
+            className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-[#EDEDED]/40 hover:text-[#111111] dark:text-white dark:hover:text-white disabled:opacity-30 disabled:hover:text-[#2B2B2B] dark:text-[#EDEDED]/40 transition-colors">
             <ArrowLeft size={14} /> Anterior
           </button>
 
@@ -154,7 +172,7 @@ export const FragranceTest = () => {
             </button>
           ) : (
             <button onClick={handleNext} disabled={!answers[currentQuestion?.id]}
-              className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#111111] hover:text-[#3A4A3F] disabled:opacity-30 transition-colors">
+              className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#111111] dark:text-white hover:text-[#3A4A3F] disabled:opacity-30 transition-colors">
               Siguiente <ArrowRight size={14} />
             </button>
           )}

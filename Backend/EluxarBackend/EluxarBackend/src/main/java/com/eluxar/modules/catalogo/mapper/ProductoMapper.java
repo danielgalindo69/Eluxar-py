@@ -1,9 +1,12 @@
 package com.eluxar.modules.catalogo.mapper;
 
 import com.eluxar.modules.catalogo.dto.ProductoDTO;
+import com.eluxar.modules.catalogo.dto.ProductoDTO.VarianteDTO;
 import com.eluxar.modules.catalogo.entity.Producto;
 import com.eluxar.modules.catalogo.entity.ProductoVariante;
 import com.eluxar.modules.catalogo.entity.ProductoImagen;
+import com.eluxar.modules.catalogo.entity.ProductoPrecio;
+import com.eluxar.modules.catalogo.entity.CategoriaEnum;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -15,7 +18,7 @@ import java.util.List;
 public interface ProductoMapper {
 
     @Mapping(target = "marca", expression = "java(producto.getMarca() != null ? producto.getMarca().getNombre() : null)")
-    @Mapping(target = "categoria", expression = "java(producto.getCategoria() != null ? producto.getCategoria().getNombre() : null)")
+    @Mapping(target = "categoria", expression = "java(producto.getCategoria() != null ? producto.getCategoria().name() : null)")
     @Mapping(target = "familiaOlfativa", expression = "java(producto.getFamiliaOlfativa() != null ? producto.getFamiliaOlfativa().getNombre() : null)")
     @Mapping(target = "variantes", source = "variantes")
     @Mapping(target = "imagenes", source = "imagenes", qualifiedByName = "toImageUrls")
@@ -30,21 +33,21 @@ public interface ProductoMapper {
     @Mapping(target = "precioVenta", source = "precios", qualifiedByName = "getPrecioVenta")
     @Mapping(target = "precioOferta", source = "precios", qualifiedByName = "getPrecioOferta")
     @Mapping(target = "stockActual", ignore = true)
-    ProductoDTO.VarianteDTO toVarianteDTO(ProductoVariante variante);
+    VarianteDTO toVarianteDTO(ProductoVariante variante);
 
     @Named("getPrecioVenta")
-    default BigDecimal getPrecioVenta(List<com.eluxar.modules.catalogo.entity.ProductoPrecio> precios) {
+    default BigDecimal getPrecioVenta(List<ProductoPrecio> precios) {
         if (precios == null || precios.isEmpty()) return BigDecimal.ZERO;
-        return precios.stream().filter(p -> p.isActivo())
-                .map(com.eluxar.modules.catalogo.entity.ProductoPrecio::getPrecioVenta)
+        return precios.stream().filter(p -> p.isActivo() && p.getPrecioVenta() != null)
+                .map(ProductoPrecio::getPrecioVenta)
                 .findFirst().orElse(BigDecimal.ZERO);
     }
 
     @Named("getPrecioOferta")
-    default BigDecimal getPrecioOferta(List<com.eluxar.modules.catalogo.entity.ProductoPrecio> precios) {
+    default BigDecimal getPrecioOferta(List<ProductoPrecio> precios) {
         if (precios == null || precios.isEmpty()) return null;
-        return precios.stream().filter(p -> p.isActivo())
-                .map(com.eluxar.modules.catalogo.entity.ProductoPrecio::getPrecioOferta)
+        return precios.stream().filter(p -> p.isActivo() && p.getPrecioOferta() != null)
+                .map(ProductoPrecio::getPrecioOferta)
                 .findFirst().orElse(null);
     }
 }

@@ -113,16 +113,10 @@
 		</dependency>
 
 		<!-- ================================ -->
-		<!-- EMAIL                            -->
+		<!-- EMAIL (Resend via HTTP)          -->
 		<!-- ================================ -->
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-
-		<!-- Freemarker para templates HTML de emails -->
-		<!-- Reemplaza Thymeleaf ya que el frontend es React -->
+		<!-- Freemarker: renderiza el template HTML antes de enviarlo via Resend API -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-freemarker</artifactId>
@@ -180,6 +174,13 @@
 			<groupId>com.github.imagekit-developer</groupId>
 			<artifactId>imagekit-java</artifactId>
 			<version>2.0.1</version>
+		</dependency>
+
+		<!-- Cloudinary SDK - almacenamiento de imágenes de productos -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.39.0</version>
 		</dependency>
 
 	</dependencies>

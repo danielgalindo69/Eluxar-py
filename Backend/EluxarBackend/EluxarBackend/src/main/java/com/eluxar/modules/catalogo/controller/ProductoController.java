@@ -28,14 +28,14 @@ public class ProductoController {
     @Operation(summary = "Listar productos con filtros opcionales")
     public ResponseEntity<ApiResponse<List<ProductoDTO>>> listar(
             @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) String categoria,
             @RequestParam(required = false) Long marcaId,
             @RequestParam(required = false) BigDecimal precioMin,
             @RequestParam(required = false) BigDecimal precioMax) {
 
         ProductoFiltroRequest filtro = new ProductoFiltroRequest();
         filtro.setNombre(nombre);
-        filtro.setCategoriaId(categoriaId);
+        filtro.setCategoria(categoria);
         filtro.setMarcaId(marcaId);
         filtro.setPrecioMin(precioMin);
         filtro.setPrecioMax(precioMax);
@@ -50,7 +50,6 @@ public class ProductoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Crear producto (ADMIN)")
     public ResponseEntity<ApiResponse<ProductoDTO>> crear(@RequestBody ProductoDTO dto) {

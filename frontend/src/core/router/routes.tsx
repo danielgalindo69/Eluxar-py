@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from "react-router";
+import { createBrowserRouter, Outlet, Navigate } from "react-router";
 import { Navbar } from "../../shared/components/layout/Navbar";
 import { Footer } from "../../shared/components/layout/Footer";
 import { Home } from "../../features/home/pages/Home";
@@ -32,11 +32,15 @@ import { Banners } from "../../features/admin/pages/Banners";
 import { Prices } from "../../features/admin/pages/Prices";
 import { Categories } from "../../features/admin/pages/Categories";
 import { Images } from "../../features/admin/pages/Images";
-import React from "react";
+import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
+import { NotFound } from "../../features/shared/pages/NotFound";
+import { ScrollToTop } from "../../shared/components/ScrollToTop";
+
 
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-white font-sans text-[#2B2B2B] antialiased selection:bg-[#3A4A3F] selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white">
+      <ScrollToTop />
       <Navbar />
       <Outlet />
       <Footer />
@@ -44,31 +48,56 @@ const Layout = () => {
   );
 };
 
+// Wrapper that redirects already-authenticated admins away from /admin/auth
+const AdminAuthGuard = () => {
+  const stored = localStorage.getItem('eluxar_user');
+  if (stored) {
+    try {
+      const user = JSON.parse(stored);
+      if (user?.role === 'ADMIN') return <Navigate to="/admin" replace />;
+    } catch { /* ignore */ }
+  }
+  return <AdminAuth />;
+};
+
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: Layout,
     children: [
+      // ─── Public routes ───────────────────────────────────────
       { index: true, Component: Home },
       { path: "catalog", Component: Catalog },
       { path: "product/:id", Component: ProductDetail },
       { path: "cart", Component: Cart },
-      { path: "checkout", Component: Checkout },
       { path: "auth", Component: Auth },
       { path: "register", Component: Register },
       { path: "forgot-password", Component: ForgotPassword },
-      { path: "profile", Component: Profile },
-      { path: "profile/addresses", Component: Addresses },
       { path: "search", Component: Search },
-      { path: "order-confirmation", Component: OrderConfirmation },
-      { path: "order-history", Component: OrderHistory },
-      { path: "order/:id/edit-address", Component: EditOrderAddress },
       { path: "fragrance-test", Component: FragranceTest },
       { path: "recommendations", Component: Recommendations },
       { path: "chat", Component: Chat },
+
+      // ─── Protected routes (require login) ────────────────────
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: "checkout", Component: Checkout },
+          { path: "order-confirmation", Component: OrderConfirmation },
+          { path: "order-history", Component: OrderHistory },
+          { path: "order/:id/edit-address", Component: EditOrderAddress },
+          { path: "profile", Component: Profile },
+          { path: "profile/addresses", Component: Addresses },
+        ],
+      },
+
+      // ─── 404 ────────────────────────────────────────────────
+      { path: "*", Component: NotFound },
     ],
   },
-  { path: "admin/auth", Component: AdminAuth },
+
+  // ─── Admin routes ────────────────────────────────────────────
+  { path: "admin/auth", Component: AdminAuthGuard },
   {
     path: "/admin",
     Component: AdminLayout,

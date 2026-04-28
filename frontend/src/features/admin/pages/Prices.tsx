@@ -31,17 +31,17 @@ export const Prices = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-light text-[#111111] tracking-tight">Precios</h1>
-        <p className="text-sm text-[#2B2B2B]/60 mt-2">Actualización de precios por producto y variante</p>
+        <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Precios</h1>
+        <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Actualización de precios por producto y variante</p>
       </div>
 
-      <div className="bg-white border border-[#EDEDED]">
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#EDEDED]">
+              <tr className="border-b border-[#EDEDED] dark:border-white/8 bg-[#EDEDED]/50 dark:bg-white/5">
                 {['Producto', 'Marca', 'Variante', 'Precio Actual', 'Acciones'].map(h => (
-                  <th key={h} className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 px-6 py-4">{h}</th>
+                  <th key={h} className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -52,18 +52,18 @@ export const Prices = () => {
                   const isEditing = editingCell === cellKey;
                   const isSaved = savedCells[cellKey];
                   return (
-                    <tr key={cellKey} className="border-b border-[#EDEDED] last:border-0 hover:bg-[#EDEDED]/30">
-                      {vi === 0 && <td rowSpan={product.variants.length} className="px-6 py-4 text-sm font-bold align-top">{product.name}</td>}
-                      {vi === 0 && <td rowSpan={product.variants.length} className="px-6 py-4 text-sm text-[#2B2B2B]/60 align-top">{product.brand}</td>}
-                      <td className="px-6 py-4 text-sm">{variant.volume}</td>
+                    <tr key={cellKey} className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
+                      {vi === 0 && <td rowSpan={product.variants.length} className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white align-top">{product.name}</td>}
+                      {vi === 0 && <td rowSpan={product.variants.length} className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 align-top">{product.brand}</td>}
+                      <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{variant.volume}</td>
                       <td className="px-6 py-4">
                         {isEditing ? (
                           <input type="number" min="0.01" step="0.01" value={prices[product.id]?.[variant.volume] || ''}
                             onChange={e => handlePriceChange(product.id, variant.volume, e.target.value)}
-                            className="border border-[#3A4A3F] px-3 py-1 text-sm w-24 outline-none" autoFocus />
+                            className="border border-[#3A4A3F] dark:border-[#3A4A3F] dark:bg-[#111111] dark:text-white px-3 py-1 text-sm w-24 outline-none" autoFocus />
                         ) : (
-                          <span className="text-sm font-bold flex items-center gap-2">
-                            {prices[product.id]?.[variant.volume] || variant.price}€
+                          <span className="text-sm font-bold text-[#111111] dark:text-white flex items-center gap-2">
+                            {prices[product.id]?.[variant.volume] || variant.price}COP
                             {isSaved && <Check size={14} className="text-[#3A4A3F]" />}
                           </span>
                         )}
@@ -72,13 +72,13 @@ export const Prices = () => {
                         {isEditing ? (
                           <div className="flex gap-2">
                             <button onClick={() => setConfirmSave({ productId: product.id, volume: variant.volume, price: prices[product.id]?.[variant.volume] || '' })}
-                              className="bg-[#111111] text-white px-3 py-1 text-[10px] uppercase tracking-widest font-bold flex items-center gap-1">
+                              className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-3 py-1 text-[10px] uppercase tracking-widest font-bold flex items-center gap-1">
                               <Save size={12} /> Guardar
                             </button>
-                            <button onClick={() => setEditingCell(null)} className="border border-[#EDEDED] px-3 py-1 text-[10px] uppercase tracking-widest font-bold">Cancelar</button>
+                            <button onClick={() => setEditingCell(null)} className="border border-[#EDEDED] dark:border-white/10 dark:text-white px-3 py-1 text-[10px] uppercase tracking-widest font-bold">Cancelar</button>
                           </div>
                         ) : (
-                          <button onClick={() => setEditingCell(cellKey)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 hover:text-[#111111]">Editar</button>
+                          <button onClick={() => setEditingCell(cellKey)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white transition-colors">Editar</button>
                         )}
                       </td>
                     </tr>
@@ -91,7 +91,7 @@ export const Prices = () => {
       </div>
 
       <ConfirmDialog open={!!confirmSave} onOpenChange={o => !o && setConfirmSave(null)} title="Confirmar Cambio de Precio"
-        description={`¿Confirmas actualizar el precio a ${confirmSave?.price}€?`} onConfirm={handleSave} />
+        description={`¿Confirmas actualizar el precio a ${confirmSave?.price}COP?`} onConfirm={handleSave} />
     </div>
   );
 };

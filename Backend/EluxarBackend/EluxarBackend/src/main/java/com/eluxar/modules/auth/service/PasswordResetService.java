@@ -29,32 +29,35 @@ public class PasswordResetService {
     private static final int EXPIRATION_MINUTES = 10;
     private static final int MAX_ATTEMPTS = 5;
 
+    // ─── Generar y enviar código ─────────────────────────────────────────────────
+
     @Transactional
     public void generateAndSendResetCode(String email) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 
         if (usuarioOpt.isEmpty()) {
-            log.warn("Solicitud de recuperación para email inexistente: {}", email);
-            return; // Prevenir enumeración de usuarios
+            log.warn("[PasswordReset] Solicitud para email no registrado: {}", email);
+            return; // Prevenir enumeración de usuarios — siempre respuesta positiva
         }
 
         Usuario usuario = usuarioOpt.get();
 
         if ("GOOGLE".equals(usuario.getProvider())) {
-            log.warn("Solicitud de recuperación ignorada para usuario GOOGLE: {}", email);
-            return; // No enviamos código a cuentas de Google, prevenimos filtrado.
+            log.warn("[PasswordReset] Solicitud ignorada para cuenta Google: {}", email);
+            return; // No permitimos reset por código en cuentas Google — misma respuesta positiva
         }
 
-        // Generar un código criptográficamente seguro de 6 dígitos (000000 a 999999)
-        SecureRandom random = new SecureRandom();
-        int codeInt = random.nextInt(1000000);
-        String code = String.format("%06d", codeInt);
+        // Invalidar cualquier token previo antes de emitir uno nuevo
+        tokenRepository.deleteByUsuario(usuario);
+        log.debug("[PasswordReset] Tokens anteriores eliminados para usuario id={}", usuario.getId());
 
-        // Hash del código antes de guardarlo por seguridad
+        // Generar código de 6 dígitos criptográficamente seguro (000000 – 999999)
+        SecureRandom random = new SecureRandom();
+        String code = String.format("%06d", random.nextInt(1_000_000));
+
+        // Guardar solo el hash — nunca el código en texto plano
         String codeHash = passwordEncoder.encode(code);
 
-        // Invalidamos tokens anteriores (si quieres garantizar sólo 1 activo, aunque el query por createdAtDesc maneja esto)
-        
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .usuario(usuario)
                 .tokenHash(codeHash)
@@ -65,17 +68,20 @@ public class PasswordResetService {
 
         tokenRepository.save(resetToken);
 
-        // Mandar texto plano al usuario
-        String emailBody = "Your verification code is: " + code + ". It expires in 10 minutes.";
-        emailService.sendSimpleEmail(usuario.getEmail(), "Password Reset - Eluxar", emailBody);
+        // Enviar email HTML real con el template FreeMarker via Resend API
+        emailService.sendPasswordResetEmail(usuario.getEmail(), usuario.getNombre(), code);
+
+        log.info("[PasswordReset] Código generado y email enviado a: {}", email);
     }
+
+    // ─── Verificar código ────────────────────────────────────────────────────────
 
     @Transactional
     public void verifyCode(String email, String code) {
         PasswordResetToken token = getValidTokenForUser(email);
 
         if (token.getAttempts() >= MAX_ATTEMPTS) {
-            token.setUsed(true); // Bloqueamos el token tras demasiados intentos
+            token.setUsed(true);
             tokenRepository.save(token);
             throw new IllegalArgumentException("Máximo de intentos alcanzado. Solicita un nuevo código.");
         }
@@ -86,9 +92,11 @@ public class PasswordResetService {
             throw new IllegalArgumentException("El código es incorrecto.");
         }
 
-        // Si llega aquí, el código es válido, pero no lo marcamos como 'used' todavía 
-        // porque primero necesita ser verificado antes del cambio real (a no ser que unamos los flujos).
+        // Código válido — no marcamos como 'used' todavía, el siguiente paso lo hará
+        log.debug("[PasswordReset] Código verificado correctamente para: {}", email);
     }
+
+    // ─── Restablecer contraseña ──────────────────────────────────────────────────
 
     @Transactional
     public void resetPassword(String email, String code, String newPassword) {
@@ -104,25 +112,30 @@ public class PasswordResetService {
             throw new IllegalArgumentException("El código es incorrecto.");
         }
 
+        // Actualizar contraseña con hash BCrypt
         Usuario usuario = token.getUsuario();
         usuario.setPasswordHash(passwordEncoder.encode(newPassword));
         usuarioRepository.save(usuario);
 
+        // Invalidar el token — ya no puede reutilizarse
         token.setUsed(true);
         tokenRepository.save(token);
-        
-        log.info("Contraseña actualizada exitosamente para: {}", email);
+
+        log.info("[PasswordReset] Contraseña actualizada exitosamente para: {}", email);
     }
+
+    // ─── Helper privado ──────────────────────────────────────────────────────────
 
     private PasswordResetToken getValidTokenForUser(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado (o inválido)"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         if ("GOOGLE".equals(usuario.getProvider())) {
             throw new IllegalArgumentException("Las cuentas de Google no pueden restablecer contraseña mediante código.");
         }
 
-        return tokenRepository.findFirstByUsuarioAndUsedFalseAndExpirationTimeAfterOrderByCreatedAtDesc(usuario, LocalDateTime.now())
+        return tokenRepository
+                .findFirstByUsuarioAndUsedFalseAndExpirationTimeAfterOrderByCreatedAtDesc(usuario, LocalDateTime.now())
                 .orElseThrow(() -> new IllegalArgumentException("No hay un código de recuperación válido o ha expirado."));
     }
 }

@@ -1,8 +1,60 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('./fonts.css');
-@import url('./tailwind.css');
-@import url('./theme.css');
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
 @import 'tailwindcss' source(none);
 @source '../**/*.{js,ts,jsx,tsx}';
 @import 'tw-animate-css';
+
+/* Definición de variante oscura para Tailwind v4 */
 @custom-variant dark (&:is(.dark *));
+
+/* ── Dark mode base ─────────────────────────────────────── */
+html.dark {
+  color-scheme: dark;
+}
+
+/* ── Custom Scrollbar (Global) ─────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8C8C8;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2B2B2B;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #C8C8C8 transparent;
+}
+
+/* Dark mode scrollbar */
+html.dark ::-webkit-scrollbar-thumb {
+  background: #4A4A4A;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #EDEDED;
+}
+
+/* ── Admin Sidebar Scrollbar ────────────────────────── */
+.admin-sidebar-nav::-webkit-scrollbar {
+  width: 3px;
+}
+.admin-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-sidebar-nav::-webkit-scrollbar-thumb {
+  background: #EDEDED;
+  border-radius: 99px;
+}
+.admin-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: #3A4A3F;
+}

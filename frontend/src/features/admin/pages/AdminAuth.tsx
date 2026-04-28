@@ -1,20 +1,12 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
-import { useNavigate, Link } from 'react-router';
-import { authAPI } from '../../../core/api/api';
-import { User, Mail, Lock, UserPlus, LogIn, Sparkles, Loader2, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { Mail, Lock, LogIn, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const AdminAuth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -24,26 +16,11 @@ export const AdminAuth = () => {
     setIsLoading(true);
 
     try {
-      if (isLogin) {
-        await login(formData.email, formData.password);
-        toast.success('Sesión de administrador iniciada');
-        navigate('/admin');
-      } else {
-        if (formData.password !== formData.confirmPassword) {
-          toast.error('Las contraseñas no coinciden');
-          return;
-        }
-        await authAPI.registerAdmin({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password
-        });
-        toast.success('Administrador registrado exitosamente. Ahora puedes iniciar sesión.');
-        setIsLogin(true);
-      }
+      await login(formData.email, formData.password);
+      toast.success('Sesión de administrador iniciada');
+      navigate('/admin');
     } catch (error: any) {
-      toast.error(error.message || 'Ocurrió un error');
+      toast.error(error.message || 'Credenciales incorrectas');
     } finally {
       setIsLoading(false);
     }
@@ -72,57 +49,7 @@ export const AdminAuth = () => {
 
         {/* Content */}
         <div className="p-10">
-          <div className="flex mb-8 border-b border-[#EDEDED]">
-            <button 
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 pb-4 text-[10px] uppercase tracking-widest font-bold transition-colors ${isLogin ? 'text-[#3A4A3F] border-b-2 border-[#3A4A3F]' : 'text-[#2B2B2B]/40 hover:text-[#111111]'}`}
-            >
-              Iniciar Sesión
-            </button>
-            <button 
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 pb-4 text-[10px] uppercase tracking-widest font-bold transition-colors ${!isLogin ? 'text-[#3A4A3F] border-b-2 border-[#3A4A3F]' : 'text-[#2B2B2B]/40 hover:text-[#111111]'}`}
-            >
-              Registrar Admin
-            </button>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Nombre</label>
-                  <div className="relative group">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#3A4A3F] transition-colors" size={14} />
-                    <input 
-                      type="text" 
-                      name="firstName"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      placeholder="Ej: Marc"
-                      className="w-full bg-[#EDEDED]/50 border-none px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 focus:ring-1 focus:ring-[#3A4A3F] outline-none transition-all"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Apellido</label>
-                  <div className="relative group">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#3A4A3F] transition-colors" size={14} />
-                    <input 
-                      type="text" 
-                      name="lastName"
-                      required
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Ej: Antoine"
-                      className="w-full bg-[#EDEDED]/50 border-none px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 focus:ring-1 focus:ring-[#3A4A3F] outline-none transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div className="space-y-2">
               <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Email Corporativo</label>
               <div className="relative group">
@@ -155,24 +82,6 @@ export const AdminAuth = () => {
               </div>
             </div>
 
-            {!isLogin && (
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Confirmar Contraseña</label>
-                <div className="relative group">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#3A4A3F] transition-colors" size={14} />
-                  <input 
-                    type="password" 
-                    name="confirmPassword"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="w-full bg-[#EDEDED]/50 border-none px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 focus:ring-1 focus:ring-[#3A4A3F] outline-none transition-all"
-                  />
-                </div>
-              </div>
-            )}
-
             <button 
               type="submit"
               disabled={isLoading}
@@ -181,9 +90,9 @@ export const AdminAuth = () => {
               {isLoading ? (
                 <Loader2 className="animate-spin" size={16} />
               ) : (
-                isLogin ? <LogIn size={16} /> : <UserPlus size={16} />
+                <LogIn size={16} />
               )}
-              <span>{isLogin ? 'Acceder al Panel' : 'Crear Cuenta Admin'}</span>
+              <span>Acceder al Panel</span>
             </button>
           </form>
 
