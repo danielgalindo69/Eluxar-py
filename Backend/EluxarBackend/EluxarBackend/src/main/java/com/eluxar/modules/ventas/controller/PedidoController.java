@@ -46,6 +46,13 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.success(pedidoService.listarMisPedidos(userDetails.getId())));
     }
 
+    @GetMapping("/todos")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Listar todos los pedidos (ADMIN)")
+    public ResponseEntity<ApiResponse<List<PedidoDTO>>> listarTodos() {
+        return ResponseEntity.ok(ApiResponse.success(pedidoService.listarTodos()));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtener detalle de un pedido")
     public ResponseEntity<ApiResponse<PedidoDTO>> obtenerPorId(

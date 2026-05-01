@@ -43,4 +43,23 @@ public class UsuarioController {
         usuarioService.desactivar(id);
         return ResponseEntity.ok(ApiResponse.success("Usuario desactivado", null));
     }
+
+    @PutMapping("/{id}/rol")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Actualizar rol de usuario")
+    public ResponseEntity<ApiResponse<UsuarioDTO>> actualizarRol(
+            @PathVariable Long id, 
+            @RequestBody java.util.Map<String, String> body) {
+        String rol = body.get("rol");
+        return ResponseEntity.ok(ApiResponse.success(
+                "Rol actualizado", usuarioService.actualizarRol(id, rol)));
+    }
+
+    @PutMapping("/{id}/toggle-active")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Alternar estado activo de un usuario")
+    public ResponseEntity<ApiResponse<UsuarioDTO>> toggleActivo(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Estado actualizado", usuarioService.toggleActivo(id)));
+    }
 }

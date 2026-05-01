@@ -16,6 +16,7 @@ import java.util.List;
 public class PedidoDTO {
 
     private Long id;
+    private String clienteNombre;
     private String estado;
     private BigDecimal subtotal;
     private BigDecimal descuento;

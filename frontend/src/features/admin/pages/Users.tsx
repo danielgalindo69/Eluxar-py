@@ -1,11 +1,67 @@
-﻿import { UserPlus, Edit2, Ban } from "lucide-react";
+import { UserPlus, Edit2, Ban, CheckCircle, Shield, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { adminUsersAPI } from "../../../core/api/api";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "../../../shared/components/ui/dropdown-menu";
+import { Button } from "../../../shared/components/ui/button";
 
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
 const tableWrapClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
 const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-6 py-4";
 
 export const Users = () => {
-  const users: any[] = [];
+  const [users, setUsers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUsers = async () => {
+    try {
+      const data = await adminUsersAPI.getAll();
+      setUsers(data.map((u: any) => ({
+        id: u.id,
+        name: `${u.nombre} ${u.apellido}`,
+        email: u.email,
+        role: u.rol.replace('ROLE_', ''),
+        joined: new Date(u.fechaRegistro).toLocaleDateString(),
+        orders: 0, // Por ahora 0, luego se puede integrar si backend lo retorna
+        active: u.activo
+      })));
+    } catch (error) {
+      toast.error("Error al cargar usuarios");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleToggleActive = async (id: string, currentActive: boolean) => {
+    try {
+      await adminUsersAPI.toggleActive(id);
+      toast.success(currentActive ? "Usuario bloqueado" : "Usuario desbloqueado");
+      fetchUsers();
+    } catch (error) {
+      toast.error("Error al actualizar estado del usuario");
+    }
+  };
+
+  const handleRoleChange = async (id: string, newRole: string) => {
+    try {
+      await adminUsersAPI.updateRole(id, newRole);
+      toast.success("Rol actualizado correctamente");
+      fetchUsers();
+    } catch (error) {
+      toast.error("Error al cambiar rol del usuario");
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -23,15 +79,15 @@ export const Users = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className={cardClass}>
-          <div className="text-2xl font-light text-[#111111] dark:text-white mb-1">1,248</div>
+          <div className="text-2xl font-light text-[#111111] dark:text-white mb-1">{users.length}</div>
           <div className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40">Total Usuarios</div>
         </div>
         <div className={cardClass}>
-          <div className="text-2xl font-light text-[#3A4A3F] mb-1">1,235</div>
+          <div className="text-2xl font-light text-[#3A4A3F] mb-1">{users.filter(u => u.role === 'USUARIO').length}</div>
           <div className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40">Clientes</div>
         </div>
         <div className={cardClass}>
-          <div className="text-2xl font-light text-blue-400 mb-1">13</div>
+          <div className="text-2xl font-light text-blue-400 mb-1">{users.filter(u => u.role === 'ADMIN').length}</div>
           <div className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40">Administradores</div>
         </div>
       </div>
@@ -51,13 +107,15 @@ export const Users = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
+              {isLoading ? (
+                <tr><td colSpan={6} className="text-center py-8 text-sm text-[#2B2B2B]/40 dark:text-white/40">Cargando usuarios...</td></tr>
+              ) : users.map((user) => (
+                <tr key={user.id} className={`border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors ${!user.active ? 'opacity-50' : ''}`}>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{user.name}</td>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40">{user.email}</td>
                   <td className="px-6 py-4">
                     <span className={`text-[10px] uppercase tracking-widest font-bold ${
-                      user.role === "Admin" ? "text-[#3A4A3F]" : "text-[#2B2B2B]/60 dark:text-white/40"
+                      user.role === "ADMIN" ? "text-[#3A4A3F]" : "text-[#2B2B2B]/60 dark:text-white/40"
                     }`}>
                       {user.role}
                     </span>
@@ -66,11 +124,46 @@ export const Users = () => {
                   <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{user.orders}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors">
-                        <Edit2 size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
-                      </button>
-                      <button className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors">
-                        <Ban size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button 
+                            title="Cambiar Rol" 
+                            className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors"
+                          >
+                            <Edit2 size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuLabel>Asignar Rol</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => handleRoleChange(user.id, "USUARIO")}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <User size={14} />
+                            <span>USUARIO</span>
+                            {user.role === "USUARIO" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F]" />}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleRoleChange(user.id, "ADMIN")}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <Shield size={14} />
+                            <span>ADMIN</span>
+                            {user.role === "ADMIN" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F]" />}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <button 
+                        onClick={() => handleToggleActive(user.id, user.active)} 
+                        title={user.active ? "Bloquear" : "Desbloquear"} 
+                        className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors"
+                      >
+                        {user.active ? 
+                          <Ban size={16} className="text-red-500" strokeWidth={1.5} /> :
+                          <CheckCircle size={16} className="text-green-500" strokeWidth={1.5} />
+                        }
                       </button>
                     </div>
                   </td>

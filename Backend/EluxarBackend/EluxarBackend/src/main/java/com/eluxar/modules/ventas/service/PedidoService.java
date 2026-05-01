@@ -108,6 +108,12 @@ public class PedidoService {
                 .toList();
     }
 
+    public List<PedidoDTO> listarTodos() {
+        return pedidoRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "creadoEn")).stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
     public PedidoDTO obtenerPorId(Long usuarioId, Long pedidoId, boolean esAdmin) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido", pedidoId));
@@ -131,6 +137,7 @@ public class PedidoService {
     private PedidoDTO mapToDTO(Pedido pedido) {
         return PedidoDTO.builder()
                 .id(pedido.getId())
+                .clienteNombre(pedido.getUsuario().getNombre() + " " + pedido.getUsuario().getApellido())
                 .estado(pedido.getEstado().name())
                 .subtotal(pedido.getSubtotal())
                 .descuento(pedido.getDescuento())

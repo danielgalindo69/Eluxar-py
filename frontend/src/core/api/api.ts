@@ -1,4 +1,4 @@
-﻿import { Product } from '../../features/products/types/products';
+import { Product } from '../../features/products/types/products';
 
 const API_BASE = '/api';
 
@@ -279,12 +279,42 @@ export interface Order {
   trackingNumber?: string;
 }
 
-export const MOCK_ORDERS: Order[] = [];
+export const MOCK_ORDERS: Order[] = []; // Se mantiene para compatibilidad temporal si es necesario
 
 export const ordersAPI = {
-  async getAll() { await delay(); return [...MOCK_ORDERS]; },
-  async getById(id: string) { await delay(300); return MOCK_ORDERS.find(o => o.id === id) || null; },
-  async updateAddress(orderId: string, address: string) { await delay(); return { success: true, orderId, address }; },
+  async getAll() {
+    return apiClient<any[]>('/pedidos/todos');
+  },
+  async getById(id: string) {
+    return apiClient<any>(`/pedidos/${id}`);
+  },
+  async updateStatus(id: string, status: string) {
+    return apiClient<any>(`/pedidos/${id}/estado`, {
+      method: 'PUT',
+      body: JSON.stringify({ estado: status }),
+    });
+  },
+  async updateAddress(orderId: string, address: string) { 
+    await delay(); return { success: true, orderId, address }; 
+  },
+};
+
+// ─── Admin Users ──────────────────────────────────────────────
+export const adminUsersAPI = {
+  async getAll() {
+    return apiClient<any[]>('/usuarios');
+  },
+  async updateRole(id: string, role: string) {
+    return apiClient<any>(`/usuarios/${id}/rol`, {
+      method: 'PUT',
+      body: JSON.stringify({ rol: role }),
+    });
+  },
+  async toggleActive(id: string) {
+    return apiClient<any>(`/usuarios/${id}/toggle-active`, {
+      method: 'PUT',
+    });
+  }
 };
 
 // ─── Inventory ───────────────────────────────────────────────
