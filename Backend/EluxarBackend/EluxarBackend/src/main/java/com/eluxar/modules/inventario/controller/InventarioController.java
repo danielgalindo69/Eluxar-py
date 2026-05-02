@@ -43,4 +43,16 @@ public class InventarioController {
         return ResponseEntity.ok(ApiResponse.success("Stock actualizado",
                 inventarioService.actualizar(varianteId, stockActual, stockMinimo, motivo)));
     }
+
+    @GetMapping("/movimientos")
+    @Operation(summary = "Listar el historial de movimientos")
+    public ResponseEntity<ApiResponse<List<com.eluxar.modules.inventario.dto.MovimientoInventarioDTO>>> listarMovimientos() {
+        return ResponseEntity.ok(ApiResponse.success(inventarioService.listarMovimientos()));
+    }
+
+    @GetMapping("/alertas")
+    @Operation(summary = "Obtener alertas de stock bajo")
+    public ResponseEntity<ApiResponse<List<com.eluxar.modules.inventario.dto.AlertaStockDTO>>> obtenerAlertas() {
+        return ResponseEntity.ok(ApiResponse.success(inventarioService.obtenerAlertasStock()));
+    }
 }

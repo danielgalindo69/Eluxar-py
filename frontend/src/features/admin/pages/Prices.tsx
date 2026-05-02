@@ -1,31 +1,53 @@
-import { useState } from "react";
-import { PRODUCTS } from "../../products/types/products";
+import { useState, useEffect } from "react";
+import { productsAPI, pricesAPI } from "../../../core/api/api";
+import { Product } from "../../products/types/products";
 import { Save, Check } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 
 export const Prices = () => {
-  const [prices, setPrices] = useState<Record<string, Record<string, string>>>(
-    Object.fromEntries(PRODUCTS.map(p => [p.id, Object.fromEntries(p.variants.map(v => [v.volume, String(v.price)]))]))
-  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [prices, setPrices] = useState<Record<string, Record<string, string>>>({});
   const [editingCell, setEditingCell] = useState<string | null>(null);
-  const [confirmSave, setConfirmSave] = useState<{ productId: string; volume: string; price: string } | null>(null);
+  const [confirmSave, setConfirmSave] = useState<{ productId: string; variantId: number; volume: string; price: string } | null>(null);
   const [savedCells, setSavedCells] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    productsAPI.getAll().then(data => {
+      setProducts(data);
+      setPrices(Object.fromEntries(data.map(p => [p.id, Object.fromEntries(p.variants.map(v => [v.volume, String(v.price)]))])));
+      setIsLoading(false);
+    });
+  }, []);
 
   const handlePriceChange = (productId: string, volume: string, value: string) => {
     setPrices(prev => ({ ...prev, [productId]: { ...prev[productId], [volume]: value } }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!confirmSave) return;
     const val = parseFloat(confirmSave.price);
     if (isNaN(val) || val <= 0) { toast.error('El precio debe ser un valor positivo'); setConfirmSave(null); return; }
-    const key = `${confirmSave.productId}-${confirmSave.volume}`;
-    setSavedCells(prev => ({ ...prev, [key]: true }));
-    setTimeout(() => setSavedCells(prev => { const n = { ...prev }; delete n[key]; return n; }), 2000);
-    toast.success('Precio actualizado');
-    setEditingCell(null);
-    setConfirmSave(null);
+    
+    if(!confirmSave.variantId) { toast.error('La variante no tiene ID válido'); return; }
+
+    try {
+      await pricesAPI.bulkUpdate([{
+        varianteId: confirmSave.variantId,
+        nuevoPrecioVenta: val
+      }]);
+
+      const key = `${confirmSave.productId}-${confirmSave.volume}`;
+      setSavedCells(prev => ({ ...prev, [key]: true }));
+      setTimeout(() => setSavedCells(prev => { const n = { ...prev }; delete n[key]; return n; }), 2000);
+      toast.success('Precio actualizado');
+    } catch (e) {
+      toast.error('Error al actualizar el precio');
+    } finally {
+      setEditingCell(null);
+      setConfirmSave(null);
+    }
   };
 
   return (
@@ -46,7 +68,9 @@ export const Prices = () => {
               </tr>
             </thead>
             <tbody>
-              {PRODUCTS.map(product =>
+              {isLoading ? (
+                <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando catálogo...</td></tr>
+              ) : products.map(product =>
                 product.variants.map((variant, vi) => {
                   const cellKey = `${product.id}-${variant.volume}`;
                   const isEditing = editingCell === cellKey;
@@ -63,7 +87,7 @@ export const Prices = () => {
                             className="border border-[#3A4A3F] dark:border-[#3A4A3F] dark:bg-[#111111] dark:text-white px-3 py-1 text-sm w-24 outline-none" autoFocus />
                         ) : (
                           <span className="text-sm font-bold text-[#111111] dark:text-white flex items-center gap-2">
-                            {prices[product.id]?.[variant.volume] || variant.price}COP
+                            {prices[product.id]?.[variant.volume] || variant.price} COP
                             {isSaved && <Check size={14} className="text-[#3A4A3F]" />}
                           </span>
                         )}
@@ -71,7 +95,7 @@ export const Prices = () => {
                       <td className="px-6 py-4">
                         {isEditing ? (
                           <div className="flex gap-2">
-                            <button onClick={() => setConfirmSave({ productId: product.id, volume: variant.volume, price: prices[product.id]?.[variant.volume] || '' })}
+                            <button onClick={() => setConfirmSave({ productId: product.id, variantId: variant.id || 0, volume: variant.volume, price: prices[product.id]?.[variant.volume] || '' })}
                               className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-3 py-1 text-[10px] uppercase tracking-widest font-bold flex items-center gap-1">
                               <Save size={12} /> Guardar
                             </button>

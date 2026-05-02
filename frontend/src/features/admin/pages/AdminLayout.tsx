@@ -26,9 +26,7 @@ export const AdminLayout = () => {
     { path: "/admin/stock-alerts", label: "Alertas Stock", icon: AlertTriangle },
     { path: "/admin/payments", label: "Pagos", icon: CreditCard },
     { path: "/admin/shipping", label: "Envíos", icon: Truck },
-    { path: "/admin/banners", label: "Banners", icon: Megaphone },
     { path: "/admin/prices", label: "Precios", icon: DollarSign },
-    { path: "/admin/categories", label: "Categorías", icon: Tag },
     { path: "/admin/images", label: "Imágenes", icon: Image },
   ];
 

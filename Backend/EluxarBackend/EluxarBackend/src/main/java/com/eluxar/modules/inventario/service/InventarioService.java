@@ -90,4 +90,38 @@ public class InventarioService {
                 .stockBajo(actual <= minimo)
                 .build();
     }
+
+    public List<com.eluxar.modules.inventario.dto.MovimientoInventarioDTO> listarMovimientos() {
+        return movimientoRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "creadoEn"))
+                .stream()
+                .map(mov -> {
+                    var variante = mov.getInventario().getVariante();
+                    return com.eluxar.modules.inventario.dto.MovimientoInventarioDTO.builder()
+                            .id(mov.getId())
+                            .varianteId(variante.getId())
+                            .productoNombre(variante.getProducto() != null ? variante.getProducto().getNombre() : "N/A")
+                            .tamanoMl(variante.getTamanoMl() + "ml")
+                            .tipo(mov.getTipo())
+                            .cantidad(mov.getCantidad())
+                            .motivo(mov.getMotivo())
+                            .fecha(mov.getCreadoEn())
+                            .usuario("Admin") // Por ahora fijo
+                            .build();
+                })
+                .toList();
+    }
+
+    public List<com.eluxar.modules.inventario.dto.AlertaStockDTO> obtenerAlertasStock() {
+        return inventarioRepository.findAll().stream()
+                .filter(inv -> inv.getStockActual() <= inv.getStockMinimo())
+                .map(inv -> com.eluxar.modules.inventario.dto.AlertaStockDTO.builder()
+                        .varianteId(inv.getVariante().getId())
+                        .sku(inv.getVariante().getSku())
+                        .productoNombre(inv.getVariante().getProducto() != null ? inv.getVariante().getProducto().getNombre() : null)
+                        .tamanoMl(inv.getVariante().getTamanoMl())
+                        .stockActual(inv.getStockActual())
+                        .stockMinimo(inv.getStockMinimo())
+                        .build())
+                .toList();
+    }
 }

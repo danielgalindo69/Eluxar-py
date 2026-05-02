@@ -44,7 +44,7 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
   olfactoryFamily: dto.familiaOlfativa || '',
   category: dto.categoria || '',
   variants: (dto.variantes || []).map((v: any) => ({
-    id: v.id,
+    id: String(v.id),
     volume: `${v.tamanoMl}ml`,
     price: v.precioVenta,
     stock: v.stockActual
@@ -318,49 +318,54 @@ export const adminUsersAPI = {
 };
 
 // ─── Inventory ───────────────────────────────────────────────
-export interface InventoryMovement {
-  id: string;
-  productId: string;
-  productName: string;
-  type: 'Entrada' | 'Salida';
-  quantity: number;
-  date: string;
-  user: string;
-  notes: string;
+export interface InventoryItem {
+  id: number;
+  varianteId: number;
+  sku: string;
+  productoNombre: string;
+  tamanoMl: number;
+  stockActual: number;
+  stockReservado: number;
+  stockMinimo: number;
+  stockBajo: boolean;
 }
 
-export const MOCK_INVENTORY: InventoryMovement[] = [];
+export interface InventoryMovement {
+  id: number;
+  varianteId: number;
+  productoNombre: string;
+  tamanoMl: string;
+  tipo: 'ENTRADA' | 'SALIDA' | 'AJUSTE' | 'RESERVA' | 'LIBERACION';
+  cantidad: number;
+  motivo: string;
+  fecha: string;
+  usuario: string;
+}
+
+export interface StockAlert {
+  varianteId: number;
+  sku: string;
+  productoNombre: string;
+  tamanoMl: number;
+  stockActual: number;
+  stockMinimo: number;
+}
 
 export const inventoryAPI = {
-  async getMovements() { await delay(); return [...MOCK_INVENTORY]; },
-  async addMovement(m: Omit<InventoryMovement, 'id'>) {
-    await delay();
-    return { ...m, id: crypto.randomUUID() };
+  async getAll(): Promise<InventoryItem[]> {
+    return apiClient<InventoryItem[]>('/inventario');
   },
-};
-
-// ─── Stock Alerts ────────────────────────────────────────────
-export interface StockAlert {
-  productId: string;
-  productName: string;
-  currentStock: number;
-  threshold: number;
-  severity: 'warning' | 'critical';
-}
-
-export const stockAlertsAPI = {
+  async getMovements(): Promise<InventoryMovement[]> {
+    return apiClient<InventoryMovement[]>('/inventario/movimientos');
+  },
   async getAlerts(): Promise<StockAlert[]> {
-    await delay();
-    return [
-      { productId: '3', productName: 'Iris Concrete', currentStock: 4, threshold: 10, severity: 'critical' },
-      { productId: '5', productName: 'Vetiver Absolute', currentStock: 8, threshold: 10, severity: 'warning' },
-      { productId: '7', productName: 'Rose Noir', currentStock: 3, threshold: 15, severity: 'critical' },
-      { productId: '9', productName: 'Ambre Sauvage', currentStock: 12, threshold: 15, severity: 'warning' },
-    ];
+    return apiClient<StockAlert[]>('/inventario/alertas');
   },
-  async updateThreshold(productId: string, threshold: number) {
-    await delay();
-    return { success: true, productId, threshold };
+  async update(varianteId: number | string, data: { stockActual: number; stockMinimo?: number; motivo?: string }) {
+    return apiClient<InventoryItem>(`/inventario/${varianteId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
 };
 
@@ -537,7 +542,16 @@ export const userAPI = {
     formData.append('file', file);
     return apiClient<{ imageUrl: string }>('/usuarios/profile/image', {
       method: 'POST',
-      body: formData,
     });
   },
+};
+
+// ─── Prices ──────────────────────────────────────────────────
+export const pricesAPI = {
+  async bulkUpdate(updates: Array<{ varianteId: number; nuevoPrecioVenta: number; nuevoPrecioOferta?: number; nuevoPrecioCosto?: number }>) {
+    return apiClient<any>('/admin/precios/masivo', {
+      method: 'PUT',
+      body: JSON.stringify({ actualizaciones: updates }),
+    });
+  }
 };
