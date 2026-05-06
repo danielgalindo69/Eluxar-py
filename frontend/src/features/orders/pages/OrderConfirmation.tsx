@@ -1,14 +1,34 @@
-﻿import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { CheckCircle, Package, ArrowRight } from "lucide-react";
 import { useCart } from "../../cart/context/CartContext";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 
 export const OrderConfirmation = () => {
   const { items, subtotal, clearCart } = useCart();
-  const orderId = `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  const location = useLocation();
+  const orderFromState = location.state?.order;
+  
+  const [orderItems, setOrderItems] = useState<any[]>([]);
+  const [orderTotal, setOrderTotal] = useState<number>(0);
+  const [orderId, setOrderId] = useState<string>('');
 
-  // Snapshot items at render time, then clear cart on first render
-  const orderItems = items.length > 0 ? items : [];
+  useEffect(() => {
+    if (orderFromState) {
+      setOrderId(String(orderFromState.id));
+      setOrderTotal(orderFromState.total || orderFromState.subtotal);
+      setOrderItems(orderFromState.items?.map((i: any) => ({
+        name: i.productoNombre,
+        volume: `${i.tamanoMl}ml`,
+        quantity: i.cantidad,
+        price: i.precioUnitario
+      })) || []);
+    } else {
+      setOrderId(`ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+      setOrderTotal(subtotal);
+      setOrderItems(items.length > 0 ? items : []);
+    }
+  }, [orderFromState, items, subtotal]);
 
   return (
     <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
@@ -58,7 +78,7 @@ export const OrderConfirmation = () => {
 
           <div className="pt-4 border-t border-[#2B2B2B]/10 flex justify-between items-end">
             <span className="text-[10px] uppercase tracking-widest font-bold">Total</span>
-            <span className="text-2xl font-light tracking-tight">{subtotal > 0 ? subtotal.toFixed(2) : '0.00'}COP</span>
+            <span className="text-2xl font-light tracking-tight">{orderTotal > 0 ? orderTotal.toFixed(2) : '0.00'}COP</span>
           </div>
         </motion.div>
 

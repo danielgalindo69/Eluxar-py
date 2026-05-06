@@ -61,7 +61,8 @@ public class AuthService {
                 .tipo("Bearer")
                 .userId(usuario.getId())
                 .email(usuario.getEmail())
-                .nombre(usuario.getNombre() + " " + usuario.getApellido())
+                .nombre(usuario.getNombre())
+                .apellido(usuario.getApellido())
                 .rol(usuario.getRol().getNombre())
                 .pictureUrl(usuario.getPictureUrl())
                 .build();

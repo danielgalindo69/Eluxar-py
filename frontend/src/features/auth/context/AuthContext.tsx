@@ -6,6 +6,7 @@ export type UserRole = 'ADMIN' | 'EMPLEADO' | 'CLIENTE' | 'USUARIO';
 export interface User {
   id: string;
   name: string;
+  lastName?: string;
   email: string;
   role: UserRole;
   phone?: string;

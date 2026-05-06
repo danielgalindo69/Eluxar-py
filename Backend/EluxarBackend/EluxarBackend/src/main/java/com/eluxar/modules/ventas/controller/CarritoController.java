@@ -35,8 +35,26 @@ public class CarritoController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody Map<String, Object> body) {
         
-        Long varianteId = ((Number) body.get("varianteId")).longValue();
-        Integer cantidad = (Integer) body.get("cantidad");
+        if (!body.containsKey("varianteId") || body.get("varianteId") == null) {
+            throw new IllegalArgumentException("El campo 'varianteId' es requerido");
+        }
+        if (!body.containsKey("cantidad") || body.get("cantidad") == null) {
+            throw new IllegalArgumentException("El campo 'cantidad' es requerido");
+        }
+        
+        Long varianteId;
+        try {
+            varianteId = Long.parseLong(body.get("varianteId").toString());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("El campo 'varianteId' debe ser un número");
+        }
+        
+        Integer cantidad;
+        try {
+            cantidad = Integer.parseInt(body.get("cantidad").toString());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("El campo 'cantidad' debe ser un número");
+        }
         
         return ResponseEntity.ok(ApiResponse.success(
                 "Item agregado al carrito", 

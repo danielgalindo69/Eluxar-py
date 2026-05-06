@@ -1,4 +1,4 @@
-﻿import { useParams, Link, useNavigate } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import { Product } from "../types/products";
 import { productsAPI } from "../../../core/api/api";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
@@ -43,7 +43,10 @@ export const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!product) return;
+    const vId = selectedVariant?.id;
+    
     addItem({
+      varianteId: vId,
       productId: product.id,
       name: product.name,
       type: product.type,

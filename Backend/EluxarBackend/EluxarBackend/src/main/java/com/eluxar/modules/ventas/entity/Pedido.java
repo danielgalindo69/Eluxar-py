@@ -50,6 +50,15 @@ public class Pedido {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
+    @Column(length = 500)
+    private String direccionEnvio;
+
+    @Column(length = 100)
+    private String metodoPago;
+
+    @Column(length = 100)
+    private String trackingNumber;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime creadoEn;

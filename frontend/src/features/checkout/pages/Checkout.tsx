@@ -1,15 +1,17 @@
-﻿import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { ChevronRight, ShieldCheck, Truck, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "../../cart/context/CartContext";
 import { useAuth } from "../../auth/context/AuthContext";
+import { ordersAPI } from "../../../core/api/api";
 
 export const Checkout = () => {
   const [activeStep, setActiveStep] = useState(1);
   const { items, subtotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: user?.name?.split(' ')[0] || '',
@@ -27,9 +29,32 @@ export const Checkout = () => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleFinishOrder = () => {
-    clearCart();
-    navigate('/order-confirmation');
+  const handleFinishOrder = async () => {
+    if (!isAuthenticated) {
+      alert("Debes iniciar sesión para finalizar la compra");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const orderData = {
+        direccion: formData.address,
+        ciudad: formData.city,
+        codigoPostal: formData.zip,
+        provincia: formData.province,
+        pais: formData.country,
+        metodoPago: "Tarjeta", // mock por ahora
+        notas: ""
+      };
+      
+      const res = await ordersAPI.create(orderData);
+      clearCart();
+      navigate('/order-confirmation', { state: { order: res } });
+    } catch (e: any) {
+      alert("Error al procesar el pedido: " + e.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,11 +71,7 @@ export const Checkout = () => {
               <ChevronRight size={12} strokeWidth={3} />
               <span className={activeStep >= 2 ? "text-[#111111] dark:text-white" : ""}>Dirección</span>
               <ChevronRight size={12} strokeWidth={3} />
-              <span className={activeStep >= 1 ? "text-[#111111] dark:text-white dark:text-white" : ""}>Información</span>
-              <ChevronRight size={12} strokeWidth={3} />
-              <span className={activeStep >= 2 ? "text-[#111111] dark:text-white dark:text-white" : ""}>Dirección</span>
-              <ChevronRight size={12} strokeWidth={3} />
-              <span className={activeStep >= 3 ? "text-[#111111] dark:text-white dark:text-white" : ""}>Pago</span>
+              <span className={activeStep >= 3 ? "text-[#111111] dark:text-white" : ""}>Pago</span>
            </div>
 
            {/* Step 1: Personal Information */}
@@ -179,8 +200,8 @@ export const Checkout = () => {
                      <ShieldCheck size={14} />
                      <span>Pago 100% Seguro</span>
                   </div>
-                  <button onClick={handleFinishOrder} className="bg-[#111111] dark:bg-white dark:bg-[#161616] dark:text-black text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5">
-                     Finalizar Compra
+                  <button onClick={handleFinishOrder} disabled={isSubmitting} className="bg-[#111111] dark:bg-white dark:bg-[#161616] dark:text-black text-white px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all shadow-lg shadow-black/5 disabled:opacity-50">
+                     {isSubmitting ? "Procesando..." : "Finalizar Compra"}
                   </button>
                </div>
              </div>

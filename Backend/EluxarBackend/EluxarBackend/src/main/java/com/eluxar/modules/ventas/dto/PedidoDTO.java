@@ -22,6 +22,9 @@ public class PedidoDTO {
     private BigDecimal descuento;
     private BigDecimal costoEnvio;
     private BigDecimal total;
+    private String direccionEnvio;
+    private String metodoPago;
+    private String trackingNumber;
     private LocalDateTime creadoEn;
     private List<ItemDTO> items;
 
@@ -37,5 +40,6 @@ public class PedidoDTO {
         private Integer cantidad;
         private BigDecimal precioUnitario;
         private BigDecimal subtotal;
+        private String imagenUrl;
     }
 }
