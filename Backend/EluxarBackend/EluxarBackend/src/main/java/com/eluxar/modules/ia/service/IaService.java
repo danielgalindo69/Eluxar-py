@@ -43,8 +43,8 @@ public class IaService {
     }
 
     // The user explicitly requested to use this API Key
-    private final String API_KEY = "AIzaSyAU06_N9uyPIncFWUMhlccifAgMoQE_f9o";
-    private final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
+    private final String API_KEY = "AIzaSyCKOBfdl5uSQmk79Nl_JHqEi6EZHUtku5c";
+    private final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public IaResponseDTO recomendar(IaRequestDTO requestDTO) {

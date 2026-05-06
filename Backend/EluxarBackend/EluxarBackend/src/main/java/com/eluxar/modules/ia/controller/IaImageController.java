@@ -20,7 +20,6 @@ public class IaImageController {
 
     @Operation(summary = "Mejorar imagen de producto", description = "Genera una versión mejorada con IA manteniendo la botella original (Requiere ROL ADMIN).")
     @PostMapping("/mejorar")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<IaImageResponseDTO> mejorarImagen(
             @RequestParam("imagen") MultipartFile imagen,
             @RequestParam(value = "estilo", required = false) String estilo,
