@@ -44,7 +44,7 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
   olfactoryFamily: dto.familiaOlfativa || '',
   category: dto.categoria || '',
   variants: (dto.variantes || []).map((v: any) => ({
-    id: String(v.id),
+    id: v.id,
     volume: `${v.tamanoMl}ml`,
     price: v.precioVenta,
     stock: v.stockActual
@@ -76,8 +76,10 @@ export const authAPI = {
       const user = {
         id: String(data.userId),
         name: data.nombre,
+        lastName: data.apellido,
         email: data.email,
         role: data.rol,
+        phone: data.telefono,
         token: data.token,
         pictureUrl: data.pictureUrl ?? null,
       };
@@ -124,8 +126,10 @@ export const authAPI = {
       const user = {
         id: String(data.userId),
         name: data.nombre,
+        lastName: data.apellido,
         email: data.email,
         role: data.rol,
+        phone: data.telefono,
         token: data.token,
         pictureUrl: data.pictureUrl ?? null,
       };
@@ -260,22 +264,35 @@ export const addressAPI = {
 
 // ─── Orders ──────────────────────────────────────────────────
 export interface OrderItem {
-  productId: string;
-  name: string;
-  image: string;
-  volume: string;
-  quantity: number;
-  price: number;
+  id?: number;
+  varianteId?: number;
+  productoNombre?: string;
+  tamanoMl?: number;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal?: number;
+  imagenUrl?: string;
+  // Campos antiguos para retrocompatibilidad
+  productId?: string;
+  name?: string;
+  image?: string;
+  volume?: string;
+  price?: number;
 }
 
 export interface Order {
-  id: string;
-  date: string;
-  status: 'Pendiente' | 'Procesando' | 'Enviado' | 'Entregado';
+  id: string | number;
+  date?: string;
+  creadoEn?: string;
+  status?: string;
+  estado?: string;
   items: OrderItem[];
   total: number;
-  address: string;
-  paymentMethod: string;
+  subtotal?: number;
+  address?: string;
+  direccionEnvio?: string;
+  paymentMethod?: string;
+  metodoPago?: string;
   trackingNumber?: string;
 }
 
@@ -283,6 +300,9 @@ export const MOCK_ORDERS: Order[] = []; // Se mantiene para compatibilidad tempo
 
 export const ordersAPI = {
   async getAll() {
+    return apiClient<any[]>('/pedidos/mis-pedidos');
+  },
+  async getAllAdmin() {
     return apiClient<any[]>('/pedidos/todos');
   },
   async getById(id: string) {
@@ -297,6 +317,12 @@ export const ordersAPI = {
   async updateAddress(orderId: string, address: string) { 
     await delay(); return { success: true, orderId, address }; 
   },
+  async create(data: { direccion: string; ciudad: string; codigoPostal?: string; provincia?: string; pais: string; metodoPago: string; notas?: string }) {
+    return apiClient<any>('/pedidos', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 };
 
 // ─── Admin Users ──────────────────────────────────────────────
@@ -542,8 +568,33 @@ export const userAPI = {
     formData.append('file', file);
     return apiClient<{ imageUrl: string }>('/usuarios/profile/image', {
       method: 'POST',
+      body: formData,
     });
   },
+};
+
+// ─── Cart ────────────────────────────────────────────────────
+export const cartAPI = {
+  async getActive() {
+    return apiClient<any>('/carrito');
+  },
+  async addItem(varianteId: number, cantidad: number) {
+    return apiClient<any>('/carrito/agregar', {
+      method: 'POST',
+      body: JSON.stringify({ varianteId, cantidad }),
+    });
+  },
+  async updateItem(itemId: number, cantidad: number) {
+    return apiClient<any>(`/carrito/item/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ cantidad }),
+    });
+  },
+  async removeItem(itemId: number) {
+    return apiClient<any>(`/carrito/item/${itemId}`, {
+      method: 'DELETE',
+    });
+  }
 };
 
 // ─── Prices ──────────────────────────────────────────────────

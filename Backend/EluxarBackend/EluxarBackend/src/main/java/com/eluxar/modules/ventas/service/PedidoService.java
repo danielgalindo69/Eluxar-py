@@ -57,6 +57,8 @@ public class PedidoService {
                 .descuento(BigDecimal.ZERO)
                 .costoEnvio(BigDecimal.ZERO) // Demo: envío gratis
                 .total(subtotal)
+                .direccionEnvio(request.getDireccionCompleta())
+                .metodoPago(request.getMetodoPago())
                 .build();
 
         pedido = pedidoRepository.save(pedido);
@@ -143,16 +145,27 @@ public class PedidoService {
                 .descuento(pedido.getDescuento())
                 .costoEnvio(pedido.getCostoEnvio())
                 .total(pedido.getTotal())
+                .direccionEnvio(pedido.getDireccionEnvio())
+                .metodoPago(pedido.getMetodoPago())
+                .trackingNumber(pedido.getTrackingNumber())
                 .creadoEn(pedido.getCreadoEn())
-                .items(pedido.getItems().stream().map(item -> PedidoDTO.ItemDTO.builder()
-                        .id(item.getId())
-                        .varianteId(item.getVariante().getId())
-                        .productoNombre(item.getVariante().getProducto().getNombre())
-                        .tamanoMl(item.getVariante().getTamanoMl())
-                        .cantidad(item.getCantidad())
-                        .precioUnitario(item.getPrecioUnitario())
-                        .subtotal(item.getSubtotal())
-                        .build()).toList())
+                .items(pedido.getItems().stream().map(item -> {
+                    String imagenUrl = item.getVariante().getProducto().getImagenes().stream()
+                            .filter(com.eluxar.modules.catalogo.entity.ProductoImagen::isPrincipal)
+                            .findFirst()
+                            .map(com.eluxar.modules.catalogo.entity.ProductoImagen::getUrl)
+                            .orElse(null);
+                    return PedidoDTO.ItemDTO.builder()
+                            .id(item.getId())
+                            .varianteId(item.getVariante().getId())
+                            .productoNombre(item.getVariante().getProducto().getNombre())
+                            .tamanoMl(item.getVariante().getTamanoMl())
+                            .cantidad(item.getCantidad())
+                            .precioUnitario(item.getPrecioUnitario())
+                            .subtotal(item.getSubtotal())
+                            .imagenUrl(imagenUrl)
+                            .build();
+                }).toList())
                 .build();
     }
 }
