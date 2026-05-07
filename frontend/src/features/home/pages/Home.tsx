@@ -1,17 +1,19 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Hero } from "../components/Hero";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Link } from "react-router";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Star } from "lucide-react";
 import { Product } from "../../products/types/products";
 import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
 import { toast } from "sonner";
-
+import { motion } from "motion/react";
 
 export const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [destacados, setDestacados] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingDestacados, setIsLoadingDestacados] = useState(true);
   const [newsletterEmail, setNewsletterEmail] = useState('');
 
   const handleNewsletter = (e: React.FormEvent) => {
@@ -34,13 +36,24 @@ export const Home = () => {
       }
     };
 
+    const fetchDestacados = async () => {
+      try {
+        setIsLoadingDestacados(true);
+        const data = await productsAPI.getDestacados();
+        setDestacados(data);
+      } catch (err) {
+        console.error("Error fetching destacados:", err);
+      } finally {
+        setIsLoadingDestacados(false);
+      }
+    };
+
     fetchProducts();
+    fetchDestacados();
   }, []);
 
   // AI Recommended Products (primeros 2 productos)
   const aiRecommended = products.slice(0, 2);
-  // Featured Products (últimos 2 productos)
-  const featuredProducts = products.slice(2, 4);
 
   return (
     <main>
@@ -118,15 +131,32 @@ export const Home = () => {
             </p>
           </div>
 
-          {isLoading ? (
+          {isLoadingDestacados ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-4">
                <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
                <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40">Cargando destacados...</span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {destacados.slice(0, 4).map((product, i) => (
+                <motion.div 
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6, delay: i * 0.15, ease: "easeOut" }}
+                  whileHover={{ y: -5 }}
+                >
+                  <ProductCard product={product} />
+                  {/* Rating Badge Overlay */}
+                  {product.rating !== undefined && product.rating > 0 && (
+                     <div className="mt-3 flex items-center justify-center gap-1 text-[#3A4A3F] dark:text-[#A5BAA8]">
+                       <Star size={12} className="fill-current" />
+                       <span className="text-xs font-medium">{product.rating.toFixed(1)}</span>
+                       <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 ml-1">({product.reviewCount})</span>
+                     </div>
+                  )}
+                </motion.div>
               ))}
             </div>
           )}

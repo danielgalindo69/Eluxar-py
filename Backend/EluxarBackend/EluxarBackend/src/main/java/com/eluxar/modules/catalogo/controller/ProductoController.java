@@ -43,6 +43,12 @@ public class ProductoController {
         return ResponseEntity.ok(ApiResponse.success(productoService.listarConFiltros(filtro)));
     }
 
+    @GetMapping("/destacados")
+    @Operation(summary = "Obtener productos mejor valorados (Destacados)")
+    public ResponseEntity<ApiResponse<List<ProductoDTO>>> listarDestacados() {
+        return ResponseEntity.ok(ApiResponse.success(productoService.listarDestacados()));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtener producto por ID")
     public ResponseEntity<ApiResponse<ProductoDTO>> obtenerPorId(@PathVariable Long id) {

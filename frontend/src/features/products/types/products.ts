@@ -29,6 +29,8 @@ export interface Product {
     longevity: string;
     sillage: string;
   };
+  rating?: number;
+  reviewCount?: number;
 }
 
 export const PRODUCTS: Product[] = [];

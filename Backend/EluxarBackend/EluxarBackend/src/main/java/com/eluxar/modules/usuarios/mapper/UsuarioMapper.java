@@ -11,3 +11,5 @@ public interface UsuarioMapper {
     @Mapping(target = "rol", expression = "java(usuario.getRol().getNombre())")
     UsuarioDTO toDTO(Usuario usuario);
 }
+
+// Recompile trigger
