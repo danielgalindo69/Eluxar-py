@@ -14,5 +14,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>,
     List<Producto> findByActivoTrue();
 
     List<Producto> findByDestacadoTrueAndActivoTrue();
-    
+
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Producto p WHERE p.activo = true AND p.totalResenas > 0 ORDER BY p.promedioCalificacion DESC, p.totalResenas DESC")
+    List<Producto> findTopRatedProducts(org.springframework.data.domain.Pageable pageable);
 }

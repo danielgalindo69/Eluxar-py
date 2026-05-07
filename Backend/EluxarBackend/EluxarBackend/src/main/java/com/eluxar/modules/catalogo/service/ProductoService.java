@@ -40,6 +40,13 @@ public class ProductoService {
                 .toList();
     }
 
+    public List<ProductoDTO> listarDestacados() {
+        return productoRepository.findTopRatedProducts(org.springframework.data.domain.PageRequest.of(0, 6)).stream()
+                .map(productoMapper::toDTO)
+                .map(this::populateStock)
+                .toList();
+    }
+
     public ProductoDTO obtenerPorId(Long id) {
         return productoRepository.findById(id)
                 .map(productoMapper::toDTO)

@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useCart } from "../../cart/context/CartContext";
 import { toast } from "sonner";
+import { ProductReviews } from "../components/ProductReviews";
 
 export const ProductDetail = () => {
   const { id } = useParams();
@@ -252,6 +253,16 @@ export const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* --- Sección de Reseñas --- */}
+        <ProductReviews 
+          productId={product.id} 
+          onReviewAdded={() => {
+            // Recargar producto para actualizar el rating promedio
+            productsAPI.getById(product.id).then(setProduct);
+          }} 
+        />
+
       </div>
     </main>
   );

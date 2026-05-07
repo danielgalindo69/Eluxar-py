@@ -54,6 +54,8 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
     stock: v.stockActual
   })),
   stock: (dto.variantes || []).reduce((acc: number, v: any) => acc + (v.stockActual || 0), 0),
+  rating: dto.promedioCalificacion || 0,
+  reviewCount: dto.totalResenas || 0,
   notes: {
     top: 'Notas de salida', // Placeholders as backend doesn't have detailed notes
     heart: 'Notas de corazón',
@@ -228,6 +230,23 @@ export const productsAPI = {
       body: formData,
     });
   },
+  async getDestacados() {
+    const dtos = await apiClient<any[]>('/productos/destacados');
+    return dtos.map(mapProductoDTOToProduct);
+  }
+};
+
+// ─── Reviews ──────────────────────────────────────────────────
+export const reviewsAPI = {
+  async getByProductId(productId: string, page = 0, size = 10) {
+    return apiClient<any>(`/productos/${productId}/resenas?page=${page}&size=${size}`);
+  },
+  async createOrUpdate(productId: string, rating: number, comment: string) {
+    return apiClient<any>(`/productos/${productId}/resenas`, {
+      method: 'POST',
+      body: JSON.stringify({ calificacion: rating, comentario: comment }),
+    });
+  }
 };
 
 // ─── Addresses ───────────────────────────────────────────────

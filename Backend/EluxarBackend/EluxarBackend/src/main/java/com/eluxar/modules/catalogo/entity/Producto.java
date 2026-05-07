@@ -56,5 +56,14 @@ public class Producto {
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProductoImagen> imagenes = new ArrayList<>();
+
+    // --- Sistema de Reseñas ---
+    @Column(name = "promedio_calificacion")
+    @Builder.Default
+    private Double promedioCalificacion = 0.0;
+
+    @Column(name = "total_resenas")
+    @Builder.Default
+    private Integer totalResenas = 0;
 }
 

@@ -32,6 +32,10 @@ public class ProductoDTO {
 
     /** Lista de URLs de Cloudinary de las imágenes del producto */
     private List<String> imagenes;
+    
+    // Reseñas
+    private Double promedioCalificacion;
+    private Integer totalResenas;
 
     @Data
     @Builder
