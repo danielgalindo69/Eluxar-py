@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router";
 import { Product } from "../types/products";
-import { productsAPI } from "../../../core/api/api";
+import { productsAPI, formatPrice } from "../../../core/api/api";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Plus, Minus, ArrowLeft, Share2, Loader2, ShoppingBag } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -121,7 +121,7 @@ export const ProductDetail = () => {
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#3A4A3F] dark:text-[#A5BAA8] font-bold">{product.type}</span>
               <h1 className="text-4xl md:text-5xl font-light text-[#111111] dark:text-white tracking-tight">{product.name}</h1>
               <p className="text-xl text-[#2B2B2B] dark:text-[#EDEDED] font-medium tracking-tight">
-                {currentPrice.toFixed(2)}COP
+                {formatPrice(currentPrice)} COP
               </p>
             </div>
 
@@ -164,7 +164,7 @@ export const ProductDetail = () => {
                             : 'border-[#EDEDED] dark:border-white/8 hover:border-[#111111] text-[#2B2B2B] dark:text-[#EDEDED]'
                           }`}
                       >
-                        {variant.volume} — {variant.price.toFixed(2)}COP
+                        {variant.volume} — {formatPrice(variant.price)} COP
                       </button>
                     ))}
                   </div>

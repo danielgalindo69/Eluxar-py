@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ordersAPI, Order } from "../../../core/api/api";
+import { ordersAPI, Order, formatPrice } from "../../../core/api/api";
 import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock } from "lucide-react";
 import { Link } from "react-router";
 
@@ -63,7 +63,7 @@ export const OrderHistory = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-6 text-[#111111] dark:text-white">
-                      <span className="text-sm font-bold hidden sm:block">{order.total?.toFixed(2)}COP</span>
+                      <span className="text-sm font-bold hidden sm:block">{order.total ? formatPrice(order.total) : '0'} COP</span>
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </div>
                   </button>
@@ -83,7 +83,7 @@ export const OrderHistory = () => {
                                 <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{item.tamanoMl ? `${item.tamanoMl}ml` : item.volume} × {item.cantidad}</p>
                               </div>
                             </div>
-                            <span className="text-sm font-bold text-[#111111] dark:text-white">{(item.precioUnitario * item.cantidad).toFixed(2)}COP</span>
+                            <span className="text-sm font-bold text-[#111111] dark:text-white">{formatPrice(item.precioUnitario * item.cantidad)} COP</span>
                           </div>
                         ))}
                       </div>
@@ -99,7 +99,7 @@ export const OrderHistory = () => {
                         </div>
                         <div>
                           <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Total</p>
-                          <p className="text-xl font-light text-[#111111] dark:text-white">{order.total?.toFixed(2)}COP</p>
+                          <p className="text-xl font-light text-[#111111] dark:text-white">{order.total ? formatPrice(order.total) : '0'} COP</p>
                         </div>
                       </div>
 

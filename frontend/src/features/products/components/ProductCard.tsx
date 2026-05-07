@@ -1,4 +1,4 @@
-﻿import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Product } from "../types/products";
 import { useState } from "react";
@@ -19,6 +19,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     e.preventDefault();
     const defaultVariant = product.variants?.[0];
     addItem({
+      varianteId: defaultVariant?.id,
       productId: product.id,
       name: product.name,
       type: product.type,

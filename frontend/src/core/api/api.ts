@@ -5,6 +5,10 @@ const API_BASE = '/api';
 // Simulate network delay (kept for compatibility with remaining mock services)
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
+export const formatPrice = (price: number) => {
+  return price.toLocaleString('es-CO');
+};
+
 // ─── API Client ──────────────────────────────────────────────
 async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('eluxar_token');
@@ -35,7 +39,7 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
   id: String(dto.id),
   name: dto.nombre || '',
   type: dto.categoria || '',
-  price: `${dto.variantes?.[0]?.precioVenta || 0} COP`,
+  price: `${formatPrice(dto.variantes?.[0]?.precioVenta || 0)} COP`,
   image: dto.imagenes?.[0] || 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1080',
   hoverImage: dto.imagenes?.[1],
   description: dto.descripcion || '',
