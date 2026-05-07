@@ -233,36 +233,51 @@ export const productsAPI = {
 // ─── Addresses ───────────────────────────────────────────────
 export interface Address {
   id: string;
-  label: string;
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
+  label: string;       // Alias/nombre ("Casa", "Trabajo")
+  street: string;      // Calle y número
+  barrio: string;      // Barrio
+  city: string;        // Ciudad
+  state: string;       // Departamento
+  zip: string;         // Código postal
+  country: string;     // País
   isDefault: boolean;
 }
 
-const mockAddresses: Address[] = [];
-
 export const addressAPI = {
-  async getAll() { await delay(300); return [...mockAddresses]; },
-  async create(address: Omit<Address, 'id'>) {
-    await delay();
-    const newAddr = { ...address, id: crypto.randomUUID() };
-    mockAddresses.push(newAddr);
-    return newAddr;
+  async getAll(): Promise<Address[]> {
+    return apiClient<Address[]>('/usuarios/direcciones');
   },
-  async update(id: string, data: Partial<Address>) {
-    await delay();
-    const idx = mockAddresses.findIndex(a => a.id === id);
-    if (idx !== -1) Object.assign(mockAddresses[idx], data);
-    return mockAddresses[idx];
+  async create(address: Omit<Address, 'id'>): Promise<Address> {
+    return apiClient<Address>('/usuarios/direcciones', {
+      method: 'POST',
+      body: JSON.stringify(address),
+    });
   },
-  async remove(id: string) { await delay(); return { success: true, id }; },
-  async setDefault(id: string) {
-    await delay();
-    mockAddresses.forEach(a => a.isDefault = a.id === id);
-    return { success: true };
+  async update(id: string, data: Partial<Address>): Promise<Address> {
+    return apiClient<Address>(`/usuarios/direcciones/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  async remove(id: string): Promise<{ success: boolean }> {
+    return apiClient<{ success: boolean }>(`/usuarios/direcciones/${id}`, { method: 'DELETE' });
+  },
+  async setDefault(id: string): Promise<{ success: boolean }> {
+    return apiClient<{ success: boolean }>(`/usuarios/direcciones/${id}/predeterminada`, { method: 'PUT' });
+  },
+};
+
+// ─── Coupons ───────────────────────────────────────────────
+export interface Coupon {
+  codigo: string;
+  descuento: number;   // Porcentaje 0-100 o valor fijo
+  tipo: 'PORCENTAJE' | 'VALOR_FIJO';
+  montoMinimo?: number;
+}
+
+export const couponAPI = {
+  async validate(codigo: string): Promise<Coupon> {
+    return apiClient<Coupon>(`/cupones/validar/${codigo}`);
   },
 };
 
@@ -321,11 +336,24 @@ export const ordersAPI = {
   async updateAddress(orderId: string, address: string) { 
     await delay(); return { success: true, orderId, address }; 
   },
-  async create(data: { direccion: string; ciudad: string; codigoPostal?: string; provincia?: string; pais: string; metodoPago: string; notas?: string }) {
+  async create(data: {
+    direccion: string;
+    barrio?: string;
+    ciudad: string;
+    codigoPostal?: string;
+    departamento?: string;
+    pais: string;
+    metodoPago: string;
+    codigoDescuento?: string;
+    notas?: string;
+  }) {
     return apiClient<any>('/pedidos', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+  async cancel(id: string) {
+    return apiClient<any>(`/pedidos/${id}/cancelar`, { method: 'PUT' });
   }
 };
 

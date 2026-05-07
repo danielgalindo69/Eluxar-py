@@ -27,14 +27,35 @@ public class MarcaService {
 
     @Transactional
     public Marca crear(String nombre, String descripcion, String logoUrl) {
-        if (marcaRepository.existsByNombre(nombre)) {
-            throw new IllegalArgumentException("Ya existe una marca con el nombre: " + nombre);
+        String nombreNormalizado = normalizeName(nombre);
+
+        if (marcaRepository.existsByNombreIgnoreCase(nombreNormalizado)) {
+            throw new IllegalArgumentException("Ya existe una marca con el nombre: " + nombreNormalizado);
         }
         return marcaRepository.save(Marca.builder()
-                .nombre(nombre)
+                .nombre(nombreNormalizado)
                 .descripcion(descripcion)
                 .logoUrl(logoUrl)
                 .activa(true)
                 .build());
+    }
+
+    /**
+     * Normaliza el texto a Title Case. Ej: "chanel" -> "Chanel", "cAROlina heRreRa" -> "Carolina Herrera"
+     */
+    private String normalizeName(String input) {
+        if (input == null || input.trim().isEmpty()) return input;
+        
+        String[] words = input.trim().toLowerCase().split("\\s+");
+        StringBuilder titleCase = new StringBuilder();
+        
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                titleCase.append(Character.toUpperCase(word.charAt(0)))
+                         .append(word.substring(1))
+                         .append(" ");
+            }
+        }
+        return titleCase.toString().trim();
     }
 }

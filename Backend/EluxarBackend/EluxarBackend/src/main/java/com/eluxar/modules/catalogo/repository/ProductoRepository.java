@@ -14,4 +14,5 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>,
     List<Producto> findByActivoTrue();
 
     List<Producto> findByDestacadoTrueAndActivoTrue();
+    
 }

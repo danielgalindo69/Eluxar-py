@@ -193,7 +193,7 @@ public class ProductoService {
 
     private void updateProductoFields(Producto producto, ProductoDTO dto) {
         Marca marca = dto.getMarca() != null && !dto.getMarca().isBlank()
-                ? marcaRepository.findByNombre(dto.getMarca())
+                ? marcaRepository.findByNombreIgnoreCase(dto.getMarca())
                     .orElseGet(() -> marcaRepository.save(
                         Marca.builder().nombre(dto.getMarca()).activa(true).build()))
                 : null;

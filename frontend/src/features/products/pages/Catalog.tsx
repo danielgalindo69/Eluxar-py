@@ -1,4 +1,4 @@
-﻿import { ProductCard } from "../components/ProductCard";
+import { ProductCard } from "../components/ProductCard";
 import { Product } from "../types/products";
 import { productsAPI, categoriesAPI, brandsAPI, Category } from "../../../core/api/api";
 import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles, Loader2 } from "lucide-react";
@@ -51,7 +51,11 @@ export const Catalog = () => {
   // Reset page when filters change
   useEffect(() => { setCurrentPage(1); }, [activeFilter, activePriceRange, sortOption]);
 
-  const parsePrice = (priceStr: string) => parseFloat(priceStr.replace('COP', '').replace(',', '.'));
+  const parsePrice = (priceStr: string) => {
+    // Convierte "150.000 COP" a 150000
+    const cleanStr = priceStr.replace(/COP/gi, '').replace(/\./g, '').replace(/,/g, '.').trim();
+    return parseFloat(cleanStr) || 0;
+  };
 
   const filteredAndSorted = useMemo(() => {
     let result = products;
@@ -65,9 +69,9 @@ export const Catalog = () => {
     if (activePriceRange !== 'all') {
       result = result.filter(p => {
         const price = parsePrice(p.price);
-        if (activePriceRange === 'under150') return price < 150;
-        if (activePriceRange === '150to200') return price >= 150 && price <= 200;
-        if (activePriceRange === 'over200') return price > 200;
+        if (activePriceRange === 'under150') return price < 150000;
+        if (activePriceRange === '150to200') return price >= 150000 && price <= 200000;
+        if (activePriceRange === 'over200') return price > 200000;
         return true;
       });
     }
@@ -162,9 +166,9 @@ export const Catalog = () => {
               <ul className="space-y-4">
                 {([
                   { value: 'all', label: 'Todos los precios' },
-                  { value: 'under150', label: 'Menos de 150COP' },
-                  { value: '150to200', label: '150COP – 200COP' },
-                  { value: 'over200', label: 'Más de 200COP' },
+                  { value: 'under150', label: 'Menos de $150.000' },
+                  { value: '150to200', label: '$150.000 – $200.000' },
+                  { value: 'over200', label: 'Más de $200.000' },
                 ] as { value: PriceRange; label: string }[]).map((item) => (
                   <li key={item.value} className="flex items-center space-x-3 cursor-pointer group" onClick={() => setActivePriceRange(item.value)}>
                     <div className={`w-3 h-3 border transition-colors ${activePriceRange === item.value ? 'border-[#3A4A3F] dark:border-[#A5BAA8] bg-[#3A4A3F] dark:bg-[#A5BAA8]' : 'border-[#EDEDED] dark:border-white/8 group-hover:border-[#111111]'}`} />
