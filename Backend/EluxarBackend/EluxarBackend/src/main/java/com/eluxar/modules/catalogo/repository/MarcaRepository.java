@@ -12,7 +12,7 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
 
     List<Marca> findByActivaTrue();
 
-    boolean existsByNombre(String nombre);
+    boolean existsByNombreIgnoreCase(String nombre);
 
-    Optional<Marca> findByNombre(String nombre);
+    Optional<Marca> findByNombreIgnoreCase(String nombre);
 }

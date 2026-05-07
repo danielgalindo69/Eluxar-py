@@ -43,6 +43,14 @@ public class EmailService {
     @Value("${resend.from}")
     private String fromAddress;
 
+    /**
+     * Email de prueba al que se redirigen todos los correos en modo sandbox.
+     * Resend solo permite enviar al dueño de la cuenta sin dominio verificado.
+     * Dejar vacío ("") para deshabilitar el override en producción.
+     */
+    @Value("${resend.test.email:}")
+    private String testEmailOverride;
+
     // ─── API Pública ────────────────────────────────────────────────────────────
 
     /**
@@ -65,6 +73,22 @@ public class EmailService {
         }
     }
 
+    /**
+     * Envía la factura electrónica / resumen de compra.
+     */
+    @Async
+    public void sendOrderSummaryEmail(com.eluxar.modules.ventas.dto.PedidoDTO pedido, String to, String nombre) {
+        log.info("[Resend] Preparando factura para pedido #{} — destinatario: {}", pedido.getId(), to);
+        try {
+            String htmlContent = renderOrderSummaryTemplate(pedido, nombre);
+            sendEmail(to, "Confirmación de Pedido #" + pedido.getId() + " - Eluxar", htmlContent);
+            log.info("[Resend] ✅ Factura enviada exitosamente a: {}", to);
+        } catch (Exception e) {
+            log.warn("[Resend] ⚠️ FALLO al enviar factura a {} — Error: {}", to, e.getMessage(), e);
+            // No se relanza: el correo no debe bloquear el flujo de compra
+        }
+    }
+
     // ─── Renderizado de Template ─────────────────────────────────────────────────
 
     private String renderPasswordResetTemplate(String nombre, String codigo) throws Exception {
@@ -74,6 +98,40 @@ public class EmailService {
         model.put("nombre", nombre);
         model.put("codigo", codigo);
         model.put("anio", LocalDate.now().getYear());
+
+        return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+    }
+
+    private String renderOrderSummaryTemplate(com.eluxar.modules.ventas.dto.PedidoDTO pedido, String nombre) throws Exception {
+        Template template = freemarkerConfig.getTemplate("order-summary.ftl");
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("nombre", nombre);
+        model.put("anio", LocalDate.now().getYear());
+        
+        // Datos del pedido
+        model.put("pedidoId", pedido.getId());
+        model.put("fecha", pedido.getCreadoEn() != null ? pedido.getCreadoEn().toLocalDate().toString() : LocalDate.now().toString());
+        model.put("metodoPago", pedido.getMetodoPago());
+        model.put("direccion", pedido.getDireccionEnvio());
+        
+        // Totales formateados
+        java.text.NumberFormat nf = java.text.NumberFormat.getInstance(new java.util.Locale("es", "CO"));
+        model.put("subtotalStr", nf.format(pedido.getSubtotal()));
+        model.put("descuento", pedido.getDescuento() != null ? pedido.getDescuento().doubleValue() : 0);
+        model.put("descuentoStr", pedido.getDescuento() != null ? nf.format(pedido.getDescuento()) : "0");
+        model.put("totalStr", nf.format(pedido.getTotal()));
+        
+        // Items
+        List<Map<String, Object>> items = pedido.getItems().stream().map(item -> {
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("productoNombre", item.getProductoNombre());
+            itemMap.put("tamanoMl", item.getTamanoMl());
+            itemMap.put("cantidad", item.getCantidad());
+            itemMap.put("subtotalStr", nf.format(item.getSubtotal()));
+            return itemMap;
+        }).toList();
+        model.put("items", items);
 
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
     }

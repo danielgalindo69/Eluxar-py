@@ -32,6 +32,7 @@ public class PedidoService {
     private final InventarioRepository inventarioRepository;
     private final MovimientoRepository movimientoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final com.eluxar.common.service.EmailService emailService;
 
     @Transactional
     public PedidoDTO crearDesdeCarrito(Long usuarioId, CheckoutRequest request) {
@@ -101,7 +102,12 @@ public class PedidoService {
         carritoRepository.save(carrito);
 
         pedido = pedidoRepository.save(pedido);
-        return mapToDTO(pedido);
+        PedidoDTO dto = mapToDTO(pedido);
+        
+        // Enviar factura electrónica por Resend en segundo plano
+        emailService.sendOrderSummaryEmail(dto, usuario.getEmail(), usuario.getNombre());
+        
+        return dto;
     }
 
     public List<PedidoDTO> listarMisPedidos(Long usuarioId) {

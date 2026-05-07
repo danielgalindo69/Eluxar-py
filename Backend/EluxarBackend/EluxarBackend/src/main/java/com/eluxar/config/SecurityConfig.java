@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/marcas/**").permitAll()
                 // IA
                 .requestMatchers("/api/ia/**").permitAll()
+                // Cupones (validación es pública)
+                .requestMatchers(HttpMethod.GET, "/api/cupones/validar/**").permitAll()
                 // Archivos públicos
                 .requestMatchers("/uploads/**").permitAll()
                 // Admin exclusivo

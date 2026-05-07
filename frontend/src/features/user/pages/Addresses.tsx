@@ -1,11 +1,12 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Plus, Pencil, Trash2, Star, X } from "lucide-react";
 import { addressAPI, Address } from "../../../core/api/api";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 
-const emptyAddress = { label: '', street: '', city: '', state: '', zip: '', country: 'España', isDefault: false };
+const emptyAddress = { label: '', street: '', barrio: '', city: '', state: '', zip: '', country: 'Colombia', isDefault: false };
+const MAX_ADDRESSES = 5;
 
 export const Addresses = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -28,7 +29,8 @@ export const Addresses = () => {
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!formData.label.trim()) errs.label = 'Nombre requerido';
-    if (!formData.street.trim()) errs.street = 'Calle requerida';
+    if (!formData.street.trim()) errs.street = 'Dirección requerida';
+    if (!formData.barrio.trim()) errs.barrio = 'Barrio requerido';
     if (!formData.city.trim()) errs.city = 'Ciudad requerida';
     if (!formData.zip.trim()) errs.zip = 'Código postal requerido';
     setErrors(errs);
@@ -65,7 +67,7 @@ export const Addresses = () => {
 
   const openEdit = (address: Address) => {
     setEditingId(address.id);
-    setFormData({ label: address.label, street: address.street, city: address.city, state: address.state, zip: address.zip, country: address.country, isDefault: address.isDefault });
+    setFormData({ label: address.label, street: address.street, barrio: address.barrio || '', city: address.city, state: address.state, zip: address.zip, country: address.country, isDefault: address.isDefault });
     setErrors({});
     setIsFormOpen(true);
   };
@@ -85,8 +87,10 @@ export const Addresses = () => {
             <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4">Mis Direcciones</h1>
             <p className="text-sm text-[#2B2B2B]/50 dark:text-white/50 font-light">Gestiona tus direcciones de envío</p>
           </div>
-          <button onClick={() => { setIsFormOpen(true); setEditingId(null); setFormData(emptyAddress); setErrors({}); }}
-            className="bg-[#111111] text-white px-6 py-3 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] transition-colors flex items-center gap-2">
+          <button
+            onClick={() => { setIsFormOpen(true); setEditingId(null); setFormData(emptyAddress); setErrors({}); }}
+            disabled={addresses.length >= MAX_ADDRESSES}
+            className="bg-[#111111] text-white px-6 py-3 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
             <Plus size={14} /> Nueva Dirección
           </button>
         </div>
@@ -145,11 +149,11 @@ export const Addresses = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                   {[
                     { key: 'label', label: 'Nombre (ej: Casa)', placeholder: 'Casa', col: 'col-span-full' },
-                    { key: 'street', label: 'Calle y Número', placeholder: 'Calle Mayor 10, 3ºA', col: 'col-span-full' },
-                    { key: 'city', label: 'Ciudad', placeholder: 'Madrid', col: '' },
-                    { key: 'state', label: 'Provincia/Estado', placeholder: 'Madrid', col: '' },
-                    { key: 'zip', label: 'Código Postal', placeholder: '28001', col: '' },
-                    { key: 'country', label: 'País', placeholder: 'España', col: '' },
+                    { key: 'street', label: 'Calle y Número', placeholder: 'Calle 80 # 12-34', col: 'col-span-full' },
+                    { key: 'barrio', label: 'Barrio', placeholder: 'El Poblado', col: '' },
+                    { key: 'city', label: 'Ciudad', placeholder: 'Medellín', col: '' },
+                    { key: 'state', label: 'Departamento', placeholder: 'Antioquia', col: '' },
+                    { key: 'zip', label: 'Código Postal', placeholder: '050001', col: '' },
                   ].map(field => (
                     <div key={field.key} className={`flex flex-col space-y-1 ${field.col}`}>
                       <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40">{field.label}</label>
