@@ -112,7 +112,7 @@ export const Navbar = () => {
                         <Link to="/profile/addresses" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
                           <MapPin size={14} />Direcciones
                         </Link>
-                        <Link to="/order-history" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
+                        <Link to="/profile/orders" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
                           <ClipboardList size={14} />Mis Pedidos
                         </Link>
                         <Link to="/recommendations" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
@@ -181,7 +181,7 @@ export const Navbar = () => {
                   {isAuthenticated ? (
                     <>
                       <Link to="/profile" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4">Mi Perfil</Link>
-                      <Link to="/order-history" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4">Mis Pedidos</Link>
+                      <Link to="/profile/orders" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4">Mis Pedidos</Link>
                       {hasRole('ADMIN', 'EMPLEADO') && (
                         <Link to="/admin" className="block text-[#3A4A3F] text-lg uppercase tracking-widest font-bold mb-4">Panel Admin</Link>
                       )}

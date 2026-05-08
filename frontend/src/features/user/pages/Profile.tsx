@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../auth/context/AuthContext";
 import { authAPI } from "../../../core/api/api";
 import { User, Mail, Phone, Lock, Save, Eye, EyeOff } from "lucide-react";
@@ -64,8 +64,8 @@ export const Profile = () => {
   const inputClass = "bg-transparent border-none outline-none w-full text-[15px] font-medium pr-10 text-[#111111] dark:text-white disabled:text-[#2B2B2B]/60 dark:text-white/60 dark:disabled:text-white/40 placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/20 transition-all";
 
   return (
-    <main className="pt-32 pb-24 bg-[#FCFCFC] dark:bg-[#0F0F0F] min-h-screen px-6">
-      <div className="max-w-5xl mx-auto">
+    <div>
+      <div className="w-full">
         <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4 text-center sm:text-left">Mi Perfil</h1>
         <p className="text-sm text-[#2B2B2B]/50 dark:text-white/40 font-light mb-12 text-center sm:text-left">Gestiona tus datos personales y preferencias de cuenta</p>
 
@@ -197,6 +197,6 @@ export const Profile = () => {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 };
