@@ -22,8 +22,8 @@ export const OrderHistory = () => {
   }, []);
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6">
-      <div className="max-w-4xl mx-auto">
+    <div>
+      <div className="w-full">
         <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4">Mis Pedidos</h1>
         <p className="text-sm text-[#2B2B2B]/50 dark:text-white/40 font-light mb-16">Historial completo de tus compras</p>
 
@@ -124,6 +124,6 @@ export const OrderHistory = () => {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 };

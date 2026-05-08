@@ -80,8 +80,8 @@ export const Addresses = () => {
   };
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
-      <div className="max-w-3xl mx-auto">
+    <div>
+      <div className="w-full">
         <div className="flex items-center justify-between mb-16">
           <div>
             <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4">Mis Direcciones</h1>
@@ -187,6 +187,6 @@ export const Addresses = () => {
           variant="destructive"
         />
       </div>
-    </main>
+    </div>
   );
 };

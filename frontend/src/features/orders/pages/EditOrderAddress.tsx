@@ -78,7 +78,7 @@ export const EditOrderAddress = () => {
       
       await ordersAPI.updateAddress(id || '', finalAddress);
       toast.success('Dirección de envío actualizada correctamente');
-      navigate('/order-history');
+      navigate('/profile/orders');
     } catch (err: any) {
       toast.error(err.message || 'Error al actualizar dirección. El pedido puede estar bloqueado.');
     } finally {
@@ -89,7 +89,7 @@ export const EditOrderAddress = () => {
   return (
     <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
       <div className="max-w-2xl mx-auto">
-        <Link to="/order-history" className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white transition-colors font-bold mb-10">
+        <Link to="/profile/orders" className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white transition-colors font-bold mb-10">
           <ArrowLeft size={14} /> Volver a Mis Pedidos
         </Link>
 
