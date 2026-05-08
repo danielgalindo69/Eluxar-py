@@ -11,6 +11,7 @@ import { Register } from "../../features/auth/pages/Register";
 import { ForgotPassword } from "../../features/auth/pages/ForgotPassword";
 import { Profile } from "../../features/user/pages/Profile";
 import { Addresses } from "../../features/user/pages/Addresses";
+import { UserLayout } from "../../features/user/pages/UserLayout";
 import { Search } from "../../features/products/pages/Search";
 import { OrderConfirmation } from "../../features/orders/pages/OrderConfirmation";
 import { OrderHistory } from "../../features/orders/pages/OrderHistory";
@@ -82,10 +83,16 @@ export const router = createBrowserRouter([
         children: [
           { path: "checkout", Component: Checkout },
           { path: "order-confirmation", Component: OrderConfirmation },
-          { path: "order-history", Component: OrderHistory },
           { path: "order/:id/edit-address", Component: EditOrderAddress },
-          { path: "profile", Component: Profile },
-          { path: "profile/addresses", Component: Addresses },
+          {
+            path: "profile",
+            Component: UserLayout,
+            children: [
+              { index: true, Component: Profile },
+              { path: "orders", Component: OrderHistory },
+              { path: "addresses", Component: Addresses },
+            ]
+          }
         ],
       },
 

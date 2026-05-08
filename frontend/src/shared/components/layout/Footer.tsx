@@ -50,7 +50,7 @@ export const Footer = () => {
               <li><Link to="/auth" className="hover:text-[#111111] dark:hover:text-white transition-colors">Iniciar Sesión</Link></li>
               <li><Link to="/register" className="hover:text-[#111111] dark:hover:text-white transition-colors">Crear Cuenta</Link></li>
               <li><Link to="/profile" className="hover:text-[#111111] dark:hover:text-white transition-colors">Mi Perfil</Link></li>
-              <li><Link to="/order-history" className="hover:text-[#111111] dark:hover:text-white transition-colors">Mis Pedidos</Link></li>
+              <li><Link to="/profile/orders" className="hover:text-[#111111] dark:hover:text-white transition-colors">Mis Pedidos</Link></li>
               <li><Link to="/profile/addresses" className="hover:text-[#111111] dark:hover:text-white transition-colors">Direcciones</Link></li>
             </ul>
           </div>

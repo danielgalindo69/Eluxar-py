@@ -93,7 +93,7 @@ export const OrderConfirmation = () => {
         {/* Actions */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
           className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/order-history"
+          <Link to="/profile/orders"
             className="border border-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white transition-colors">
             Ver Mis Pedidos
           </Link>
