@@ -1,6 +1,7 @@
-﻿import { Link, useLocation, useNavigate } from "react-router";
-import { Search, ShoppingBag, Menu, X, User, ChevronDown, LogOut, MapPin, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, MapPin, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon, Search } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { SearchBar } from "../../../features/products/components/SearchBar";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../../../features/auth/context/AuthContext";
 import { useCart } from "../../../features/cart/context/CartContext";
@@ -65,10 +66,11 @@ export const Navbar = () => {
           </div>
 
           {/* Icons - Right */}
-          <div className="flex items-center space-x-6">
-            <Link to="/search" className="text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity">
-              <Search size={20} strokeWidth={1.5} />
-            </Link>
+          <div className="flex items-center space-x-4">
+            {/* SearchBar - visible en desktop */}
+            <div className="hidden lg:block">
+              <SearchBar />
+            </div>
             <Link to="/chat" className="hidden sm:block text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity">
               <MessageCircle size={20} strokeWidth={1.5} />
             </Link>
@@ -164,7 +166,8 @@ export const Navbar = () => {
               <div className="flex flex-col p-6 space-y-4">
                 <Link to="/catalog" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Colección</Link>
                 <Link to="/fragrance-test" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest flex items-center gap-2"><Sparkles size={16} />Test Olfativo</Link>
-                <Link to="/search" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Buscar</Link>
+                {/* SearchBar mobile */}
+                <div className="pt-2 pb-1"><SearchBar /></div>
                 <Link to="/chat" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Chat IA</Link>
                 <Link to="/cart" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Bolsa ({itemCount})</Link>
                 <button

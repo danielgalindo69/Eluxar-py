@@ -123,12 +123,12 @@ export const Orders = () => {
                           "text-[#2B2B2B]/60 dark:text-white/60"
                         }`}
                       >
-                        <option value="PENDIENTE">Pendiente</option>
-                        <option value="CONFIRMADO">Confirmado</option>
-                        <option value="EN_PROCESO">En Proceso</option>
-                        <option value="ENVIADO">Enviado</option>
-                        <option value="ENTREGADO">Entregado</option>
-                        <option value="CANCELADO">Cancelado</option>
+                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="PENDIENTE">Pendiente</option>
+                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CONFIRMADO">Confirmado</option>
+                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="EN_PROCESO">En Proceso</option>
+                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENVIADO">Enviado</option>
+                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENTREGADO">Entregado</option>
+                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CANCELADO">Cancelado</option>
                       </select>
                     </div>
                   </td>

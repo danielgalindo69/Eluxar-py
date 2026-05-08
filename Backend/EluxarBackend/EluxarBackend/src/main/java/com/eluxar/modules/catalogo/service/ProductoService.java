@@ -47,6 +47,15 @@ public class ProductoService {
                 .toList();
     }
 
+    public List<ProductoDTO> buscarSugerencias(String q) {
+        return productoRepository.buscarSugerencias(
+                q, org.springframework.data.domain.PageRequest.of(0, 8)
+        ).stream()
+                .map(productoMapper::toDTO)
+                .map(this::populateStock)
+                .toList();
+    }
+
     public ProductoDTO obtenerPorId(Long id) {
         return productoRepository.findById(id)
                 .map(productoMapper::toDTO)

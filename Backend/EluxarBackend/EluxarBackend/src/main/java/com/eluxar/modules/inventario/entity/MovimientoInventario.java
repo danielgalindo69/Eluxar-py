@@ -36,6 +36,14 @@ public class MovimientoInventario {
     @Column(columnDefinition = "TEXT")
     private String motivo;
 
+    /**
+     * Soft-delete flag: true = archivado (oculto en vistas activas, pero conservado en BD).
+     * Se archivan registros antiguos para agilizar la UI sin perder datos de auditoría.
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean archivado = false;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime creadoEn;

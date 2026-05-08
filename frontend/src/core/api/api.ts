@@ -352,8 +352,11 @@ export const ordersAPI = {
       body: JSON.stringify({ estado: status }),
     });
   },
-  async updateAddress(orderId: string, address: string) { 
-    await delay(); return { success: true, orderId, address }; 
+  async updateAddress(orderId: string, address: string) {
+    return apiClient<any>(`/pedidos/${orderId}/direccion`, {
+      method: 'PATCH',
+      body: JSON.stringify({ direccionEnvio: address }),
+    });
   },
   async create(data: {
     direccion: string;
@@ -391,6 +394,13 @@ export const adminUsersAPI = {
     return apiClient<any>(`/usuarios/${id}/toggle-active`, {
       method: 'PUT',
     });
+  }
+};
+
+// ─── Admin Dashboard ──────────────────────────────────────────
+export const adminDashboardAPI = {
+  async getMetrics() {
+    return apiClient<any>('/admin/dashboard');
   }
 };
 
@@ -432,8 +442,12 @@ export const inventoryAPI = {
   async getAll(): Promise<InventoryItem[]> {
     return apiClient<InventoryItem[]>('/inventario');
   },
-  async getMovements(): Promise<InventoryMovement[]> {
-    return apiClient<InventoryMovement[]>('/inventario/movimientos');
+  async getMovements(desde?: string, hasta?: string): Promise<InventoryMovement[]> {
+    const params = new URLSearchParams();
+    if (desde) params.append('desde', desde);
+    if (hasta) params.append('hasta', hasta);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiClient<InventoryMovement[]>(`/inventario/movimientos${query}`);
   },
   async getAlerts(): Promise<StockAlert[]> {
     return apiClient<StockAlert[]>('/inventario/alertas');
@@ -444,7 +458,41 @@ export const inventoryAPI = {
       body: JSON.stringify(data),
     });
   },
+  /** Descarga el reporte de movimientos como archivo Excel */
+  async exportarExcel(desde?: string, hasta?: string): Promise<void> {
+    const token = localStorage.getItem('eluxar_token');
+    const params = new URLSearchParams();
+    if (desde) params.append('desde', desde);
+    if (hasta) params.append('hasta', hasta);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetch(`/api/inventario/movimientos/exportar${query}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Error al exportar Excel');
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `movimientos_inventario_${new Date().toISOString().split('T')[0]}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+  /** Archiva (oculta de la vista) movimientos anteriores a la fecha dada */
+  async archivarMovimientos(antes: string): Promise<void> {
+    await apiClient(`/inventario/movimientos/archivar?antes=${antes}`, { method: 'PATCH' });
+  },
 };
+
+// ─── Search (Autocompletado) ──────────────────────────────────
+export const searchAPI = {
+  async buscarSugerencias(q: string): Promise<import('../../features/products/types/products').Product[]> {
+    if (q.trim().length < 2) return [];
+    const dtos = await apiClient<any[]>(`/productos/buscar?q=${encodeURIComponent(q.trim())}`);
+    return dtos.map(mapProductoDTOToProduct);
+  },
+};
+
+
 
 // ─── Payments (Admin) ────────────────────────────────────────
 export interface Payment {
