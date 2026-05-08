@@ -49,6 +49,16 @@ public class ProductoController {
         return ResponseEntity.ok(ApiResponse.success(productoService.listarDestacados()));
     }
 
+    @GetMapping("/buscar")
+    @Operation(summary = "Búsqueda predictiva de productos (autocompletado)")
+    public ResponseEntity<ApiResponse<List<ProductoDTO>>> buscar(
+            @RequestParam String q) {
+        if (q == null || q.trim().length() < 2) {
+            return ResponseEntity.ok(ApiResponse.success(List.of()));
+        }
+        return ResponseEntity.ok(ApiResponse.success(productoService.buscarSugerencias(q.trim())));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtener producto por ID")
     public ResponseEntity<ApiResponse<ProductoDTO>> obtenerPorId(@PathVariable Long id) {

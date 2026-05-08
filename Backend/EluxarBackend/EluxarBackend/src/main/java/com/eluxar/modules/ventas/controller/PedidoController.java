@@ -76,4 +76,27 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.success(
                 "Estado actualizado", pedidoService.actualizarEstado(id, nuevoEstado)));
     }
+
+    /**
+     * Permite al cliente cambiar la dirección de un pedido SOLO si el estado
+     * es PENDIENTE, CONFIRMADO o EN_PROCESO. Bloqueado si ya fue ENVIADO o ENTREGADO.
+     */
+    @PatchMapping("/{id}/direccion")
+    @Operation(summary = "Cambiar dirección de envío (solo pre-despacho)")
+    public ResponseEntity<ApiResponse<PedidoDTO>> cambiarDireccion(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        String nuevaDireccion = body.get("direccionEnvio");
+        if (nuevaDireccion == null || nuevaDireccion.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("La dirección no puede estar vacía"));
+        }
+
+        PedidoDTO resultado = pedidoService.cambiarDireccionEnvio(
+                userDetails.getId(), id, nuevaDireccion.trim());
+
+        return ResponseEntity.ok(ApiResponse.success("Dirección actualizada correctamente", resultado));
+    }
 }

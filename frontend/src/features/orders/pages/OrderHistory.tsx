@@ -110,9 +110,9 @@ export const OrderHistory = () => {
                         </div>
                       )}
 
-                      {order.status === 'Procesando' && (
+                      {['PENDIENTE', 'CONFIRMADO', 'EN_PROCESO'].includes((order as any).estado || order.status) && (
                         <Link to={`/order/${order.id}/edit-address`}
-                          className="inline-block border border-[#111111] dark:border-white text-[#111111] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white hover:text-white dark:hover:text-[#111111] transition-colors">
+                          className="inline-block border border-[#111111] dark:border-white text-[#111111] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white hover:text-white dark:hover:text-[#111111] transition-colors mt-4">
                           Modificar Dirección de Envío
                         </Link>
                       )}

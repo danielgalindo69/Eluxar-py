@@ -142,6 +142,38 @@ public class PedidoService {
         return mapToDTO(pedidoRepository.save(pedido));
     }
 
+    /**
+     * Permite al cliente cambiar la dirección de envío de su pedido.
+     * Regla de negocio: Solo permitido en estados PENDIENTE, CONFIRMADO o EN_PROCESO.
+     * Una vez ENVIADO o ENTREGADO, la dirección queda bloqueada permanentemente.
+     */
+    @Transactional
+    public PedidoDTO cambiarDireccionEnvio(Long usuarioId, Long pedidoId, String nuevaDireccion) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", pedidoId));
+
+        // Verificar que el pedido pertenece al usuario autenticado
+        if (!pedido.getUsuario().getId().equals(usuarioId)) {
+            throw new IllegalArgumentException("Este pedido no pertenece a tu cuenta");
+        }
+
+        // Validar estado: solo pre-despacho
+        Pedido.EstadoPedido estado = pedido.getEstado();
+        boolean bloqueado = estado == Pedido.EstadoPedido.ENVIADO
+                || estado == Pedido.EstadoPedido.ENTREGADO
+                || estado == Pedido.EstadoPedido.CANCELADO;
+
+        if (bloqueado) {
+            throw new IllegalStateException(
+                    "No es posible cambiar la dirección porque el pedido ya fue " + estado.name() +
+                    ". Contacta con soporte si necesitas ayuda."
+            );
+        }
+
+        pedido.setDireccionEnvio(nuevaDireccion);
+        return mapToDTO(pedidoRepository.save(pedido));
+    }
+
     private PedidoDTO mapToDTO(Pedido pedido) {
         return PedidoDTO.builder()
                 .id(pedido.getId())
