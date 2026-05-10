@@ -26,6 +26,7 @@ public class ListaDeseosService {
     private final ProductoRepository productoRepository;
     private final ProductoMapper productoMapper;
 
+    @Transactional(readOnly = true)
     public List<ProductoDTO> obtenerListaDeseos(Long usuarioId) {
         List<ListaDeseos> deseos = listaDeseosRepository.findByUsuarioIdOrderByFechaAgregadoDesc(usuarioId);
         return deseos.stream()
@@ -34,6 +35,7 @@ public class ListaDeseosService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<Long> obtenerIdsListaDeseos(Long usuarioId) {
         List<ListaDeseos> deseos = listaDeseosRepository.findByUsuarioIdOrderByFechaAgregadoDesc(usuarioId);
         return deseos.stream()

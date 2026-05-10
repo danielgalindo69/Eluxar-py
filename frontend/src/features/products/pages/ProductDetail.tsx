@@ -61,12 +61,6 @@ export const ProductDetail = () => {
       volume: selectedVariant?.volume ?? product.specs.volume,
       price: currentPrice,
     }, quantity);
-    toast.success(`${product.name} añadido a la bolsa`, {
-      action: {
-        label: 'Ver bolsa',
-        onClick: () => navigate('/cart'),
-      },
-    });
   };
 
   const handleToggleWishlist = async () => {
@@ -89,10 +83,42 @@ export const ProductDetail = () => {
   };
 
   if (isLoading) return (
-    <div className="pt-40 pb-24 flex flex-col items-center justify-center space-y-4">
-      <Loader2 className="animate-spin text-[#3A4A3F] dark:text-[#A5BAA8]" size={32} />
-      <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40">Cargando detalles...</span>
-    </div>
+    <main className="pt-24 pb-24 bg-white dark:bg-[#161616] min-h-screen">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between py-8 animate-pulse">
+          <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-40 rounded-sm"></div>
+          <div className="flex space-x-6">
+            <div className="h-4 w-4 bg-[#F5F5F5] dark:bg-white/5 rounded-sm"></div>
+            <div className="h-4 w-4 bg-[#F5F5F5] dark:bg-white/5 rounded-sm"></div>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-20 animate-pulse">
+          {/* Gallery Skeleton */}
+          <div className="w-full lg:w-3/5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2 aspect-[16/10] bg-[#F5F5F5] dark:bg-white/5 rounded-sm"></div>
+            <div className="aspect-square bg-[#F5F5F5] dark:bg-white/5 rounded-sm"></div>
+            <div className="aspect-square bg-[#F5F5F5] dark:bg-white/5 rounded-sm"></div>
+          </div>
+
+          {/* Info Skeleton */}
+          <div className="w-full lg:w-2/5 space-y-10">
+            <div className="space-y-4">
+              <div className="h-3 bg-[#F5F5F5] dark:bg-white/5 w-20 rounded-sm"></div>
+              <div className="h-10 bg-[#F5F5F5] dark:bg-white/5 w-3/4 rounded-sm"></div>
+              <div className="h-6 bg-[#F5F5F5] dark:bg-white/5 w-1/3 rounded-sm"></div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-full rounded-sm"></div>
+              <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-full rounded-sm"></div>
+              <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-5/6 rounded-sm"></div>
+            </div>
+            <div className="h-32 bg-[#F5F5F5] dark:bg-white/5 w-full rounded-sm"></div>
+            <div className="h-14 bg-[#F5F5F5] dark:bg-white/5 w-full rounded-sm mt-8"></div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 
   if (error || !product) return (

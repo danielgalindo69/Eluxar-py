@@ -38,12 +38,36 @@ import { NotFound } from "../../features/shared/pages/NotFound";
 import { ScrollToTop } from "../../shared/components/ScrollToTop";
 
 
+import { CartDrawer } from "../../features/cart/components/CartDrawer";
+
+import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router';
+
+const PageTransition = () => {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="flex-1 flex flex-col"
+      >
+        <Outlet />
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white flex flex-col">
       <ScrollToTop />
       <Navbar />
-      <Outlet />
+      <CartDrawer />
+      <PageTransition />
       <Footer />
     </div>
   );

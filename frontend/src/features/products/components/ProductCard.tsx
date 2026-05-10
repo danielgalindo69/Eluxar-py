@@ -34,12 +34,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       volume: defaultVariant?.volume ?? product.specs.volume,
       price: defaultVariant?.price ?? parseFloat(product.price.replace('COP', '')),
     });
-    toast.success(`${product.name} añadido a la bolsa`, {
-      action: {
-        label: 'Ver bolsa',
-        onClick: () => navigate('/cart'),
-      },
-    });
   };
 
   const handleToggleWishlist = async (e: React.MouseEvent) => {

@@ -68,7 +68,11 @@ public class CuponService {
         if (!cuponRepo.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cupón no encontrado");
         }
-        cuponRepo.deleteById(id);
+        try {
+            cuponRepo.deleteById(id);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede eliminar el cupón porque ya ha sido utilizado en uno o más pedidos. En su lugar, puedes desactivarlo.");
+        }
     }
 
     public CuponDTO validar(String codigo) {

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -13,21 +14,23 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DashboardMetricasDTO {
-    
+
     // Totales generales
     private Long totalUsuarios;
     private Long totalProductos;
     private Long totalPedidos;
-    
+
     // Ventas
     private BigDecimal ingresosTotales;
     private Long pedidosPendientes;
     private Long pedidosEntregados;
-    
+
     // Inventario
     private Integer productosStockBajo;
-    
-    // Distribución
-    private Map<String, Long> productosPorCategoria;
-    private Map<String, Long> ingresosPorMes;
+
+    // Analíticas: top productos vendidos [{ name, ventas }]
+    private List<Map<String, Object>> topProductos;
+
+    // Analíticas: volumen de ventas por mes [{ mes, total }]
+    private List<Map<String, Object>> ventasMensuales;
 }
