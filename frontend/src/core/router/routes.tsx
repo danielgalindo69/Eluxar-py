@@ -11,6 +11,7 @@ import { Register } from "../../features/auth/pages/Register";
 import { ForgotPassword } from "../../features/auth/pages/ForgotPassword";
 import { Profile } from "../../features/user/pages/Profile";
 import { Addresses } from "../../features/user/pages/Addresses";
+import { Wishlist } from "../../features/user/pages/Wishlist";
 import { UserLayout } from "../../features/user/pages/UserLayout";
 import { Search } from "../../features/products/pages/Search";
 import { OrderConfirmation } from "../../features/orders/pages/OrderConfirmation";
@@ -31,6 +32,7 @@ import { Payments } from "../../features/admin/pages/Payments";
 import { Shipping } from "../../features/admin/pages/Shipping";
 import { Prices } from "../../features/admin/pages/Prices";
 import { Images } from "../../features/admin/pages/Images";
+import { Coupons } from "../../features/admin/pages/Coupons";
 import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
 import { NotFound } from "../../features/shared/pages/NotFound";
 import { ScrollToTop } from "../../shared/components/ScrollToTop";
@@ -90,6 +92,7 @@ export const router = createBrowserRouter([
             children: [
               { index: true, Component: Profile },
               { path: "orders", Component: OrderHistory },
+              { path: "wishlist", Component: Wishlist },
               { path: "addresses", Component: Addresses },
             ]
           }
@@ -117,6 +120,7 @@ export const router = createBrowserRouter([
       { path: "shipping", Component: Shipping },
       { path: "prices", Component: Prices },
       { path: "images", Component: Images },
+      { path: "coupons", Component: Coupons },
     ],
   },
 ]);

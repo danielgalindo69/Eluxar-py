@@ -59,6 +59,10 @@ public class Pedido {
     @Column(length = 100)
     private String trackingNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cupon_id")
+    private Cupon cuponAplicado;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime creadoEn;

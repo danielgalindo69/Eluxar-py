@@ -9,12 +9,67 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.eluxar.modules.ventas.dto.AdminCuponDTO;
+import com.eluxar.modules.ventas.dto.CuponRequest;
 
 @Service
 @RequiredArgsConstructor
 public class CuponService {
 
     private final CuponRepository cuponRepo;
+
+    public List<AdminCuponDTO> obtenerTodos() {
+        return cuponRepo.findAll().stream()
+                .map(AdminCuponDTO::from)
+                .collect(Collectors.toList());
+    }
+
+    public AdminCuponDTO crearCupon(CuponRequest req) {
+        if (cuponRepo.findByCodigoIgnoreCase(req.getCodigo()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El código del cupón ya existe");
+        }
+
+        Cupon cupon = Cupon.builder()
+                .codigo(req.getCodigo().toUpperCase())
+                .tipo(Cupon.TipoDescuento.valueOf(req.getTipo()))
+                .descuento(req.getDescuento())
+                .montoMinimo(req.getMontoMinimo())
+                .limiteUsos(req.getLimiteUsos())
+                .fechaExpiracion(req.getFechaExpiracion())
+                .activo(req.isActivo())
+                .build();
+
+        return AdminCuponDTO.from(cuponRepo.save(cupon));
+    }
+
+    public AdminCuponDTO actualizarCupon(Long id, CuponRequest req) {
+        Cupon cupon = cuponRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cupón no encontrado"));
+
+        if (!cupon.getCodigo().equalsIgnoreCase(req.getCodigo()) && 
+            cuponRepo.findByCodigoIgnoreCase(req.getCodigo()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El código de cupón ya está en uso");
+        }
+
+        cupon.setCodigo(req.getCodigo().toUpperCase());
+        cupon.setTipo(Cupon.TipoDescuento.valueOf(req.getTipo()));
+        cupon.setDescuento(req.getDescuento());
+        cupon.setMontoMinimo(req.getMontoMinimo());
+        cupon.setLimiteUsos(req.getLimiteUsos());
+        cupon.setFechaExpiracion(req.getFechaExpiracion());
+        cupon.setActivo(req.isActivo());
+
+        return AdminCuponDTO.from(cuponRepo.save(cupon));
+    }
+
+    public void eliminarCupon(Long id) {
+        if (!cuponRepo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cupón no encontrado");
+        }
+        cuponRepo.deleteById(id);
+    }
 
     public CuponDTO validar(String codigo) {
         Cupon cupon = cuponRepo.findByCodigoIgnoreCase(codigo)

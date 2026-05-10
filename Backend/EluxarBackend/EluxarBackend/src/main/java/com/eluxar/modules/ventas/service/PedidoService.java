@@ -13,6 +13,7 @@ import com.eluxar.modules.ventas.entity.Carrito;
 import com.eluxar.modules.ventas.entity.CarritoItem;
 import com.eluxar.modules.ventas.entity.Pedido;
 import com.eluxar.modules.ventas.entity.PedidoItem;
+import com.eluxar.modules.ventas.entity.Cupon;
 import com.eluxar.modules.ventas.repository.CarritoRepository;
 import com.eluxar.modules.ventas.repository.PedidoRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class PedidoService {
     private final MovimientoRepository movimientoRepository;
     private final UsuarioRepository usuarioRepository;
     private final com.eluxar.common.service.EmailService emailService;
+    private final CuponService cuponService;
 
     @Transactional
     public PedidoDTO crearDesdeCarrito(Long usuarioId, CheckoutRequest request) {
@@ -51,15 +53,38 @@ public class PedidoService {
             subtotal = subtotal.add(item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad())));
         }
 
+        BigDecimal descuento = BigDecimal.ZERO;
+        Cupon cuponAplicado = null;
+
+        if (request.getCodigoDescuento() != null && !request.getCodigoDescuento().isBlank()) {
+            cuponAplicado = cuponService.findAndValidate(request.getCodigoDescuento());
+            
+            if (cuponAplicado.getMontoMinimo() != null && subtotal.compareTo(cuponAplicado.getMontoMinimo()) < 0) {
+                throw new IllegalArgumentException("El pedido no alcanza el monto mínimo para este cupón");
+            }
+
+            if (cuponAplicado.getTipo() == Cupon.TipoDescuento.PORCENTAJE) {
+                descuento = subtotal.multiply(cuponAplicado.getDescuento()).divide(BigDecimal.valueOf(100));
+            } else {
+                descuento = cuponAplicado.getDescuento();
+            }
+        }
+
+        BigDecimal total = subtotal.subtract(descuento);
+        if (total.compareTo(BigDecimal.ZERO) < 0) {
+            total = BigDecimal.ZERO;
+        }
+
         Pedido pedido = Pedido.builder()
                 .usuario(usuario)
                 .estado(Pedido.EstadoPedido.CONFIRMADO)
                 .subtotal(subtotal)
-                .descuento(BigDecimal.ZERO)
+                .descuento(descuento)
                 .costoEnvio(BigDecimal.ZERO) // Demo: envío gratis
-                .total(subtotal)
+                .total(total)
                 .direccionEnvio(request.getDireccionCompleta())
                 .metodoPago(request.getMetodoPago())
+                .cuponAplicado(cuponAplicado)
                 .build();
 
         pedido = pedidoRepository.save(pedido);
