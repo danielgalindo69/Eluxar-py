@@ -320,16 +320,17 @@ export const Checkout = () => {
                     <button
                       onClick={async () => {
                         const addr = getShippingAddress();
+                        if (!addr.direccion || !addr.ciudad) {
+                          toast.error('Completa la dirección de envío antes de pagar');
+                          return;
+                        }
                         setIsCreatingPreference(true);
                         try {
-                          const res = await paymentService.createPreference({
-                            payerName: `${formData.firstName} ${formData.lastName}`.trim(),
-                            payerEmail: formData.email,
-                            items: items.map(item => ({
-                              title: `${item.name} ${item.volume}`,
-                              quantity: item.quantity,
-                              unitPrice: item.price,
-                            })),
+                          const res = await ordersAPI.create({
+                            ...addr,
+                            metodoPago: 'MERCADOPAGO',
+                            codigoDescuento: coupon?.codigo,
+                            notas: '',
                           });
                           setPreferenceId(res.preferenceId);
                         } catch (e: any) {

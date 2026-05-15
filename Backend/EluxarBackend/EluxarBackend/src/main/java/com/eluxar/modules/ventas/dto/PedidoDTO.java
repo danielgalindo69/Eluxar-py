@@ -25,6 +25,8 @@ public class PedidoDTO {
     private String direccionEnvio;
     private String metodoPago;
     private String trackingNumber;
+    private String preferenceId;
+    private String paymentId;
     private LocalDateTime creadoEn;
     private List<ItemDTO> items;
 

@@ -59,6 +59,12 @@ public class Pedido {
     @Column(length = 100)
     private String trackingNumber;
 
+    @Column(length = 100)
+    private String preferenceId;
+
+    @Column(length = 100)
+    private String paymentId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cupon_id")
     private Cupon cuponAplicado;

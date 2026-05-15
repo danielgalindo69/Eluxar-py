@@ -22,6 +22,8 @@ public class PaymentPreferenceRequest {
     @NotNull(message = "El email del comprador es obligatorio")
     private String payerEmail;
 
+    private String externalReference;
+
     @NotEmpty(message = "La lista de ítems no puede estar vacía")
     @Valid
     private List<PaymentItemDTO> items;

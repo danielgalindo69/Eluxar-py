@@ -76,6 +76,7 @@ public class PaymentService {
                     .payer(payer)
                     .paymentMethods(paymentMethods)
                     .statementDescriptor("ELUXAR")
+                    .externalReference(request.getExternalReference())
                     .build();
 
             Preference preference = client.create(preferenceRequest);
