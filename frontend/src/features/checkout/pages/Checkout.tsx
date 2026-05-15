@@ -7,6 +7,8 @@ import { useCart } from "../../cart/context/CartContext";
 import { useAuth } from "../../auth/context/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
+import { paymentService } from "../services/paymentService";
+import { MercadoPagoBrick } from "../components/MercadoPagoBrick";
 
 type Step = 1 | 2 | 3;
 
@@ -28,6 +30,10 @@ export const Checkout = () => {
 
   const [step, setStep] = useState<Step>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // MercadoPago
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [isCreatingPreference, setIsCreatingPreference] = useState(false);
 
   // Saved addresses
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -291,49 +297,75 @@ export const Checkout = () => {
               </motion.div>
             )}
 
-            {/* ── Step 3: Payment ── */}
+            {/* ── Step 3: Pago con Mercado Pago ── */}
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
-                <h2 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight">Método de Pago</h2>
+                <h2 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight">Pago Seguro</h2>
 
-                <div className="space-y-4">
-                  {[
-                    { id: 'TRANSFERENCIA' as const, label: 'Transferencia Bancaria', desc: 'Recibirás los datos bancarios en tu correo y confirmaremos tu pedido una vez acreditado el pago.' },
-                    { id: 'CONTRAENTREGA' as const, label: 'Pago Contra Entrega', desc: 'Paga en efectivo cuando recibas tu pedido. Disponible en ciudades principales de Colombia.' },
-                  ].map(m => (
-                    <div key={m.id} onClick={() => setPaymentMethod(m.id)}
-                      className={`p-6 border cursor-pointer transition-all ${paymentMethod === m.id ? 'border-[#3A4A3F] bg-[#3A4A3F]/5' : 'border-[#EDEDED] dark:border-white/10 hover:border-[#3A4A3F]/40'}`}>
-                      <div className="flex items-center gap-4">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === m.id ? 'border-[#3A4A3F]' : 'border-[#2B2B2B]/30'}`}>
-                          {paymentMethod === m.id && <div className="w-2 h-2 rounded-full bg-[#3A4A3F]" />}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold uppercase tracking-widest dark:text-white">{m.label}</p>
-                          <p className="text-xs text-[#2B2B2B]/50 dark:text-white/40 font-light mt-1">{m.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Order summary before placing */}
-                <div className="bg-[#EDEDED]/50 dark:bg-white/5 p-6 space-y-3">
-                  <p className={LABEL_CLS}>Resumen del Pedido</p>
-                  <div className="text-sm text-[#2B2B2B]/70 dark:text-white/60 space-y-1">
-                    <p><span className="font-bold dark:text-white">{formData.firstName} {formData.lastName}</span></p>
-                    <p>{formData.email}</p>
-                    <p>{getShippingAddress().direccion}, {getShippingAddress().ciudad}, Colombia</p>
-                    <p className="font-bold dark:text-white pt-2">{paymentMethod === 'TRANSFERENCIA' ? 'Transferencia Bancaria' : 'Pago Contra Entrega'}</p>
+                {/* Branding de seguridad */}
+                <div className="flex flex-wrap items-center gap-6 py-4 border-y border-[#EDEDED] dark:border-white/8">
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/40">
+                    <ShieldCheck size={14} className="text-[#3A4A3F] dark:text-[#A5BAA8]" />
+                    <span>Pago 100% Seguro</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/40">
+                    <CreditCard size={14} className="text-[#3A4A3F] dark:text-[#A5BAA8]" />
+                    <span>Tarjeta Crédito / Débito / PSE</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-[#EDEDED] dark:border-white/8">
-                  <div className="flex items-center gap-2 text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">
-                    <ShieldCheck size={14} /> <span>Compra Segura</span>
+                {/* Checkout Brick de Mercado Pago */}
+                {!preferenceId ? (
+                  <div className="py-8 flex flex-col items-center gap-4">
+                    <button
+                      onClick={async () => {
+                        const addr = getShippingAddress();
+                        setIsCreatingPreference(true);
+                        try {
+                          const res = await paymentService.createPreference({
+                            payerName: `${formData.firstName} ${formData.lastName}`.trim(),
+                            payerEmail: formData.email,
+                            items: items.map(item => ({
+                              title: `${item.name} ${item.volume}`,
+                              quantity: item.quantity,
+                              unitPrice: item.price,
+                            })),
+                          });
+                          setPreferenceId(res.preferenceId);
+                        } catch (e: any) {
+                          toast.error(e.message || 'Error al iniciar el pago. Intenta de nuevo.');
+                        } finally {
+                          setIsCreatingPreference(false);
+                        }
+                      }}
+                      disabled={isCreatingPreference}
+                      className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                    >
+                      {isCreatingPreference ? (
+                        <><span className="animate-pulse">Preparando pago seguro...</span></>
+                      ) : (
+                        <><CreditCard size={16} strokeWidth={1.5} /> Proceder al Pago con Mercado Pago</>
+                      )}
+                    </button>
+                    <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/30 dark:text-white/20 font-bold">
+                      Serás redirigido al módulo de pago seguro
+                    </p>
                   </div>
-                  <button onClick={handleFinishOrder} disabled={isSubmitting}
-                    className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isSubmitting ? 'Procesando...' : 'Finalizar Compra'}
+                ) : (
+                  <MercadoPagoBrick
+                    preferenceId={preferenceId}
+                    amount={total}
+                    onSuccess={() => {
+                      clearCart();
+                      navigate('/checkout/success');
+                    }}
+                    onError={() => toast.error('Error en el procesamiento del pago')}
+                  />
+                )}
+
+                <div className="pt-4">
+                  <button onClick={() => setStep(2)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
+                    ← Volver a Dirección
                   </button>
                 </div>
               </motion.div>

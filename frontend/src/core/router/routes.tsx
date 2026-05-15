@@ -16,6 +16,9 @@ import { UserLayout } from "../../features/user/pages/UserLayout";
 import { Search } from "../../features/products/pages/Search";
 import { OrderConfirmation } from "../../features/orders/pages/OrderConfirmation";
 import { OrderHistory } from "../../features/orders/pages/OrderHistory";
+import { CheckoutSuccess } from "../../features/checkout/pages/CheckoutSuccess";
+import { CheckoutPending } from "../../features/checkout/pages/CheckoutPending";
+import { CheckoutFailure } from "../../features/checkout/pages/CheckoutFailure";
 import { EditOrderAddress } from "../../features/orders/pages/EditOrderAddress";
 import { FragranceTest } from "../../features/IA/pages/FragranceTest";
 import { Recommendations } from "../../features/IA/pages/Recommendations";
@@ -108,6 +111,9 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { path: "checkout", Component: Checkout },
+          { path: "checkout/success", Component: CheckoutSuccess },
+          { path: "checkout/pending", Component: CheckoutPending },
+          { path: "checkout/failure", Component: CheckoutFailure },
           { path: "order-confirmation", Component: OrderConfirmation },
           { path: "order/:id/edit-address", Component: EditOrderAddress },
           {
