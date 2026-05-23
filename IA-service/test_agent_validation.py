@@ -1,5 +1,15 @@
 import requests
 import json
+import sys
+import io
+
+# Configure standard streams for UTF-8 to handle emojis safely on Windows
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except AttributeError:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 def test_agent():
     url = "http://localhost:5000/chat"
@@ -16,7 +26,6 @@ def test_agent():
             print("\n--- Respuesta del Agente ---")
             print(data.get("response"))
             print("\n--- Historial Actualizado ---")
-            # print(json.dumps(data.get("history"), indent=2, ensure_ascii=False))
             print(f"Mensajes en el historial: {len(data.get('history', []))}")
             
             # Verificar si hubo llamadas a herramientas (buscando el patrón en el historial)

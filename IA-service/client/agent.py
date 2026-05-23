@@ -8,7 +8,8 @@ from mirascope import llm
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-load_dotenv()
+current_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(current_dir, ".env"), override=True)
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY", "")
 
 def safe_print(text: str):
@@ -88,9 +89,13 @@ def perfume_advisor(query: str, history: list):
 async def process_chat(query: str, history: list) -> tuple[str, list]:
     current_query = query + " \n\n (Analiza si necesitas consultar el catálogo. SIEMPRE usa las herramientas para obtener datos reales del catálogo Eluxar antes de responder.)"
     
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    python_path = os.path.abspath(os.path.join(current_dir, "../server/venv/Scripts/python.exe"))
+    server_path = os.path.abspath(os.path.join(current_dir, "../server/server.py"))
+
     server_params = StdioServerParameters(
-        command="../server/venv/Scripts/python.exe", 
-        args=["../server/server.py"]
+        command=python_path, 
+        args=[server_path]
     )
     
     async with stdio_client(server_params) as (read, write):
@@ -315,9 +320,13 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
         safe_print(f"[FragranceTest] Resumen:\n{answers_summary}\n")
 
         # Call the LLM agent with MCP
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        python_path = os.path.abspath(os.path.join(current_dir, "../server/venv/Scripts/python.exe"))
+        server_path = os.path.abspath(os.path.join(current_dir, "../server/server.py"))
+
         server_params = StdioServerParameters(
-            command="../server/venv/Scripts/python.exe",
-            args=["../server/server.py"]
+            command=python_path,
+            args=[server_path]
         )
 
         async with stdio_client(server_params) as (read, write):
