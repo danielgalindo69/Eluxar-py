@@ -624,13 +624,18 @@ export const brandsAPI = {
 
 // ─── AI (mock) ───────────────────────────────────────────────
 export const aiAPI = {
-  async getFragranceTestQuestions() {
-    return apiClient<any[]>('/ia/test-preguntas');
-  },
-  async submitFragranceTest(answers: Record<number, string>) {
-    return apiClient<any>('/ia/test-analizar', {
+  async fragranceTest(message: string, history: object[], step: number) {
+    return apiClient<{
+      response: string;
+      question?: string;
+      options?: string[];
+      history: object[];
+      step: number;
+      finished: boolean;
+      totalSteps: number;
+    }>('/ia/fragrance-test', {
       method: 'POST',
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ message, history, step }),
     });
   },
   async getRecommendations() {
@@ -642,36 +647,12 @@ export const aiAPI = {
       '2': 'Recomendado por usuarios con gustos similares al tuyo.',
     }};
   },
-  async chatMessage(message: string) {
-    try {
-      const result = await apiClient<any>('/ia/recomendar', {
-        method: 'POST',
-        body: JSON.stringify({ mensaje: message }),
-      });
-      
-      // Manejar respuesta si viene envuelta o directa
-      const responseData = result.mensaje ? result : (result.data || result);
-
-      let reply = "";
-      if (responseData.mensaje) {
-          reply += `${responseData.mensaje}\n\n`;
-      }
-      
-      if (responseData.recomendaciones && responseData.recomendaciones.length > 0) {
-          responseData.recomendaciones.forEach((r: any) => {
-              reply += `- ${r.nombre}: ${r.motivo}\n`;
-          });
-      }
-
-      if (!reply) {
-        reply = "Lo siento, no pude procesar tu solicitud en este momento.";
-      }
-
-      return { reply };
-    } catch (error) {
-      console.error('Error in chatMessage:', error);
-      throw error;
-    }
+  async chatMessage(message: string, history: object[] = []) {
+    const result = await apiClient<{ response: string; history: object[] }>('/ia/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, history }),
+    });
+    return { reply: result.response, history: result.history };
   },
   async improveImage(file: File, style?: string, prompt?: string) {
     const formData = new FormData();

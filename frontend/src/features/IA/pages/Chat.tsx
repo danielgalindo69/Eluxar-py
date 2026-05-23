@@ -22,6 +22,8 @@ export const Chat = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Conversation history for the AI agent (persisted across turns, not in state to avoid re-renders)
+  const conversationHistory = useRef<object[]>([]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -32,7 +34,9 @@ export const Chat = () => {
     setIsTyping(true);
 
     try {
-      const { reply } = await aiAPI.chatMessage(userMsg.text);
+      const { reply, history } = await aiAPI.chatMessage(userMsg.text, conversationHistory.current);
+      // Update persisted history for the next turn
+      conversationHistory.current = history ?? [];
       const botMsg: Message = { id: crypto.randomUUID(), role: 'bot', text: reply, timestamp: new Date() };
       setMessages(prev => [...prev, botMsg]);
     } catch {
@@ -77,7 +81,13 @@ export const Chat = () => {
                   </div>
                 )}
                 <div className={`max-w-[75%] ${msg.role === 'user' ? 'bg-[#111111] dark:bg-[#3A4A3F] text-white p-5' : 'bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] p-5'}`}>
-                  <p className="text-sm font-light leading-relaxed dark:text-white whitespace-pre-wrap">{msg.text}</p>
+                  <div className="text-sm font-light leading-relaxed dark:text-white whitespace-pre-wrap">
+                    {msg.text.split(/(\*\*.*?\*\*)/g).map((part, i) => 
+                      part.startsWith('**') && part.endsWith('**') 
+                        ? <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>
+                        : part
+                    )}
+                  </div>
                   <p className={`text-[9px] mt-3 uppercase tracking-widest ${msg.role === 'user' ? 'text-white/40' : 'text-[#2B2B2B] dark:text-[#EDEDED]/30 dark:text-white/30'}`}>
                     {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                   </p>
