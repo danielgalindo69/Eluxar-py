@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/cupones/validar/**").permitAll()
                 // Archivos públicos
                 .requestMatchers("/uploads/**").permitAll()
+                // Mercado Pago — pagos y webhook (público, MP no envía JWT)
+                .requestMatchers("/api/payments/**").permitAll()
                 // Admin exclusivo
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 //se cambio solo para el testeo

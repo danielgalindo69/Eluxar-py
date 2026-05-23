@@ -249,9 +249,22 @@ export const Catalog = () => {
 
             {/* Loading State */}
             {isLoading ? (
-              <div className="py-40 flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
-                <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Cargando colección...</span>
+              <div className={`grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-16 ${gridSize === 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-2'}`}>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="animate-pulse flex flex-col group cursor-wait">
+                    {/* Image Skeleton */}
+                    <div className="w-full aspect-[4/5] bg-[#F5F5F5] dark:bg-white/5 mb-6 rounded-sm"></div>
+                    {/* Title Skeleton */}
+                    <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-3/4 mb-3 rounded-sm"></div>
+                    {/* Brand Skeleton */}
+                    <div className="h-3 bg-[#F5F5F5] dark:bg-white/5 w-1/2 mb-6 rounded-sm"></div>
+                    {/* Price and Action Skeleton */}
+                    <div className="flex justify-between items-center mt-auto pt-4 border-t border-[#EDEDED] dark:border-white/5">
+                      <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-1/3 rounded-sm"></div>
+                      <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-1/4 rounded-sm"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <>

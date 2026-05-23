@@ -2,8 +2,10 @@ import { Link, useNavigate } from "react-router";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Product } from "../types/products";
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Heart } from "lucide-react";
 import { useCart } from "../../cart/context/CartContext";
+import { useWishlist } from "../../user/context/WishlistContext";
+import { useAuth } from "../../auth/context/AuthContext";
 import { toast } from "sonner";
 
 interface ProductCardProps {
@@ -14,6 +16,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addItem } = useCart();
   const navigate = useNavigate();
+
+  const { wishlistIds, toggleWishlist, isInWishlist } = useWishlist();
+  const { isAuthenticated } = useAuth();
+  
+  const inWishlist = isInWishlist(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,12 +34,27 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       volume: defaultVariant?.volume ?? product.specs.volume,
       price: defaultVariant?.price ?? parseFloat(product.price.replace('COP', '')),
     });
-    toast.success(`${product.name} añadido a la bolsa`, {
-      action: {
-        label: 'Ver bolsa',
-        onClick: () => navigate('/cart'),
-      },
-    });
+  };
+
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast('Inicia sesión para guardar favoritos', {
+        action: { label: 'Iniciar sesión', onClick: () => navigate('/auth') }
+      });
+      return;
+    }
+
+    try {
+      await toggleWishlist(product.id);
+      if (!inWishlist) {
+        toast.success(`${product.name} añadido a favoritos`);
+      }
+    } catch {
+      toast.error('Error al actualizar favoritos');
+    }
   };
 
   return (
@@ -56,6 +78,19 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             >
               <Plus size={14} />
               Añadir a la Bolsa
+            </button>
+          </div>
+
+          <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+            <button 
+              onClick={handleToggleWishlist}
+              className="bg-white/80 dark:bg-black/50 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white dark:hover:bg-black transition-colors"
+              title={inWishlist ? "Quitar de favoritos" : "Agregar a favoritos"}
+            >
+              <Heart 
+                size={16} 
+                className={`transition-colors ${inWishlist ? 'fill-red-500 text-red-500' : 'text-[#111111] dark:text-white hover:text-red-500'}`} 
+              />
             </button>
           </div>
 

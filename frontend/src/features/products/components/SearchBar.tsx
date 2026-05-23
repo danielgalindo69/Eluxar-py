@@ -4,6 +4,7 @@ import { searchAPI } from '../../../core/api/api';
 import { Product } from '../../products/types/products';
 import { useNavigate } from 'react-router';
 import { formatPrice } from '../../../core/api/api';
+import { motion, AnimatePresence } from 'motion/react';
 
 const DEBOUNCE_MS = 300;
 
@@ -12,6 +13,7 @@ export const SearchBar = () => {
   const [results, setResults] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -52,6 +54,7 @@ export const SearchBar = () => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
+        setSelectedIndex(-1);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -68,7 +71,30 @@ export const SearchBar = () => {
   const handleClear = () => {
     setQuery('');
     setResults([]);
+    setSelectedIndex(-1);
     inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen || results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < results.length) {
+        handleSelect(results[selectedIndex]);
+      } else if (results.length > 0) {
+        handleSelect(results[0]); // Seleccionar el primero si no hay selección y presiona Enter
+      }
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
+      setSelectedIndex(-1);
+    }
   };
 
   const showDropdown = isOpen && (isLoading || results.length > 0 || query.trim().length >= 2);
@@ -86,9 +112,10 @@ export const SearchBar = () => {
           type="text"
           value={query}
           onFocus={() => setIsOpen(true)}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setSelectedIndex(-1); }}
+          onKeyDown={handleKeyDown}
           placeholder="Buscar perfume, marca, familia olfativa..."
-          className="w-full pl-9 pr-8 py-2.5 bg-[#F5F5F5] dark:bg-white/5 border border-transparent focus:border-[#111111] dark:focus:border-white/20 outline-none text-sm font-light text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20 transition-all duration-200"
+          className="w-full pl-9 pr-8 py-2.5 bg-[#F5F5F5] dark:bg-white/5 border border-transparent focus:border-[#3A4A3F] dark:focus:border-[#A5BAA8] focus:bg-white dark:focus:bg-[#1A1A1A] focus:shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-sm outline-none text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20 transition-all duration-300"
         />
         {query && (
           <button
@@ -101,58 +128,73 @@ export const SearchBar = () => {
       </div>
 
       {/* Dropdown */}
-      {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 shadow-2xl z-50 overflow-hidden">
-          {isLoading ? (
-            <div className="flex items-center justify-center gap-2 px-4 py-6 text-[#2B2B2B]/40 dark:text-white/30">
-              <Loader2 size={16} className="animate-spin" />
-              <span className="text-xs uppercase tracking-widest">Buscando...</span>
-            </div>
-          ) : results.length === 0 && query.trim().length >= 2 ? (
-            <div className="px-4 py-6 text-center text-xs text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">
-              Sin resultados para "{query}"
-            </div>
-          ) : (
-            <ul>
-              {results.map((product, i) => (
-                <li
-                  key={product.id}
-                  onClick={() => handleSelect(product)}
-                  className="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-[#F5F5F5] dark:hover:bg-white/5 transition-colors border-b border-[#EDEDED] dark:border-white/5 last:border-0"
-                  style={{ animationDelay: `${i * 30}ms` }}
-                >
-                  {/* Miniatura */}
-                  <div className="w-12 h-12 flex-shrink-0 bg-[#EDEDED] dark:bg-white/10 overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#111111] dark:text-white truncate">{product.name}</p>
-                    <p className="text-[10px] uppercase tracking-widest text-[#3A4A3F] dark:text-[#A5BAA8] truncate">
-                      {product.brand} · {product.olfactoryFamily}
-                    </p>
-                  </div>
-                  {/* Precio */}
-                  <div className="text-right flex-shrink-0">
-                    <span className="text-xs font-semibold text-[#111111] dark:text-white">
-                      {product.variants?.[0]?.price
-                        ? `${formatPrice(product.variants[0].price)} COP`
-                        : product.price}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+      <AnimatePresence>
+        {showDropdown && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 shadow-2xl rounded-sm z-50 overflow-hidden"
+          >
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-4 py-10 text-[#2B2B2B]/40 dark:text-white/30">
+                <Loader2 size={24} className="animate-spin text-[#3A4A3F] dark:text-[#A5BAA8]" />
+                <span className="text-[10px] uppercase tracking-widest font-bold">Buscando fragancias...</span>
+              </div>
+            ) : results.length === 0 && query.trim().length >= 2 ? (
+              <div className="px-4 py-10 text-center space-y-2">
+                <Search size={32} className="mx-auto text-[#2B2B2B]/20 dark:text-white/20 mb-4" />
+                <p className="text-xs text-[#2B2B2B]/60 dark:text-white/60 font-light">No encontramos resultados para</p>
+                <p className="text-sm font-bold text-[#111111] dark:text-white">"{query}"</p>
+              </div>
+            ) : (
+              <ul className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+                {results.map((product, i) => (
+                  <motion.li
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    key={product.id}
+                    onClick={() => handleSelect(product)}
+                    onMouseEnter={() => setSelectedIndex(i)}
+                    className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors border-b border-[#EDEDED] dark:border-white/5 last:border-0 ${
+                      selectedIndex === i ? 'bg-[#F5F5F5] dark:bg-white/10' : 'hover:bg-[#F5F5F5]/50 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    {/* Miniatura */}
+                    <div className="w-14 h-14 flex-shrink-0 bg-[#EDEDED] dark:bg-white/5 overflow-hidden rounded-sm relative">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[#111111] dark:text-white truncate tracking-wide">{product.name}</p>
+                      <p className="text-[10px] uppercase tracking-widest text-[#3A4A3F] dark:text-[#A5BAA8] truncate mt-1">
+                        {product.brand} <span className="text-[#2B2B2B]/30 dark:text-white/30 mx-1">|</span> {product.olfactoryFamily}
+                      </p>
+                    </div>
+                    {/* Precio */}
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-xs font-semibold text-[#111111] dark:text-white">
+                        {product.variants?.[0]?.price
+                          ? `${formatPrice(product.variants[0].price)} COP`
+                          : product.price}
+                      </span>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

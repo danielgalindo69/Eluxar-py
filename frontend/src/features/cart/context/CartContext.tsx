@@ -23,6 +23,9 @@ interface CartContextType {
   clearCart: () => void;
   itemCount: number;
   subtotal: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -31,6 +34,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const openDrawer = () => setIsDrawerOpen(true);
+  const closeDrawer = () => setIsDrawerOpen(false);
 
   // Initialize cart from backend or local storage
   useEffect(() => {
@@ -88,6 +95,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           quantity: i.cantidad
         })));
         toast.success("Producto agregado al carrito");
+        openDrawer();
       } catch (e: any) {
         toast.error(e.message || "Error al agregar al carrito");
       }
@@ -104,6 +112,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return [...prev, { ...item, quantity }];
       });
       toast.success("Producto agregado al carrito");
+      openDrawer();
     }
   };
 
@@ -146,7 +155,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, itemCount, subtotal }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, itemCount, subtotal, isDrawerOpen, openDrawer, closeDrawer }}>
       {children}
     </CartContext.Provider>
   );

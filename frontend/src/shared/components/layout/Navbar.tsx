@@ -14,7 +14,7 @@ export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount, openDrawer } = useCart();
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
@@ -142,14 +142,14 @@ export const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            <Link to="/cart" className="text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity relative">
+            <button onClick={openDrawer} className="text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity relative focus:outline-none">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-[#3A4A3F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
                   {itemCount}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -169,7 +169,7 @@ export const Navbar = () => {
                 {/* SearchBar mobile */}
                 <div className="pt-2 pb-1"><SearchBar /></div>
                 <Link to="/chat" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Chat IA</Link>
-                <Link to="/cart" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Bolsa ({itemCount})</Link>
+                <button onClick={() => { openDrawer(); setIsMenuOpen(false); }} className="text-left text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest focus:outline-none">Bolsa ({itemCount})</button>
                 <button
                   onClick={() => setTheme(isDark ? "light" : "dark")}
                   className="flex items-center gap-2 text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest"

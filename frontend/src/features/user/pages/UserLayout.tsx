@@ -1,12 +1,17 @@
-import { Outlet, NavLink, useNavigate } from "react-router";
-import { User, Package, MapPin, LogOut } from "lucide-react";
+import { Outlet, NavLink, useNavigate, Navigate } from "react-router";
+import { User, Package, MapPin, LogOut, Heart } from "lucide-react";
 import { useAuth } from "../../auth/context/AuthContext";
 import { authAPI } from "../../../core/api/api";
 import { toast } from "sonner";
 
 export const UserLayout = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Protect the entire profile section
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const handleLogout = async () => {
     try {
@@ -22,6 +27,7 @@ export const UserLayout = () => {
   const navItems = [
     { name: "Mi Perfil", path: "/profile", icon: User, exact: true },
     { name: "Mis Pedidos", path: "/profile/orders", icon: Package, exact: false },
+    { name: "Favoritos", path: "/profile/wishlist", icon: Heart, exact: false },
     { name: "Direcciones", path: "/profile/addresses", icon: MapPin, exact: false },
   ];
 

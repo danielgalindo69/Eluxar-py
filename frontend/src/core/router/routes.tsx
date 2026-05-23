@@ -11,10 +11,14 @@ import { Register } from "../../features/auth/pages/Register";
 import { ForgotPassword } from "../../features/auth/pages/ForgotPassword";
 import { Profile } from "../../features/user/pages/Profile";
 import { Addresses } from "../../features/user/pages/Addresses";
+import { Wishlist } from "../../features/user/pages/Wishlist";
 import { UserLayout } from "../../features/user/pages/UserLayout";
 import { Search } from "../../features/products/pages/Search";
 import { OrderConfirmation } from "../../features/orders/pages/OrderConfirmation";
 import { OrderHistory } from "../../features/orders/pages/OrderHistory";
+import { CheckoutSuccess } from "../../features/checkout/pages/CheckoutSuccess";
+import { CheckoutPending } from "../../features/checkout/pages/CheckoutPending";
+import { CheckoutFailure } from "../../features/checkout/pages/CheckoutFailure";
 import { EditOrderAddress } from "../../features/orders/pages/EditOrderAddress";
 import { FragranceTest } from "../../features/IA/pages/FragranceTest";
 import { Recommendations } from "../../features/IA/pages/Recommendations";
@@ -31,17 +35,42 @@ import { Payments } from "../../features/admin/pages/Payments";
 import { Shipping } from "../../features/admin/pages/Shipping";
 import { Prices } from "../../features/admin/pages/Prices";
 import { Images } from "../../features/admin/pages/Images";
+import { Coupons } from "../../features/admin/pages/Coupons";
 import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
 import { NotFound } from "../../features/shared/pages/NotFound";
 import { ScrollToTop } from "../../shared/components/ScrollToTop";
 
 
+import { CartDrawer } from "../../features/cart/components/CartDrawer";
+
+import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router';
+
+const PageTransition = () => {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="flex-1 flex flex-col"
+      >
+        <Outlet />
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white flex flex-col">
       <ScrollToTop />
       <Navbar />
-      <Outlet />
+      <CartDrawer />
+      <PageTransition />
       <Footer />
     </div>
   );
@@ -82,6 +111,9 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { path: "checkout", Component: Checkout },
+          { path: "checkout/success", Component: CheckoutSuccess },
+          { path: "checkout/pending", Component: CheckoutPending },
+          { path: "checkout/failure", Component: CheckoutFailure },
           { path: "order-confirmation", Component: OrderConfirmation },
           { path: "order/:id/edit-address", Component: EditOrderAddress },
           {
@@ -90,6 +122,7 @@ export const router = createBrowserRouter([
             children: [
               { index: true, Component: Profile },
               { path: "orders", Component: OrderHistory },
+              { path: "wishlist", Component: Wishlist },
               { path: "addresses", Component: Addresses },
             ]
           }
@@ -117,6 +150,7 @@ export const router = createBrowserRouter([
       { path: "shipping", Component: Shipping },
       { path: "prices", Component: Prices },
       { path: "images", Component: Images },
+      { path: "coupons", Component: Coupons },
     ],
   },
 ]);

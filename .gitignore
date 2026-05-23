@@ -1,0 +1,44 @@
+# ==============================================================
+# .gitignore — Eluxar Monorepo
+# ==============================================================
+
+# ── ARCHIVOS DE ENTORNO (CRÍTICO — nunca subir) ───────────────
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+
+# ── FRONTEND ──────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.cache/
+frontend/build/
+
+# ── BACKEND ───────────────────────────────────────────────────
+Backend/**/target/
+Backend/**/*.class
+Backend/**/*.jar
+Backend/**/*.war
+
+# ── IDE / Editores ────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Uploads locales ───────────────────────────────────────────
+uploads/
+
+# ── Maven Wrapper ─────────────────────────────────────────────
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
