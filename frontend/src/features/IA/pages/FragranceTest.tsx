@@ -258,7 +258,7 @@ export const FragranceTest = () => {
               </h2>
 
               <div className="grid grid-cols-1 gap-3">
-                {state.options.map((option) => {
+                {(state.options || []).map((option) => {
                   const isSelected = selectedOption === option;
                   return (
                     <motion.button
@@ -368,7 +368,7 @@ export const FragranceTest = () => {
               <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none" />
 
               <div className="relative text-sm font-light leading-relaxed text-white/80 space-y-0.5">
-                {renderMarkdown(state.response)}
+                {renderMarkdown(state.response || "")}
               </div>
             </motion.div>
 
@@ -392,7 +392,7 @@ export const FragranceTest = () => {
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/20 mb-3">
                   Tus respuestas
                 </p>
-                {(state.history as Array<{ question: string; answer: string }>).map(
+                {(state.history as Array<{ question: string; answer: string }> || []).map(
                   (item, i) => (
                     <div
                       key={i}
