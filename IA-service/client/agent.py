@@ -99,7 +99,11 @@ def _get_server_params() -> StdioServerParameters:
         python_cmd = windows_venv
     else:
         python_cmd = os.environ.get("MCP_PYTHON_PATH", "python")
-    return StdioServerParameters(command=python_cmd, args=[server_path])
+
+    # Propagate BACKEND_BASE so server.py calls the right backend regardless of environment
+    env = {**os.environ, "BACKEND_BASE": os.environ.get("BACKEND_BASE", "http://localhost:8080/api")}
+
+    return StdioServerParameters(command=python_cmd, args=[server_path], env=env)
 
 async def process_chat(query: str, history: list) -> tuple[str, list]:
     current_query = query + " \n\n (Analiza si necesitas consultar el catálogo. SIEMPRE usa las herramientas para obtener datos reales del catálogo Eluxar antes de responder.)"
