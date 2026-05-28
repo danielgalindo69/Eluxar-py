@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { authAPI } from '../../../core/api/api';
+import { authAPI, getStoredToken } from '../../../core/api/api';
 
 export type UserRole = 'ADMIN' | 'EMPLEADO' | 'CLIENTE' | 'USUARIO';
 
@@ -9,7 +9,6 @@ export interface User {
   lastName?: string;
   email: string;
   role: UserRole;
-  phone?: string;
   token: string;
   pictureUrl?: string;
 }
@@ -33,6 +32,12 @@ const SESSION_TIMEOUT = 60 * 60 * 1000; // 60 minutes
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('eluxar_user');
+    const token = getStoredToken();
+    // Si hay usuario guardado pero falta el JWT, la sesión está corrupta — la limpiamos
+    if (saved && !token) {
+      localStorage.removeItem('eluxar_user');
+      return null;
+    }
     return saved ? JSON.parse(saved) : null;
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('eluxar_user');
-    localStorage.removeItem('eluxar_token');
+    localStorage.removeItem('eluxar_token');  // TOKEN_KEY = 'eluxar_token'
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   }, []);
 

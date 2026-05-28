@@ -116,7 +116,8 @@ public class GoogleTokenVerifierService {
                 .tipo("Bearer")
                 .userId(usuario.getId())
                 .email(usuario.getEmail())
-                .nombre(nombre(usuario))
+                .nombre(usuario.getNombre())
+                .apellido(usuario.getApellido())
                 .rol(roleName)
                 .pictureUrl(usuario.getPictureUrl())
                 .build();

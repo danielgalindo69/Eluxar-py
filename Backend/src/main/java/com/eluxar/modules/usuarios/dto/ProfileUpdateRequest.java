@@ -19,6 +19,4 @@ public class ProfileUpdateRequest {
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "Formato de correo inválido")
     private String email;
-
-    private String phone;
 }
