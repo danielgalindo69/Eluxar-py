@@ -1,8 +1,8 @@
 import { Product } from '../../features/products/types/products';
 
-// URL base del backend Spring Boot. El proxy de Vite redirige /api → http://localhost:8080/api.
+// URL base del backend Spring Boot. El proxy de Vite redirige /api → apuntado por VITE_API_URL.
 // API_URL se usa para las pocas peticiones que necesitan la URL absoluta (ej: exportar Excel).
-export const API_URL = 'http://localhost:8080';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 const API_BASE = '/api';
 
 // Clave única de localStorage para el JWT
