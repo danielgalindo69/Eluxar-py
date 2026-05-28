@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../auth/context/AuthContext";
 import { authAPI } from "../../../core/api/api";
-import { User, Mail, Phone, Lock, Save, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Lock, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import ProfileImageUpload from "../components/ProfileImageUpload";
 
@@ -11,7 +11,18 @@ export const Profile = () => {
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [formData, setFormData] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
+  const initialName = user ? `${user.name || ''} ${user.lastName || ''}`.trim() : '';
+  const [formData, setFormData] = useState({ name: initialName, email: user?.email || '' });
+
+  // Sync state if user context updates from another tab or refetch
+  useEffect(() => {
+    if (user && !isEditing) {
+      setFormData({
+        name: `${user.name || ''} ${user.lastName || ''}`.trim(),
+        email: user.email || ''
+      });
+    }
+  }, [user, isEditing]);
   const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -40,7 +51,22 @@ export const Profile = () => {
     setIsSaving(true);
     try {
       await authAPI.updateProfile(formData);
-      updateUser(formData);
+
+      const fullName = formData.name.trim();
+      const firstSpace = fullName.indexOf(" ");
+      let newName = fullName;
+      let newLastName = "";
+      if (firstSpace !== -1) {
+        newName = fullName.substring(0, firstSpace);
+        newLastName = fullName.substring(firstSpace + 1).trim();
+      }
+
+      updateUser({
+        name: newName,
+        lastName: newLastName,
+        email: formData.email
+      });
+
       setIsEditing(false);
       toast.success('Perfil actualizado correctamente');
     } catch { toast.error('Error al actualizar'); }
@@ -85,7 +111,14 @@ export const Profile = () => {
                 <button onClick={() => setIsEditing(true)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#3A4A3F] hover:text-[#111111] dark:text-white dark:hover:text-white transition-colors">Editar</button>
               ) : (
                 <div className="flex gap-6">
-                  <button onClick={() => { setIsEditing(false); setFormData({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' }); setErrors({}); }}
+                  <button onClick={() => { 
+                      setIsEditing(false); 
+                      setFormData({ 
+                        name: user ? `${user.name || ''} ${user.lastName || ''}`.trim() : '', 
+                        email: user?.email || '' 
+                      }); 
+                      setErrors({}); 
+                    }}
                     className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 dark:text-white/30 hover:text-[#111111] dark:text-white dark:hover:text-white">Cancelar</button>
                   <button onClick={handleSaveProfile} disabled={isSaving} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#3A4A3F] hover:text-[#111111] dark:text-white dark:hover:text-white flex items-center gap-2">
                     <Save size={12} />{isSaving ? 'Guardando...' : 'Guardar'}
@@ -117,25 +150,6 @@ export const Profile = () => {
                 {errors.email && <span className="text-red-500 text-[9px] uppercase tracking-widest font-bold">{errors.email}</span>}
               </div>
 
-              {/* Phone Field */}
-              <div className="flex flex-col space-y-3">
-                <label className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#2B2B2B]/30 dark:text-white/30">Teléfono</label>
-                <div className={fieldBorder}>
-                  <Phone className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/15 dark:text-white/15 group-hover:text-[#111111]/30 dark:group-hover:text-white/30 transition-colors" size={18} />
-                  <input type="tel" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
-                    disabled={!isEditing} placeholder="Opcional" className={inputClass} />
-                </div>
-              </div>
-
-              {/* Role Field (Static) */}
-              <div className="flex flex-col space-y-3 pt-4">
-                <label className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#2B2B2B]/30 dark:text-white/30">Rol</label>
-                <div>
-                  <span className="text-[9px] uppercase tracking-[0.2em] font-bold bg-[#3A4A3F] text-white px-4 py-2 rounded-sm shadow-sm inline-block">
-                    {user?.role || 'CLIENTE'}
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>

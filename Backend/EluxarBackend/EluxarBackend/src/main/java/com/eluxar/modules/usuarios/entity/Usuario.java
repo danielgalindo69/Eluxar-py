@@ -30,9 +30,6 @@ public class Usuario {
     @Column(nullable = true)
     private String passwordHash;
 
-    @Column(length = 20)
-    private String phone;
-
     @Column(nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'LOCAL'")
     @Builder.Default
     private String provider = "LOCAL"; // LOCAL or GOOGLE

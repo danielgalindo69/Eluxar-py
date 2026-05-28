@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { wishlistAPI } from '../../../core/api/api';
+import { wishlistAPI, getStoredToken } from '../../../core/api/api';
 import { useAuth } from '../../auth/context/AuthContext';
 
 interface WishlistContextType {
@@ -18,6 +18,13 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      // Guard: solo cargar si el JWT realmente existe en localStorage
+      const token = getStoredToken();
+      if (!token) {
+        setWishlistIds([]);
+        setIsLoading(false);
+        return;
+      }
       loadWishlistIds();
     } else {
       setWishlistIds([]);

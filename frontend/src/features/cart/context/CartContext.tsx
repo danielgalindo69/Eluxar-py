@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
-import { cartAPI } from '../../../core/api/api';
+import { cartAPI, getStoredToken } from '../../../core/api/api';
 import { toast } from 'sonner';
 
 export interface CartItem {
@@ -43,6 +43,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initCart = async () => {
       if (isAuthenticated) {
+        // Doble guard: verificar que el JWT existe antes de llamar al backend
+        const token = getStoredToken();
+        if (!token) {
+          // Estado inconsistente: isAuthenticated=true pero sin token — usar carrito local
+          const saved = localStorage.getItem('eluxar_cart');
+          if (saved) setItems(JSON.parse(saved));
+          setIsInitializing(false);
+          return;
+        }
         try {
           const data = await cartAPI.getActive();
           setItems((data.items || []).map((i: any) => ({

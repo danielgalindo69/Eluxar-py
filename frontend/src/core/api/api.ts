@@ -1,6 +1,15 @@
 import { Product } from '../../features/products/types/products';
 
+// URL base del backend Spring Boot. El proxy de Vite redirige /api → http://localhost:8080/api.
+// API_URL se usa para las pocas peticiones que necesitan la URL absoluta (ej: exportar Excel).
+export const API_URL = 'http://localhost:8080';
 const API_BASE = '/api';
+
+// Clave única de localStorage para el JWT
+const TOKEN_KEY = 'eluxar_token';
+
+/** Devuelve el JWT almacenado o null si no existe */
+export const getStoredToken = (): string | null => localStorage.getItem(TOKEN_KEY);
 
 // Simulate network delay (kept for compatibility with remaining mock services)
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
@@ -11,9 +20,10 @@ export const formatPrice = (price: number) => {
 
 // ─── API Client ──────────────────────────────────────────────
 async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('eluxar_token');
+  const token = getStoredToken();
   const headers: HeadersInit = {
     ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+    // Siempre envía el JWT si existe — el proxy de Vite lo reenvía a Spring Boot
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...options.headers,
   };
@@ -76,16 +86,15 @@ export const authAPI = {
       body: JSON.stringify({ email, password }),
     });
     
-    // Store token and user info
+    // Guarda el JWT y la información del usuario en localStorage
     if (data.token) {
-      localStorage.setItem('eluxar_token', data.token);
+      localStorage.setItem(TOKEN_KEY, data.token);      // JWT → eluxar_token
       const user = {
         id: String(data.userId),
         name: data.nombre,
         lastName: data.apellido,
         email: data.email,
         role: data.rol,
-        phone: data.telefono,
         token: data.token,
         pictureUrl: data.pictureUrl ?? null,
       };
@@ -117,7 +126,7 @@ export const authAPI = {
     });
   },
   async logout() {
-    localStorage.removeItem('eluxar_token');
+    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('eluxar_user');
     return { success: true };
   },
@@ -128,14 +137,13 @@ export const authAPI = {
     });
 
     if (data.token) {
-      localStorage.setItem('eluxar_token', data.token);
+      localStorage.setItem(TOKEN_KEY, data.token);      // JWT → eluxar_token
       const user = {
         id: String(data.userId),
         name: data.nombre,
         lastName: data.apellido,
         email: data.email,
         role: data.rol,
-        phone: data.telefono,
         token: data.token,
         pictureUrl: data.pictureUrl ?? null,
       };
@@ -162,7 +170,7 @@ export const authAPI = {
       body: JSON.stringify({ email, code, newPassword }),
     });
   },
-  async updateProfile(data: { name?: string; email?: string; phone?: string }) {
+  async updateProfile(data: { name?: string; email?: string }) {
     return apiClient<any>('/usuarios/perfil', {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -486,12 +494,13 @@ export const inventoryAPI = {
   },
   /** Descarga el reporte de movimientos como archivo Excel */
   async exportarExcel(desde?: string, hasta?: string): Promise<void> {
-    const token = localStorage.getItem('eluxar_token');
+    const token = getStoredToken();
     const params = new URLSearchParams();
     if (desde) params.append('desde', desde);
     if (hasta) params.append('hasta', hasta);
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetch(`/api/inventario/movimientos/exportar${query}`, {
+    // Usa la ruta relativa para que el proxy de Vite la redirija correctamente
+    const response = await fetch(`${API_BASE}/inventario/movimientos/exportar${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error('Error al exportar Excel');

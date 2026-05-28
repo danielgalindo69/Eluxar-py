@@ -94,7 +94,6 @@ public class ProfileService {
         }
 
         usuario.setEmail(request.getEmail());
-        usuario.setPhone(request.getPhone());
 
         usuarioRepository.save(usuario);
         log.info("Updated personal data for user: {}", currentEmail);
