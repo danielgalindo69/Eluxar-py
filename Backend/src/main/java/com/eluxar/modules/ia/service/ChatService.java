@@ -20,7 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private static final String FLASK_CHAT_URL = "http://localhost:5000/chat";
+    @org.springframework.beans.factory.annotation.Value("${ia.service.url:http://localhost:5000}")
+    private String iaServiceUrl;
+
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -39,7 +41,7 @@ public class ChatService {
             ));
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(FLASK_CHAT_URL))
+                    .uri(URI.create(iaServiceUrl + "/chat"))
                     .header("Content-Type", "application/json")
                     .timeout(Duration.ofSeconds(120)) // AI calls can be slow
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
@@ -70,7 +72,7 @@ public class ChatService {
             }
 
         } catch (java.net.ConnectException e) {
-            log.error("Cannot connect to Flask AI service at {}: {}", FLASK_CHAT_URL, e.getMessage());
+            log.error("Cannot connect to Flask AI service at {}: {}", iaServiceUrl + "/chat", e.getMessage());
             return new ChatResponse(
                     "El servicio de asesoría IA no está disponible en este momento. Asegúrate de que el servicio Python esté en ejecución.",
                     request.getHistory() != null ? request.getHistory() : new ArrayList<>()

@@ -22,7 +22,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FragranceTestService {
 
-    private static final String FLASK_TEST_URL = "http://localhost:5000/fragrance-test";
+    @org.springframework.beans.factory.annotation.Value("${ia.service.url:http://localhost:5000}")
+    private String iaServiceUrl;
+
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -42,7 +44,7 @@ public class FragranceTestService {
             String jsonPayload = objectMapper.writeValueAsString(payload);
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(FLASK_TEST_URL))
+                    .uri(URI.create(iaServiceUrl + "/fragrance-test"))
                     .header("Content-Type", "application/json")
                     .timeout(Duration.ofSeconds(120))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
@@ -61,7 +63,7 @@ public class FragranceTestService {
             }
 
         } catch (java.net.ConnectException e) {
-            log.error("Cannot connect to Flask fragrance-test at {}: {}", FLASK_TEST_URL, e.getMessage());
+            log.error("Cannot connect to Flask fragrance-test at {}: {}", iaServiceUrl + "/fragrance-test", e.getMessage());
             return buildErrorResponse(request, "El servicio de test olfativo no está disponible. Asegúrate de que el servicio Python esté en ejecución.");
         } catch (Exception e) {
             log.error("Error communicating with Flask fragrance-test: {}", e.getMessage(), e);

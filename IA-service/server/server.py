@@ -1,8 +1,11 @@
+import os
 import json
 import requests
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-BACKEND_BASE = "http://localhost:8080/api"
+load_dotenv()
+BACKEND_BASE = os.environ.get("BACKEND_BASE", "http://localhost:8080/api")
 
 # MCP Server Initialization
 mcp = FastMCP("EluxarPerfumeServer")
