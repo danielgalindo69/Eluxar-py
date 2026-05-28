@@ -86,17 +86,25 @@ def perfume_advisor(query: str, history: list):
     USER: {query}
     """
 
+def _get_server_params() -> StdioServerParameters:
+    """Resolves MCP server path dynamically. Works on Windows (local venv) and Linux (Render)."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    server_path = os.environ.get(
+        "MCP_SERVER_PATH",
+        os.path.abspath(os.path.join(current_dir, "../server/server.py"))
+    )
+    # On Windows dev: use the local venv python. On Linux/Render: use system python.
+    windows_venv = os.path.abspath(os.path.join(current_dir, "../server/venv/Scripts/python.exe"))
+    if os.path.exists(windows_venv):
+        python_cmd = windows_venv
+    else:
+        python_cmd = os.environ.get("MCP_PYTHON_PATH", "python")
+    return StdioServerParameters(command=python_cmd, args=[server_path])
+
 async def process_chat(query: str, history: list) -> tuple[str, list]:
     current_query = query + " \n\n (Analiza si necesitas consultar el catálogo. SIEMPRE usa las herramientas para obtener datos reales del catálogo Eluxar antes de responder.)"
-    
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    python_path = os.path.abspath(os.path.join(current_dir, "../server/venv/Scripts/python.exe"))
-    server_path = os.path.abspath(os.path.join(current_dir, "../server/server.py"))
 
-    server_params = StdioServerParameters(
-        command=python_path, 
-        args=[server_path]
-    )
+    server_params = _get_server_params()
     
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
@@ -320,14 +328,7 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
         safe_print(f"[FragranceTest] Resumen:\n{answers_summary}\n")
 
         # Call the LLM agent with MCP
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        python_path = os.path.abspath(os.path.join(current_dir, "../server/venv/Scripts/python.exe"))
-        server_path = os.path.abspath(os.path.join(current_dir, "../server/server.py"))
-
-        server_params = StdioServerParameters(
-            command=python_path,
-            args=[server_path]
-        )
+        server_params = _get_server_params()
 
         async with stdio_client(server_params) as (read, write):
             async with ClientSession(read, write) as session:

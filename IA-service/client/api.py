@@ -19,8 +19,12 @@ from flask_cors import CORS
 from agent import process_chat, process_fragrance_test
 
 app = Flask(__name__)
-CORS(app)
 
+# CORS: allows localhost in dev and the production frontend domain.
+# Set ALLOWED_ORIGINS env var in Render to your frontend URL (e.g. https://eluxar.onrender.com)
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 # ── Chat ──────────────────────────────────────────────────────────────────────
 
@@ -72,4 +76,4 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
     port = int(os.environ.get("PORT", 5000))
-    app.run(port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
