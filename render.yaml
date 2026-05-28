@@ -1,7 +1,7 @@
 services:
   - type: web
     name: eluxar-backend
-    env: java
+    runtime: java
     rootDir: backend
     buildCommand: ./mvnw clean install
     startCommand: java -jar target/*.jar
