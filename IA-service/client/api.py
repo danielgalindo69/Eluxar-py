@@ -69,4 +69,7 @@ def fragrance_test_endpoint():
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    from dotenv import load_dotenv
+    load_dotenv()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(port=port, debug=True)

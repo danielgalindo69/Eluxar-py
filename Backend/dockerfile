@@ -1,12 +1,27 @@
-FROM eclipse-temurin:21-jdk
-
+# ETAPA 1: Compilación (Build)
+# Usamos una imagen de Maven que ya tiene todo instalado
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-COPY . .
+# 1. Copiar el pom.xml para descargar las dependencias primero (ayuda a la velocidad)
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+# 2. Copiar el código fuente y compilar el JAR
+COPY src ./src
+RUN mvn clean package -DskipTests
 
+# ETAPA 2: Ejecución (Runtime)
+# Usamos una imagen de Java pura, mucho más pequeña
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+
+# 3. Copiar el archivo JAR generado en la etapa anterior
+# Usamos comodín (*.jar) para que no importe si la versión cambia
+COPY --from=build /app/target/*.jar app.jar
+
+# 4. Puerto dinámico para Render
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/eluxar-backend-0.0.1-SNAPSHOT.jar"]
+# 5. Comando de arranque
+ENTRYPOINT ["java", "-jar", "app.jar"]
