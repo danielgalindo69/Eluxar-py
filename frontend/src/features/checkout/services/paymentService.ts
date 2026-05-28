@@ -4,7 +4,8 @@
  * Sigue el patrón establecido en api.ts del proyecto.
  */
 
-const API_BASE = '/api';
+// URL base del backend (incluye /api). Lee la misma variable que api.ts.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // ─── Tipos ──────────────────────────────────────────────────────
 
@@ -36,7 +37,7 @@ async function paymentApiClient<T>(
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
