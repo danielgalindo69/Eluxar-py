@@ -1,9 +1,8 @@
 import { Product } from '../../features/products/types/products';
 
-// URL base del backend Spring Boot. El proxy de Vite redirige /api → apuntado por VITE_API_URL.
-// API_URL se usa para las pocas peticiones que necesitan la URL absoluta (ej: exportar Excel).
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-const API_BASE = '/api';
+// URL base del backend Spring Boot, ya incluye el prefijo /api.
+// En producción apunta a https://eluxar-py.onrender.com/api; en dev a http://localhost:8081/api.
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Clave única de localStorage para el JWT
 const TOKEN_KEY = 'eluxar_token';
@@ -28,7 +27,7 @@ async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promis
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -499,8 +498,8 @@ export const inventoryAPI = {
     if (desde) params.append('desde', desde);
     if (hasta) params.append('hasta', hasta);
     const query = params.toString() ? `?${params.toString()}` : '';
-    // Usa la ruta relativa para que el proxy de Vite la redirija correctamente
-    const response = await fetch(`${API_BASE}/inventario/movimientos/exportar${query}`, {
+    // Usa URL absoluta para que funcione tanto en dev como en producción
+    const response = await fetch(`${API_URL}/inventario/movimientos/exportar${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error('Error al exportar Excel');
