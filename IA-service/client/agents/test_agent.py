@@ -143,7 +143,6 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
     """
     total_questions = len(FRAGRANCE_TEST_QUESTIONS)
 
-    # Step 0: Start the test — return first question
     if step == 0:
         q = FRAGRANCE_TEST_QUESTIONS[0]
         return {
@@ -156,9 +155,7 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             "totalSteps": total_questions
         }
 
-    # Steps 1 to (total-1): Record previous answer, return next question
     if step < total_questions:
-        # Record the answer from the previous question
         history.append({
             "question": FRAGRANCE_TEST_QUESTIONS[step - 1]["question"],
             "answer": message
@@ -175,14 +172,12 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             "totalSteps": total_questions
         }
 
-    # Final step: Record last answer, call LLM agent with MCP for recommendation
     if step == total_questions:
         history.append({
             "question": FRAGRANCE_TEST_QUESTIONS[step - 1]["question"],
             "answer": message
         })
 
-        # Build a readable summary of all answers
         answers_summary = "\n".join([
             f"- {item['question']}: {item['answer']}"
             for item in history
@@ -191,7 +186,6 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
         safe_print(f"\n[FragranceTest] Generando recomendación con {len(history)} respuestas...")
         safe_print(f"[FragranceTest] Resumen:\n{answers_summary}\n")
 
-        # Call the LLM agent with MCP
         server_params = StdioServerParameters(
             command="../server/venv/Scripts/python.exe",
             args=["../server/server.py"]
