@@ -29,6 +29,7 @@ CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 # ── Chat ──────────────────────────────────────────────────────────────────────
 
 @app.route('/chat', methods=['POST'])
+@app.route('/ia/chat', methods=['POST'])
 def chat_endpoint():
     data = request.json
     message = data.get('message')
@@ -46,12 +47,15 @@ def chat_endpoint():
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        # Unwrap Python 3.11+ ExceptionGroup to get the real cause
+        real = e.exceptions[0] if isinstance(e, BaseExceptionGroup) else e
+        return jsonify({"error": str(real)}), 500
 
 
 # ── Fragrance Test ────────────────────────────────────────────────────────────
 
 @app.route('/fragrance-test', methods=['POST'])
+@app.route('/ia/fragrance-test', methods=['POST'])
 def fragrance_test_endpoint():
     data = request.json
 
@@ -69,7 +73,9 @@ def fragrance_test_endpoint():
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        # Unwrap Python 3.11+ ExceptionGroup to get the real cause
+        real = e.exceptions[0] if isinstance(e, BaseExceptionGroup) else e
+        return jsonify({"error": str(real)}), 500
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import json
 import asyncio
 import os
 import sys
+import time
 from dotenv import load_dotenv
 
 from mirascope import llm
@@ -105,28 +106,54 @@ def _get_server_params() -> StdioServerParameters:
 
     return StdioServerParameters(command=python_cmd, args=[server_path], env=env)
 
-async def process_chat(query: str, history: list) -> tuple[str, list]:
+def _extract_exception(exc) -> Exception:
+    """Unwrap ExceptionGroup (Python 3.11+) to get the root cause."""
+    if isinstance(exc, BaseExceptionGroup):
+        # Recursively extract the first real sub-exception
+        return _extract_exception(exc.exceptions[0])
+    return exc
+
+
+async def _run_with_retry(fn, *args, retries: int = 3, delay: float = 5.0, **kwargs):
+    """Run an async callable with automatic retry on 503/ServerError."""
+    last_exc = None
+    for attempt in range(1, retries + 1):
+        try:
+            return await fn(*args, **kwargs)
+        except Exception as e:
+            root = _extract_exception(e)
+            err_str = str(root)
+            is_503 = "503" in err_str or "UNAVAILABLE" in err_str or "high demand" in err_str
+            if is_503 and attempt < retries:
+                safe_print(f"[Retry {attempt}/{retries}] Gemini 503 — reintentando en {delay}s... ({root.__class__.__name__})")
+                await asyncio.sleep(delay)
+                last_exc = e
+                continue
+            raise
+    raise last_exc
+
+
+async def _do_chat(query: str, history: list) -> tuple[str, list]:
+    """Inner implementation of process_chat (single attempt)."""
     current_query = query + " \n\n (Analiza si necesitas consultar el catálogo. SIEMPRE usa las herramientas para obtener datos reales del catálogo Eluxar antes de responder.)"
 
     server_params = _get_server_params()
-    
+
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
-            
+
             while True:
                 response = perfume_advisor(current_query, history)
-                
+
                 if response.tool_calls:
                     for tool_call in response.tool_calls:
                         args_dict = tool_call.args if isinstance(tool_call.args, dict) else json.loads(tool_call.args)
-                        
+
                         print(f"[Client] Ejecutando herramienta MCP: {tool_call.name} con {args_dict}")
-                        
-                        # Ejecutamos la herramienta en el servidor MCP
+
                         mcp_res = await session.call_tool(tool_call.name, arguments=args_dict)
-                        
-                        # Obtenemos el resultado
+
                         if mcp_res.isError:
                             result_data = f"MCP Error: {mcp_res.content}"
                         else:
@@ -135,18 +162,23 @@ async def process_chat(query: str, history: list) -> tuple[str, list]:
                                 result_data = json.loads(extracted)
                             except:
                                 result_data = extracted
-                        
+
                         history.append({"role": "model", "parts": [{"text": f"Llamando a {tool_call.name} con {tool_call.args}"}]})
                         history.append({"role": "user", "parts": [{"text": f"System/ToolResult: Resultado de la herramienta MCP {tool_call.name}: {result_data}. Continúa."}]})
-                        
+
                     current_query = "Con los datos reales del catálogo Eluxar obtenidos, responde al cliente de forma experta, mencionando nombres, precios y características de los productos recomendados."
                     continue
-                    
+
                 else:
                     final_content = response.text()
                     history.append({"role": "user", "parts": [{"text": query}]})
                     history.append({"role": "model", "parts": [{"text": final_content}]})
                     return final_content, history
+
+
+async def process_chat(query: str, history: list) -> tuple[str, list]:
+    """Public entry point — retries up to 3 times on Gemini 503."""
+    return await _run_with_retry(_do_chat, query, history, retries=3, delay=5.0)
 
 
 # ── Fragrance Test ────────────────────────────────────────────────────────────
@@ -275,6 +307,45 @@ def fragrance_test_agent(answers_summary: str, history: list):
     """
 
 
+async def _do_fragrance_recommendation(answers_summary: str) -> str:
+    """Inner implementation — single attempt at calling MCP + LLM for the final recommendation."""
+    server_params = _get_server_params()
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            current_query = answers_summary
+            agent_history = []
+
+            while True:
+                response = fragrance_test_agent(current_query, agent_history)
+
+                if response.tool_calls:
+                    for tool_call in response.tool_calls:
+                        args_dict = tool_call.args if isinstance(tool_call.args, dict) else json.loads(tool_call.args)
+                        safe_print(f"[FragranceTest] Ejecutando MCP: {tool_call.name} con {args_dict}")
+
+                        mcp_res = await session.call_tool(tool_call.name, arguments=args_dict)
+
+                        if mcp_res.isError:
+                            result_data = f"MCP Error: {mcp_res.content}"
+                        else:
+                            extracted = " ".join([c.text for c in mcp_res.content if hasattr(c, 'text')])
+                            try:
+                                result_data = json.loads(extracted)
+                            except:
+                                result_data = extracted
+
+                        agent_history.append({"role": "model", "parts": [{"text": f"Llamando a {tool_call.name}"}]})
+                        agent_history.append({"role": "user", "parts": [{"text": f"System/ToolResult: {result_data}. Continúa con la recomendación."}]})
+
+                    current_query = "Con los datos del catálogo obtenidos, analiza las respuestas del test y recomienda el perfume ideal."
+                    continue
+                else:
+                    return response.text()
+
+
 async def process_fragrance_test(message: str, history: list, step: int) -> dict:
     """
     Processes one step of the fragrance test.
@@ -331,49 +402,17 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
         safe_print(f"\n[FragranceTest] Generando recomendación con {len(history)} respuestas...")
         safe_print(f"[FragranceTest] Resumen:\n{answers_summary}\n")
 
-        # Call the LLM agent with MCP
-        server_params = _get_server_params()
-
-        async with stdio_client(server_params) as (read, write):
-            async with ClientSession(read, write) as session:
-                await session.initialize()
-
-                current_query = answers_summary
-                agent_history = []
-
-                while True:
-                    response = fragrance_test_agent(current_query, agent_history)
-
-                    if response.tool_calls:
-                        for tool_call in response.tool_calls:
-                            args_dict = tool_call.args if isinstance(tool_call.args, dict) else json.loads(tool_call.args)
-                            safe_print(f"[FragranceTest] Ejecutando MCP: {tool_call.name} con {args_dict}")
-
-                            mcp_res = await session.call_tool(tool_call.name, arguments=args_dict)
-
-                            if mcp_res.isError:
-                                result_data = f"MCP Error: {mcp_res.content}"
-                            else:
-                                extracted = " ".join([c.text for c in mcp_res.content if hasattr(c, 'text')])
-                                try:
-                                    result_data = json.loads(extracted)
-                                except:
-                                    result_data = extracted
-
-                            agent_history.append({"role": "model", "parts": [{"text": f"Llamando a {tool_call.name}"}]})
-                            agent_history.append({"role": "user", "parts": [{"text": f"System/ToolResult: {result_data}. Continúa con la recomendación."}]})
-
-                        current_query = "Con los datos del catálogo obtenidos, analiza las respuestas del test y recomienda el perfume ideal."
-                        continue
-                    else:
-                        final_content = response.text()
-                        return {
-                            "response": final_content,
-                            "history": history,
-                            "step": step + 1,
-                            "finished": True,
-                            "totalSteps": total_questions
-                        }
+        # Call the LLM agent with retry on 503
+        final_content = await _run_with_retry(
+            _do_fragrance_recommendation, answers_summary, retries=3, delay=6.0
+        )
+        return {
+            "response": final_content,
+            "history": history,
+            "step": step + 1,
+            "finished": True,
+            "totalSteps": total_questions
+        }
 
     # Fallback for invalid step
     return {

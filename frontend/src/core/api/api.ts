@@ -630,10 +630,26 @@ export const brandsAPI = {
   }
 };
 
-// ─── AI (mock) ───────────────────────────────────────────────
+// ─── AI ──────────────────────────────────────────────────────
+// The IA service runs on a separate Flask server (port 5000 locally).
+// VITE_IA_URL overrides this in production (e.g. https://eluxar-ia.onrender.com).
+const IA_BASE = import.meta.env.VITE_IA_URL || 'http://localhost:5000';
+
+async function iaFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${IA_BASE}${endpoint}`, {
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `IA error ${res.status}`);
+  }
+  return res.json();
+}
+
 export const aiAPI = {
   async fragranceTest(message: string, history: object[], step: number) {
-    return apiClient<{
+    return iaFetch<{
       response: string;
       question?: string;
       options?: string[];
@@ -641,7 +657,7 @@ export const aiAPI = {
       step: number;
       finished: boolean;
       totalSteps: number;
-    }>('/ia/fragrance-test', {
+    }>('/fragrance-test', {
       method: 'POST',
       body: JSON.stringify({ message, history, step }),
     });
@@ -656,7 +672,7 @@ export const aiAPI = {
     }};
   },
   async chatMessage(message: string, history: object[] = []) {
-    const result = await apiClient<{ response: string; history: object[] }>('/ia/chat', {
+    const result = await iaFetch<{ response: string; history: object[] }>('/chat', {
       method: 'POST',
       body: JSON.stringify({ message, history }),
     });
@@ -667,13 +683,12 @@ export const aiAPI = {
     formData.append('imagen', file);
     if (style) formData.append('estilo', style);
     if (prompt) formData.append('prompt', prompt);
-
-    return apiClient<any>('/ia/imagen/mejorar', {
-      method: 'POST',
-      body: formData,
-    });
+    const res = await fetch(`${IA_BASE}/ia/imagen/mejorar`, { method: 'POST', body: formData });
+    if (!res.ok) throw new Error(`IA image error ${res.status}`);
+    return res.json();
   },
 };
+
 
 // ─── User Profile ─────────────────────────────────────────────
 export const userAPI = {

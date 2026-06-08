@@ -66,6 +66,12 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       proxy: {
+        // IA service (Flask on :5000) — must come BEFORE the generic /api proxy
+        '/api/ia': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/ia/, '/ia'),
+        },
         '/api': {
           target: apiUrl,
           changeOrigin: true,

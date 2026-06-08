@@ -42,16 +42,20 @@ export const FragranceTest = () => {
   const [state, setState] = useState<TestState | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   /* Start the test: call step=0, message="" */
   const handleStart = async () => {
     setPhase("loading");
+    setErrorMsg(null);
     try {
       const data = await aiAPI.fragranceTest("", [], 0);
       setState(data as TestState);
       setPhase("question");
       setSelectedOption(null);
-    } catch {
+    } catch (err: any) {
+      console.error("[FragranceTest] Error al iniciar:", err);
+      setErrorMsg(err?.message || "Error al conectar con el servidor IA (localhost:5000)");
       setPhase("idle");
     }
   };
@@ -82,7 +86,9 @@ export const FragranceTest = () => {
       } else {
         setPhase("question");
       }
-    } catch {
+    } catch (err: any) {
+      console.error("[FragranceTest] Error al avanzar:", err);
+      setErrorMsg(err?.message || "Error al conectar con el servidor IA");
       setPhase("question");
     } finally {
       setSelectedOption(null);
@@ -96,6 +102,7 @@ export const FragranceTest = () => {
     setState(null);
     setSelectedOption(null);
     setIsAdvancing(false);
+    setErrorMsg(null);
   };
 
   const progress =
@@ -171,7 +178,22 @@ export const FragranceTest = () => {
               className="transition-transform group-hover:translate-x-1"
             />
           </button>
+
+          {/* Error banner */}
+          {errorMsg && (
+            <div className="mt-6 p-4 border border-red-500/40 bg-red-500/10 text-left">
+              <p className="text-[11px] uppercase tracking-widest font-bold text-red-400 mb-1">
+                Error de conexión con el servidor IA
+              </p>
+              <p className="text-xs text-red-300/80 font-mono break-all">{errorMsg}</p>
+              <p className="text-[10px] text-red-300/50 mt-2">
+                Asegúrate de que el servidor IA esté corriendo:{" "}
+                <span className="font-mono">localhost:5000</span>
+              </p>
+            </div>
+          )}
         </motion.div>
+
       </main>
     );
   }
