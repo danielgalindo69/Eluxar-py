@@ -77,8 +77,13 @@ export const FragranceTest = () => {
       setPhase("loading");
     }
 
+    const updatedHistory = [
+      ...state.history,
+      { question: state.question, answer: option }
+    ];
+
     try {
-      const data = await aiAPI.fragranceTest(option, state.history, state.step);
+      const data = await aiAPI.fragranceTest(option, updatedHistory, state.step);
       setState(data as TestState);
 
       if ((data as TestState).finished) {

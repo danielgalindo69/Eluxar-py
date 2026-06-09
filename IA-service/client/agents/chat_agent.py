@@ -1,15 +1,15 @@
 import json
-import os
-from dotenv import load_dotenv
-
 from mirascope import llm
-from mcp import ClientSession, StdioServerParameters
+from mcp import ClientSession
 from mcp.client.stdio import stdio_client
 
-from .tools import get_all_perfumes, get_perfume_by_id, search_perfumes_by_family
+from .tools import (
+    get_all_perfumes, get_perfume_by_id, search_perfumes_by_family,
+    safe_print, get_server_params, run_with_retry,
+)
 
-load_dotenv()
-os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY", "")
+
+# ── Chat Agent ────────────────────────────────────────────────────────────────
 
 @llm.call(
     "google/gemini-2.5-flash",
@@ -44,31 +44,28 @@ def perfume_advisor(query: str, history: list):
     USER: {query}
     """
 
-async def process_chat(query: str, history: list) -> tuple[str, list]:
+
+async def _do_chat(query: str, history: list) -> tuple[str, list]:
+    """Inner implementation of process_chat (single attempt)."""
     current_query = query + " \n\n (Analiza si necesitas consultar el catálogo. SIEMPRE usa las herramientas para obtener datos reales del catálogo Eluxar antes de responder.)"
-    
-    server_params = StdioServerParameters(
-        command="../server/venv/Scripts/python.exe", 
-        args=["../server/server.py"]
-    )
-    
+
+    server_params = get_server_params()
+
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
-            
+
             while True:
                 response = perfume_advisor(current_query, history)
-                
+
                 if response.tool_calls:
                     for tool_call in response.tool_calls:
                         args_dict = tool_call.args if isinstance(tool_call.args, dict) else json.loads(tool_call.args)
-                        
+
                         print(f"[Client] Ejecutando herramienta MCP: {tool_call.name} con {args_dict}")
-                        
-                        # Ejecutamos la herramienta en el servidor MCP
+
                         mcp_res = await session.call_tool(tool_call.name, arguments=args_dict)
-                        
-                        # Obtenemos el resultado
+
                         if mcp_res.isError:
                             result_data = f"MCP Error: {mcp_res.content}"
                         else:
@@ -77,15 +74,20 @@ async def process_chat(query: str, history: list) -> tuple[str, list]:
                                 result_data = json.loads(extracted)
                             except:
                                 result_data = extracted
-                        
+
                         history.append({"role": "model", "parts": [{"text": f"Llamando a {tool_call.name} con {tool_call.args}"}]})
                         history.append({"role": "user", "parts": [{"text": f"System/ToolResult: Resultado de la herramienta MCP {tool_call.name}: {result_data}. Continúa."}]})
-                        
+
                     current_query = "Con los datos reales del catálogo Eluxar obtenidos, responde al cliente de forma experta, mencionando nombres, precios y características de los productos recomendados."
                     continue
-                    
+
                 else:
                     final_content = response.text()
                     history.append({"role": "user", "parts": [{"text": query}]})
                     history.append({"role": "model", "parts": [{"text": final_content}]})
                     return final_content, history
+
+
+async def process_chat(query: str, history: list) -> tuple[str, list]:
+    """Public entry point — retries up to 3 times on Gemini 503."""
+    return await run_with_retry(_do_chat, query, history, retries=3, delay=5.0)
