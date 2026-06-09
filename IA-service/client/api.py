@@ -22,7 +22,7 @@ app = Flask(__name__)
 
 # CORS: allows localhost in dev and the production frontend domain.
 # Set ALLOWED_ORIGINS env var in Render to your frontend URL (e.g. https://eluxar.onrender.com)
-_raw_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000,https://eluxar-py-7jov.vercel.app")
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000,https://eluxar-py.onrender.com ")
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
