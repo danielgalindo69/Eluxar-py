@@ -6,5 +6,5 @@ mirascope[google]==2.4.0
 mcp
 gunicorn
 onnxruntime
-pillow==11.3.0
+pillow==10.4.0
 requests
