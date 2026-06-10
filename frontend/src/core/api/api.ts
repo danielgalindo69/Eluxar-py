@@ -663,13 +663,11 @@ export const aiAPI = {
     });
     return { reply: result.response, history: result.history };
   },
-  async improveImage(file: File, style?: string, prompt?: string) {
-    const formData = new FormData();
-    formData.append('imagen', file);
-    if (style) formData.append('estilo', style);
-    if (prompt) formData.append('prompt', prompt);
-    // Nota: Este endpoint debe implementarse en el Backend Java si se va a usar.
-    return apiClient<any>('/ia/imagen/mejorar', { method: 'POST', body: formData });
+  async improveImage(productId: string | number, imagenId: number, style?: string, prompt?: string) {
+    return apiClient<any>(`/productos/${productId}/imagenes/${imagenId}/mejorar-ia`, {
+      method: 'POST',
+      body: JSON.stringify({ style: style || '', additional_prompt: prompt || '' }),
+    });
   },
 };
 
