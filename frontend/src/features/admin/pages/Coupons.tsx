@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle, Search, X } from "lucide-react";
+import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { couponAPI, Coupon, formatPrice } from "../../../core/api/api";
+import { SearchBar } from "../components/SearchBar";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 
 const PAGE_SIZE = 15;
@@ -114,6 +115,17 @@ export const Coupons = () => {
     return new Date(dateString) < new Date();
   };
 
+  const filteredCoupons = coupons.filter(c => {
+    const q = searchQuery.toLowerCase();
+    const estado = c.activo ? (isExpired(c.fechaExpiracion) ? 'expirado' : 'activo') : 'inactivo';
+    return (
+      c.codigo.toLowerCase().includes(q) ||
+      estado.includes(q) ||
+      c.tipo.toLowerCase().includes(q) ||
+      String(c.descuento).includes(q)
+    );
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -135,29 +147,21 @@ export const Coupons = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 p-4">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
-          <input
-            type="text"
-            placeholder="Buscar cupón por código..."
+      {/* Search Bar */}
+      {!isLoading && (
+        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+          <SearchBar
+            placeholder="Buscar por código, estado o tipo..."
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
+            onChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
           />
-          {searchQuery && (
-            <button onClick={() => { setSearchQuery(''); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
-              <X size={14} />
-            </button>
-          )}
         </div>
-      </div>
+      )}
 
       {isLoading ? (
         <div className="animate-pulse space-y-4">
-          <div className="h-12 bg-gray-200 dark:bg-white/5 rounded"></div>
-          <div className="h-12 bg-gray-200 dark:bg-white/5 rounded"></div>
+          <div className="h-12 bg-[#EDEDED] dark:bg-[#1A1A1A] rounded"></div>
+          <div className="h-12 bg-[#EDEDED] dark:bg-[#1A1A1A] rounded"></div>
         </div>
       ) : (
         <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 overflow-hidden">
@@ -175,18 +179,17 @@ export const Coupons = () => {
               </thead>
               <tbody className="divide-y divide-[#EDEDED] dark:divide-white/10">
                 {(() => {
-                  const filtered = coupons.filter(c =>
-                    searchQuery === '' || c.codigo.toLowerCase().includes(searchQuery.toLowerCase())
-                  );
-                  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-                  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+                  const totalPages = Math.ceil(filteredCoupons.length / PAGE_SIZE);
+                  const paginated = filteredCoupons.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
                   return (
                     <>
                       {paginated.length === 0 ? (
                         <tr>
                           <td colSpan={6} className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
                             <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
-                            {searchQuery ? 'No se encontraron cupones con ese código' : 'No hay cupones registrados'}
+                            {searchQuery
+                              ? `No se encontraron resultados para "${searchQuery}"`
+                              : "No hay cupones registrados"}
                           </td>
                         </tr>
                       ) : paginated.map((c) => {
@@ -197,10 +200,12 @@ export const Coupons = () => {
                             <td className="px-6 py-4">
                               {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
                               {c.montoMinimo ? (
-                                <span className="block text-[10px] text-gray-500">Min: ${formatPrice(c.montoMinimo)}</span>
+                                <span className="block text-[10px] text-[#2B2B2B]/50 dark:text-[#9090a8]">Min: ${formatPrice(c.montoMinimo)}</span>
                               ) : null}
                             </td>
-                            <td className="px-6 py-4">{c.usosActuales} / {c.limiteUsos || '∞'}</td>
+                            <td className="px-6 py-4">
+                              {c.usosActuales} / {c.limiteUsos || '∞'}
+                            </td>
                             <td className="px-6 py-4 text-xs">
                               {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleString('es-CO') : 'Sin expiración'}
                               {expired && <span className="text-red-500 ml-2">(Expirado)</span>}
@@ -234,7 +239,7 @@ export const Coupons = () => {
                               currentPage={currentPage}
                               totalPages={totalPages}
                               onPageChange={setCurrentPage}
-                              totalItems={filtered.length}
+                              totalItems={filteredCoupons.length}
                               pageSize={PAGE_SIZE}
                             />
                           </td>
@@ -265,7 +270,7 @@ export const Coupons = () => {
                   required
                   value={formData.codigo}
                   onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
-                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 uppercase placeholder:normal-case focus:outline-none focus:border-[#111111] dark:focus:border-white transition-colors"
+                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 uppercase placeholder:normal-case focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                   placeholder="Ej. VERANO20"
                 />
               </div>
@@ -276,7 +281,7 @@ export const Coupons = () => {
                   <select
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#111111] dark:focus:border-white transition-colors"
+                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                   >
                     <option value="PORCENTAJE">Porcentaje (%)</option>
                     <option value="VALOR_FIJO">Monto Fijo ($)</option>
@@ -292,7 +297,7 @@ export const Coupons = () => {
                     max={formData.tipo === 'PORCENTAJE' ? '100' : undefined}
                     value={formData.descuento}
                     onChange={(e) => setFormData({ ...formData, descuento: Number(e.target.value) })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#111111] dark:focus:border-white transition-colors"
+                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                   />
                 </div>
               </div>
@@ -304,7 +309,7 @@ export const Coupons = () => {
                   min="0"
                   value={formData.montoMinimo || ''}
                   onChange={(e) => setFormData({ ...formData, montoMinimo: Number(e.target.value) })}
-                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#111111] dark:focus:border-white transition-colors"
+                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                   placeholder="0 para sin mínimo"
                 />
               </div>
@@ -317,7 +322,7 @@ export const Coupons = () => {
                     min="1"
                     value={formData.limiteUsos || ''}
                     onChange={(e) => setFormData({ ...formData, limiteUsos: Number(e.target.value) })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#111111] dark:focus:border-white transition-colors"
+                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                     placeholder="En blanco = Ilimitado"
                   />
                 </div>
@@ -327,7 +332,7 @@ export const Coupons = () => {
                     type="datetime-local"
                     value={formData.fechaExpiracion as string}
                     onChange={(e) => setFormData({ ...formData, fechaExpiracion: e.target.value })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 text-sm focus:outline-none focus:border-[#111111] dark:focus:border-white transition-colors"
+                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 text-sm focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                   />
                 </div>
               </div>

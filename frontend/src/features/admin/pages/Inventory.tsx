@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
-import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, Search } from "lucide-react";
+import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
+import { SearchBar } from "../components/SearchBar";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
 
@@ -10,7 +11,6 @@ const PAGE_SIZE = 15;
 
 const tableWrap = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
-const inputCls = "border border-[#EDEDED] dark:border-white/10 bg-transparent dark:bg-[#111111] dark:text-white px-3 py-2 text-sm outline-none focus:border-[#111111] dark:focus:border-white/30 transition-colors";
 
 export const Inventory = () => {
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
@@ -20,12 +20,12 @@ export const Inventory = () => {
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Filtros
   const [filterDesde, setFilterDesde] = useState('');
   const [filterHasta, setFilterHasta] = useState('');
   const [archiveBefore, setArchiveBefore] = useState('');
-  const [searchProduct, setSearchProduct] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const [formData, setFormData] = useState({
@@ -116,6 +116,15 @@ export const Inventory = () => {
     }
   };
 
+  const filteredMovements = movements.filter(m => {
+    const q = searchQuery.toLowerCase();
+    return (
+      m.productoNombre.toLowerCase().includes(q) ||
+      (m.motivo || "").toLowerCase().includes(q) ||
+      m.tipo.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -149,71 +158,69 @@ export const Inventory = () => {
         </div>
       </div>
 
-      {/* Filtros de Fecha */}
-      <div className={`${tableWrap} p-5`}>
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="flex items-center gap-2 text-[#2B2B2B]/40 dark:text-white/30">
-            <Filter size={14} />
-            <span className="text-[10px] uppercase tracking-widest font-bold">Filtrar por fecha</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Desde</label>
-            <input
-              type="date"
-              value={filterDesde}
-              onChange={(e) => setFilterDesde(e.target.value)}
-              className={inputCls}
+      {/* Filtros y Búsqueda */}
+      <div className={`${tableWrap} p-4 flex flex-col gap-4`}>
+        <div className="flex flex-col lg:flex-row items-center gap-4">
+          <div className="flex-1 w-full">
+            <SearchBar
+              placeholder="Buscar por producto, tipo o motivo..."
+              value={searchQuery}
+              onChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Hasta</label>
-            <input
-              type="date"
-              value={filterHasta}
-              onChange={(e) => setFilterHasta(e.target.value)}
-              className={inputCls}
-            />
-          </div>
-          <button
-            onClick={handleFilter}
-            className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-5 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] transition-colors"
-          >
-            Aplicar
-          </button>
-          {(filterDesde || filterHasta) && (
+          <div className="flex items-center gap-3 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
+            <div className={`flex items-center gap-2 px-3 py-2 border transition-colors ${filterDesde || filterHasta ? 'border-[#C8A97E] bg-[#C8A97E]/5' : 'border-[#EDEDED] dark:border-white/10'}`}>
+              <div className="flex items-center gap-2 text-[#2B2B2B]/40 dark:text-white/40 border-r border-[#EDEDED] dark:border-white/10 pr-3">
+                <Filter size={14} className={filterDesde || filterHasta ? 'text-[#C8A97E]' : ''} />
+                <span className="text-[10px] uppercase tracking-widest font-bold hidden sm:inline">Rango</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={filterDesde}
+                  onChange={(e) => setFilterDesde(e.target.value)}
+                  className="bg-transparent text-xs text-[#111111] dark:text-white outline-none [&::-webkit-calendar-picker-indicator]:dark:invert"
+                />
+                <span className="text-[#2B2B2B]/30 dark:text-white/30">-</span>
+                <input
+                  type="date"
+                  value={filterHasta}
+                  onChange={(e) => setFilterHasta(e.target.value)}
+                  className="bg-transparent text-xs text-[#111111] dark:text-white outline-none [&::-webkit-calendar-picker-indicator]:dark:invert"
+                />
+              </div>
+            </div>
+
             <button
-              onClick={handleClearFilter}
-              className="flex items-center gap-1 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white transition-colors"
+              onClick={handleFilter}
+              className="shrink-0 bg-[#111111] dark:bg-[#C8A97E] text-white dark:text-[#111111] px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-colors"
             >
-              <X size={12} /> Limpiar
+              Filtrar
             </button>
-          )}
-          {(filterDesde || filterHasta) && (
-            <span className="text-[10px] text-[#3A4A3F] dark:text-[#A5BAA8] uppercase tracking-widest font-bold ml-auto">
-              {movements.length} resultado{movements.length !== 1 ? 's' : ''}
-            </span>
-          )}
+
+            {(filterDesde || filterHasta) && (
+              <button
+                onClick={handleClearFilter}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 text-[10px] uppercase tracking-widest font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
         </div>
+        
+        {/* Results indicator */}
+        {(filterDesde || filterHasta || searchQuery) && (
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold border-t border-[#EDEDED] dark:border-white/5 pt-3">
+            <span className="text-[#2B2B2B]/40 dark:text-white/40">Mostrando resultados filtrados</span>
+            <span className="text-[#C8A97E]">
+              {filteredMovements.length} registro{filteredMovements.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Búsqueda de producto en movimientos */}
-      <div className={`${tableWrap} p-4`}>
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
-          <input
-            type="text"
-            placeholder="Buscar por nombre de producto..."
-            value={searchProduct}
-            onChange={(e) => { setSearchProduct(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
-          />
-          {searchProduct && (
-            <button onClick={() => { setSearchProduct(''); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
-              <X size={14} />
-            </button>
-          )}
-        </div>
-      </div>
+      
 
       {/* Tabla de Movimientos */}
       <div className={tableWrap}>
@@ -235,9 +242,6 @@ export const Inventory = () => {
                   </div>
                 </td></tr>
               ) : (() => {
-                const filteredMovements = movements.filter(m =>
-                  searchProduct === '' || m.productoNombre?.toLowerCase().includes(searchProduct.toLowerCase())
-                );
                 const totalPages = Math.ceil(filteredMovements.length / PAGE_SIZE);
                 const paginated = filteredMovements.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
                 return (
@@ -246,7 +250,7 @@ export const Inventory = () => {
                       <EmptyStateRow
                         icon={ArrowDownCircle}
                         title="Sin movimientos"
-                        description={searchProduct ? "No hay movimientos para ese producto" : "Aún no se han registrado movimientos de inventario"}
+                        description={searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "Aún no se han registrado movimientos de inventario"}
                         colSpan={5}
                       />
                     ) : paginated.map((m, i) => (
@@ -270,7 +274,7 @@ export const Inventory = () => {
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
                             m.tipo === 'ENTRADA'
-                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8]'
+                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#C8A97E]/10 dark:text-[#C8A97E]'
                               : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
                           }`}>
                             {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
@@ -278,7 +282,7 @@ export const Inventory = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
-                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#A5BAA8]' : 'text-red-500'}>
+                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#C8A97E]' : 'text-red-500'}>
                             {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
                           </span>
                         </td>

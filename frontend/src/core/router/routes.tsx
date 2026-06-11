@@ -33,7 +33,6 @@ import { Inventory } from "../../features/admin/pages/Inventory";
 import { StockAlerts } from "../../features/admin/pages/StockAlerts";
 import { Payments } from "../../features/admin/pages/Payments";
 import { Shipping } from "../../features/admin/pages/Shipping";
-import { Prices } from "../../features/admin/pages/Prices";
 import { Images } from "../../features/admin/pages/Images";
 import { Coupons } from "../../features/admin/pages/Coupons";
 import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
@@ -148,7 +147,6 @@ export const router = createBrowserRouter([
       { path: "stock-alerts", Component: StockAlerts },
       { path: "payments", Component: Payments },
       { path: "shipping", Component: Shipping },
-      { path: "prices", Component: Prices },
       { path: "images", Component: Images },
       { path: "coupons", Component: Coupons },
     ],

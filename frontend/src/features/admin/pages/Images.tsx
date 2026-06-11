@@ -39,6 +39,9 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
+
+  
+
   const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -510,14 +513,14 @@ export const Images = () => {
                       placeholder="Estilo (Ej: elegante, oscuro, minimalista)"
                       value={aiPanels[selectedAiImage.urlIndex]?.style || ""}
                       onChange={(e) => updatePanel(selectedAiImage.urlIndex, { style: e.target.value })}
-                      className="w-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-purple-500/50 transition-colors"
+                      className="w-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                     />
                     <input
                       type="text"
                       placeholder="Prompt adicional (Ej: luces de neón, fondo de mármol)"
                       value={aiPanels[selectedAiImage.urlIndex]?.prompt || ""}
                       onChange={(e) => updatePanel(selectedAiImage.urlIndex, { prompt: e.target.value })}
-                      className="w-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-purple-500/50 transition-colors"
+                      className="w-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
                     />
                     <button
                       onClick={() => handleGenerate(selectedAiImage)}

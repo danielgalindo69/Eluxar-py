@@ -22,6 +22,7 @@ export const Payments = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [confirmAction, setConfirmAction] = useState<{ id: string; status: Payment['status'] } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
   const [filterStatus, setFilterStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -36,6 +37,7 @@ export const Payments = () => {
     toast.success(`Pago actualizado a: ${confirmAction.status}`);
     setConfirmAction(null);
   };
+
 
   const filtered = payments.filter(p => {
     const q = searchQuery.toLowerCase();
@@ -57,17 +59,18 @@ export const Payments = () => {
         <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Confirmación y gestión de estados de pago</p>
       </div>
 
+
       {/* Filters */}
       <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Buscar por ID de pago o cliente..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
             />
             {searchQuery && (
               <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
@@ -80,7 +83,7 @@ export const Payments = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilter(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#111111] dark:focus:border-white/30 transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
             >
               <option value="">Todos los estados</option>
               <option value="Pendiente">Pendiente</option>
@@ -104,6 +107,7 @@ export const Payments = () => {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan={8} className="px-6 py-8 text-center text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando...</td></tr>
+
               ) : paginated.length > 0 ? (
                 paginated.map(p => (
                   <tr key={p.id} className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">

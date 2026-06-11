@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
 
+
+
 const PAGE_SIZE = 15;
 
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
@@ -81,7 +83,7 @@ export const Orders = () => {
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Pedidos</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra y monitorea todos los pedidos</p>
         </div>
-        <button className="bg-white dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 text-[#2B2B2B] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors flex items-center gap-2">
+        <button className="bg-white dark:bg-[#1a1a24] border border-[#EDEDED] dark:border-white/10 text-[#2B2B2B] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors flex items-center gap-2">
           <Download size={16} />
           Exportar
         </button>
@@ -111,13 +113,13 @@ export const Orders = () => {
       <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Buscar por ID o nombre de cliente..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
             />
             {searchQuery && (
               <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
@@ -130,7 +132,7 @@ export const Orders = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilter(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#111111] dark:focus:border-white/30 transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
             >
               {STATUS_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, Navigate, useNavigate } from "react-router";
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Tag, DollarSign, Megaphone, Menu, X, Sun, Moon, Ticket } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Menu, X, Sun, Moon, Ticket } from "lucide-react";
 import { useAuth } from '../../auth/context/AuthContext';
 import { useTheme } from "next-themes";
 import { ScrollToTop } from '../../../shared/components/ScrollToTop';
@@ -26,7 +26,6 @@ export const AdminLayout = () => {
     { path: "/admin/stock-alerts", label: "Alertas Stock", icon: AlertTriangle },
     { path: "/admin/payments", label: "Pagos", icon: CreditCard },
     { path: "/admin/shipping", label: "Envíos", icon: Truck },
-    { path: "/admin/prices", label: "Precios", icon: DollarSign },
     { path: "/admin/images", label: "Imágenes", icon: Image },
     { path: "/admin/coupons", label: "Cupones", icon: Ticket },
   ];
@@ -79,9 +78,8 @@ export const AdminLayout = () => {
               return (
                 <li key={item.path} title={isDesktopCollapsed ? item.label : undefined}>
                   <Link to={item.path} onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors rounded-none ${
-                      active ? "bg-[#3A4A3F] text-white" : "text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/8"
-                    } ${isDesktopCollapsed ? 'lg:justify-center' : ''}`}
+                    className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors rounded-none ${active ? "bg-[#3A4A3F] text-white" : "text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/8"
+                      } ${isDesktopCollapsed ? 'lg:justify-center' : ''}`}
                   >
                     <Icon size={18} strokeWidth={1.5} className="shrink-0" />
                     <span className={`uppercase tracking-widest text-[10px] font-bold whitespace-nowrap transition-opacity duration-300 ${isDesktopCollapsed ? 'lg:opacity-0 lg:hidden' : 'opacity-100'}`}>{item.label}</span>
@@ -103,7 +101,7 @@ export const AdminLayout = () => {
               {isDark ? "Modo Claro" : "Modo Oscuro"}
             </span>
           </button>
-          
+
           <button
             onClick={handleLogout}
             title={isDesktopCollapsed ? "Cerrar Sesión" : undefined}

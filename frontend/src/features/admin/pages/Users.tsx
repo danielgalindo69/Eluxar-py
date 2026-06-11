@@ -1,7 +1,8 @@
-import { UserPlus, Edit2, Ban, CheckCircle, Shield, User, Search, X } from "lucide-react";
+import { UserPlus, Edit2, Ban, CheckCircle, Shield, User} from "lucide-react";
 import { useState, useEffect } from "react";
 import { adminUsersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
+import { SearchBar } from "../components/SearchBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,16 +67,17 @@ export const Users = () => {
     }
   };
 
-  const filtered = users.filter(u => {
+  const filteredUsers = users.filter(user => {
     const q = searchQuery.toLowerCase();
-    return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+    return (
+      user.name.toLowerCase().includes(q) ||
+      user.email.toLowerCase().includes(q) ||
+      user.role.toLowerCase().includes(q)
+    );
   });
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-  const handleSearch = (val: string) => { setSearchQuery(val); setCurrentPage(1); };
-
+  const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
+  const paginated = filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -87,6 +89,15 @@ export const Users = () => {
           <UserPlus size={16} />
           Nuevo Usuario
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <SearchBar
+          placeholder="Buscar por nombre, email o rol..."
+          value={searchQuery}
+          onChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
+        />
       </div>
 
       {/* Stats */}
@@ -102,25 +113,6 @@ export const Users = () => {
         <div className={cardClass}>
           <div className="text-2xl font-light text-blue-400 mb-1">{users.filter(u => u.role === 'ADMIN').length}</div>
           <div className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40">Administradores</div>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o correo electrónico..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
-          />
-          {searchQuery && (
-            <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
-              <X size={14} />
-            </button>
-          )}
         </div>
       </div>
 
@@ -148,7 +140,7 @@ export const Users = () => {
                     <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40">{user.email}</td>
                     <td className="px-6 py-4">
                       <span className={`text-[10px] uppercase tracking-widest font-bold ${
-                        user.role === "ADMIN" ? "text-[#3A4A3F]" : "text-[#2B2B2B]/60 dark:text-white/40"
+                        user.role === "ADMIN" ? "text-[#3A4A3F] dark:text-[#C8A97E]" : "text-[#2B2B2B]/60 dark:text-white/40"
                       }`}>
                         {user.role}
                       </span>
@@ -163,18 +155,18 @@ export const Users = () => {
                               <Edit2 size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-[#161616] text-[#111111] dark:text-white border-[#EDEDED] dark:border-white/10">
                             <DropdownMenuLabel>Asignar Rol</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, "USUARIO")} className="flex items-center gap-2 cursor-pointer">
+                            <DropdownMenuSeparator className="bg-[#EDEDED] dark:bg-white/10" />
+                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, "USUARIO")} className="flex items-center gap-2 cursor-pointer focus:bg-[#EDEDED] dark:focus:bg-white/5">
                               <User size={14} />
                               <span>USUARIO</span>
-                              {user.role === "USUARIO" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F]" />}
+                              {user.role === "USUARIO" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[#C8A97E]" />}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, "ADMIN")} className="flex items-center gap-2 cursor-pointer">
+                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, "ADMIN")} className="flex items-center gap-2 cursor-pointer focus:bg-[#EDEDED] dark:focus:bg-white/5">
                               <Shield size={14} />
                               <span>ADMIN</span>
-                              {user.role === "ADMIN" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F]" />}
+                              {user.role === "ADMIN" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[#C8A97E]" />}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -208,7 +200,7 @@ export const Users = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-          totalItems={filtered.length}
+          totalItems={filteredUsers.length}
           pageSize={PAGE_SIZE}
         />
       </div>
