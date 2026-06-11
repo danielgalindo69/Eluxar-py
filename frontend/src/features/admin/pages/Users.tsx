@@ -2,6 +2,7 @@ import { UserPlus, Edit2, Ban, CheckCircle, Shield, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { adminUsersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
+import { SearchBar } from "../components/SearchBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-
 export const Users = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -63,6 +65,15 @@ export const Users = () => {
     }
   };
 
+  const filteredUsers = users.filter(user => {
+    const q = searchQuery.toLowerCase();
+    return (
+      user.name.toLowerCase().includes(q) ||
+      user.email.toLowerCase().includes(q) ||
+      user.role.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -74,6 +85,15 @@ export const Users = () => {
           <UserPlus size={16} />
           Nuevo Usuario
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <SearchBar
+          placeholder="Buscar por nombre, email o rol..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
       </div>
 
       {/* Stats */}
@@ -109,7 +129,15 @@ export const Users = () => {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan={6} className="text-center py-8 text-sm text-[#2B2B2B]/40 dark:text-white/40">Cargando usuarios...</td></tr>
-              ) : users.map((user) => (
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-16 text-center">
+                    <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
+                      No se encontraron resultados para &ldquo;{searchQuery}&rdquo;
+                    </p>
+                  </td>
+                </tr>
+              ) : filteredUsers.map((user) => (
                 <tr key={user.id} className={`border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors ${!user.active ? 'opacity-50' : ''}`}>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{user.name}</td>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40">{user.email}</td>

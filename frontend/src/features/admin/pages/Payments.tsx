@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { paymentsAPI, Payment, formatPrice } from "../../../core/api/api";
 import { toast } from "sonner";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
+import { SearchBar } from "../components/SearchBar";
 
 const statusColors: Record<string, string> = {
   'Pendiente': 'text-amber-500 bg-amber-500/10',
@@ -16,6 +17,7 @@ export const Payments = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [confirmAction, setConfirmAction] = useState<{ id: string; status: Payment['status'] } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => { paymentsAPI.getAll().then(d => { setPayments(d); setIsLoading(false); }); }, []);
 
@@ -27,11 +29,30 @@ export const Payments = () => {
     setConfirmAction(null);
   };
 
+  const filteredPayments = payments.filter(p => {
+    const q = searchQuery.toLowerCase();
+    return (
+      p.id.toLowerCase().includes(q) ||
+      p.client.toLowerCase().includes(q) ||
+      p.method.toLowerCase().includes(q) ||
+      p.status.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Pagos</h1>
         <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Confirmación y gestión de estados de pago</p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <SearchBar
+          placeholder="Buscar por ID, cliente, método o estado..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
       </div>
 
       <div className={tableWrap}>
@@ -47,7 +68,15 @@ export const Payments = () => {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan={8} className="px-6 py-8 text-center text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando...</td></tr>
-              ) : payments.map(p => (
+              ) : filteredPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-16 text-center">
+                    <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
+                      {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "No hay pagos registrados"}
+                    </p>
+                  </td>
+                </tr>
+              ) : filteredPayments.map(p => (
                 <tr key={p.id} className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">{p.id}</td>
                   <td className="px-6 py-4 text-sm text-[#2B2B2B] dark:text-white/80">{p.orderId}</td>

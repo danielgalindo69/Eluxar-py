@@ -2,6 +2,7 @@ import { Eye, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ordersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
+import { SearchBar } from "../components/SearchBar";
 
 // Shared dark-compatible class strings
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
@@ -13,6 +14,7 @@ const tdMutedClass = "px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40";
 export const Orders = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchOrders = async () => {
     try {
@@ -47,6 +49,16 @@ export const Orders = () => {
     }
   };
 
+  const filteredOrders = orders.filter(order => {
+    const q = searchQuery.toLowerCase();
+    return (
+      order.id.toLowerCase().includes(q) ||
+      order.client.toLowerCase().includes(q) ||
+      order.status.toLowerCase().includes(q) ||
+      order.product.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -54,10 +66,19 @@ export const Orders = () => {
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Pedidos</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra y monitorea todos los pedidos</p>
         </div>
-        <button className="bg-white dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 text-[#2B2B2B] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors flex items-center gap-2">
+        <button className="bg-white dark:bg-[#1a1a24] border border-[#EDEDED] dark:border-white/10 text-[#2B2B2B] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors flex items-center gap-2">
           <Download size={16} />
           Exportar
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <SearchBar
+          placeholder="Buscar por ID, cliente, producto o estado..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
       </div>
 
       {/* Stats */}
@@ -98,7 +119,15 @@ export const Orders = () => {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan={7} className="text-center py-8 text-sm text-[#2B2B2B]/40 dark:text-white/40">Cargando pedidos...</td></tr>
-              ) : orders.map((order, index) => (
+              ) : filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-16 text-center">
+                    <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
+                      {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "No hay pedidos"}
+                    </p>
+                  </td>
+                </tr>
+              ) : filteredOrders.map((order, index) => (
                 <tr key={index} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
                   <td className={tdClass}>{order.id}</td>
                   <td className={tdMutedClass}>{order.date}</td>

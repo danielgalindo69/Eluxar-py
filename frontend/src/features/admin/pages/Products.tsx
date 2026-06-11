@@ -1,8 +1,9 @@
 import React, { useState, useRef } from "react";
-import { Plus, Edit2, Trash2, Search, Loader2, X, Package, ImageIcon, Sparkles, Upload, CheckCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, X, Package, ImageIcon, Sparkles, Upload, CheckCircle } from "lucide-react";
 import { productsAPI } from "../../../core/api/api";
 import { Product } from "../../products/types/products";
 import { toast } from "sonner";
+import { SearchBar } from "../components/SearchBar";
 
 // ─── Enum de categorías fijas ─────────────────────────────────
 const CATEGORIAS = [
@@ -46,9 +47,15 @@ export const Products = () => {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    const q = searchQuery.toLowerCase();
+    const categoryLabel = CATEGORIAS.find(c => c.value === product.category)?.label || product.category;
+    return (
+      product.name.toLowerCase().includes(q) ||
+      categoryLabel.toLowerCase().includes(q) ||
+      (product.brand || "").toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="space-y-8">
@@ -68,16 +75,11 @@ export const Products = () => {
 
       {/* Search Bar */}
       <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={20} strokeWidth={1.5} />
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 focus:bg-white dark:focus:bg-[#111111] transition-all"
-          />
-        </div>
+        <SearchBar
+          placeholder="Buscar por nombre, categoría o marca..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
       </div>
 
       {/* Products Table */}
@@ -117,7 +119,7 @@ export const Products = () => {
                       <td className="px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40">
                         {CATEGORIAS.find(c => c.value === product.category)?.label || product.category}
                       </td>
-                      <td className="px-4 py-2 text-sm text-[#2B2B2B] font-bold">{product.price}</td>
+                      <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white font-bold">{product.price}</td>
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -133,7 +135,7 @@ export const Products = () => {
                             onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
                             className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors"
                           >
-                            <Edit2 size={16} className="text-[#2B2B2B]" strokeWidth={1.5} />
+                            <Edit2 size={16} className="text-[#2B2B2B] dark:text-[#e8e8f0]" strokeWidth={1.5} />
                           </button>
                           <button
                             title="Eliminar Producto"
@@ -149,7 +151,11 @@ export const Products = () => {
                 ) : (
                   <tr>
                     <td colSpan={6} className="px-6 py-20 text-center">
-                      <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">No se encontraron productos</p>
+                      <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
+                        {searchQuery
+                          ? `No se encontraron resultados para "${searchQuery}"`
+                          : "No hay productos en el catálogo"}
+                      </p>
                     </td>
                   </tr>
                 )}
@@ -268,7 +274,16 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
   });
 
   // Image state — up to 3 slots
-  const [images, setImages] = useState<(ImageEntry | null)[]>([null, null, null]);
+  const [images, setImages] = useState<(ImageEntry | null)[]>(() => {
+    const initial: (ImageEntry | null)[] = [null, null, null];
+    if (product?.image) {
+      initial[0] = { file: null, preview: product.image, cloudinaryUrl: product.image, isUploading: false };
+    }
+    if (product?.hoverImage) {
+      initial[1] = { file: null, preview: product.hoverImage, cloudinaryUrl: product.hoverImage, isUploading: false };
+    }
+    return initial;
+  });
 
   // On select: show local preview immediately, then upload to Cloudinary after product is created
   const handleImageSelect = (index: number, file: File) => {
@@ -304,7 +319,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     setIsLoading(true);
 
     try {
-      // 1. Crear el producto primero (sin imágenes)
+      // 1. Crear el producto primero (sin subir nuevas imágenes todavía)
       const payload = {
         ...formData,
         variantes: [{
@@ -314,6 +329,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
           stockActual: formData.stock,
           activa: true,
         }],
+        // Si hay imágenes ya subidas a cloudinary, las mantenemos (temporal o vacío según API)
         imagenes: [],
       };
 
@@ -373,7 +389,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             <div className="space-y-5">
               {/* Nombre */}
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Nombre</label>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Nombre</label>
                 <div className="relative group">
                   <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#3A4A3F] transition-colors" size={14} />
                   <input
@@ -382,46 +398,46 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     placeholder="Ej: L'Eau de Parfum"
-                    className="w-full bg-[#EDEDED]/50 border-none px-10 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none"
+                    className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-10 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
                   />
                 </div>
               </div>
 
               {/* Descripción */}
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Descripción</label>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Descripción</label>
                 <textarea
                   required
                   rows={3}
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   placeholder="Describe las notas y la esencia..."
-                  className="w-full bg-[#EDEDED]/50 border-none px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none resize-none"
+                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none resize-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
                 />
               </div>
 
               {/* Precio + Stock */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Precio (COP)</label>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Precio (COP)</label>
                   <input
                     type="number"
                     required
                     min={0}
                     value={formData.precio}
                     onChange={(e) => setFormData({ ...formData, precio: Number(e.target.value) })}
-                    className="w-full bg-[#EDEDED]/50 border-none px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none"
+                    className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Stock Inicial</label>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Stock Inicial</label>
                   <input
                     type="number"
                     required
                     min={0}
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-                    className="w-full bg-[#EDEDED]/50 border-none px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none"
+                    className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
                   />
                 </div>
               </div>
@@ -431,12 +447,12 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             <div className="space-y-5">
               {/* Categoría (Enum fijo) */}
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Categoría</label>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Categoría</label>
                 <select
                   required
                   value={formData.categoria}
                   onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                  className="w-full bg-[#EDEDED]/50 border-none px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none appearance-none"
+                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none appearance-none"
                 >
                   <option value="">Seleccionar...</option>
                   {CATEGORIAS.map(c => (
@@ -447,26 +463,26 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
 
               {/* Marca (texto libre) */}
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Marca</label>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Marca</label>
                 <input
                   type="text"
                   required
                   value={formData.marca}
                   onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
                   placeholder="Ej: Chanel, Dior, Tom Ford..."
-                  className="w-full bg-[#EDEDED]/50 border-none px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none"
+                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
                 />
               </div>
 
               {/* Familia Olfativa */}
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Familia Olfativa</label>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Familia Olfativa</label>
                 <input
                   type="text"
                   value={formData.familiaOlfativa}
                   onChange={(e) => setFormData({ ...formData, familiaOlfativa: e.target.value })}
-                  placeholder="Ej: Amaderada, Cítrica..."
-                  className="w-full bg-[#EDEDED]/50 border-none px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] outline-none"
+                  placeholder="Ej: Floral, Amaderada..."
+                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
                 />
               </div>
 
@@ -478,7 +494,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
                   className="w-4 h-4 accent-[#3A4A3F]"
                 />
-                <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60">Destacado</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
               </label>
             </div>
           </div>
@@ -494,11 +510,10 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   Máximo 3 fotos · JPEG, PNG o WEBP
                 </p>
               </div>
-              <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-1 ${
-                filledSlots.length === 3
-                  ? 'bg-[#3A4A3F]/10 text-[#3A4A3F]'
-                  : 'bg-[#EDEDED] text-[#2B2B2B]/40'
-              }`}>
+              <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-1 ${filledSlots.length === 3
+                ? 'bg-[#C8A97E]/10 text-[#C8A97E]'
+                : 'bg-[#EDEDED] dark:bg-[#1A1A1A] text-[#2B2B2B]/40 dark:text-white/40'
+                }`}>
                 {filledSlots.length} / 3
               </span>
             </div>
@@ -529,14 +544,14 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-[#EDEDED] py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#EDEDED] transition-all"
+              className="flex-1 border border-[#EDEDED] dark:border-white/10 py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-all"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-[2] bg-[#111111] text-white py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-[2] bg-[#111111] dark:bg-[#C8A97E] text-white dark:text-[#111111] py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
               <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>

@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { couponAPI, Coupon, formatPrice } from "../../../core/api/api";
+import { SearchBar } from "../components/SearchBar";
 
 export const Coupons = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Form State
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -109,6 +111,17 @@ export const Coupons = () => {
     return new Date(dateString) < new Date();
   };
 
+  const filteredCoupons = coupons.filter(c => {
+    const q = searchQuery.toLowerCase();
+    const estado = c.activo ? (isExpired(c.fechaExpiracion) ? 'expirado' : 'activo') : 'inactivo';
+    return (
+      c.codigo.toLowerCase().includes(q) ||
+      estado.includes(q) ||
+      c.tipo.toLowerCase().includes(q) ||
+      String(c.descuento).includes(q)
+    );
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -130,10 +143,21 @@ export const Coupons = () => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      {!isLoading && (
+        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+          <SearchBar
+            placeholder="Buscar por código, estado o tipo..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
+        </div>
+      )}
+
       {isLoading ? (
         <div className="animate-pulse space-y-4">
-          <div className="h-12 bg-gray-200 dark:bg-white/5 rounded"></div>
-          <div className="h-12 bg-gray-200 dark:bg-white/5 rounded"></div>
+          <div className="h-12 bg-[#EDEDED] dark:bg-[#1A1A1A] rounded"></div>
+          <div className="h-12 bg-[#EDEDED] dark:bg-[#1A1A1A] rounded"></div>
         </div>
       ) : (
         <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 overflow-hidden">
@@ -150,7 +174,7 @@ export const Coupons = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EDEDED] dark:divide-white/10">
-                {coupons.map((c) => {
+                {filteredCoupons.map((c) => {
                   const expired = isExpired(c.fechaExpiracion);
                   return (
                     <tr key={c.id} className="hover:bg-[#EDEDED]/20 dark:hover:bg-white/5 transition-colors">
@@ -158,7 +182,7 @@ export const Coupons = () => {
                       <td className="px-6 py-4">
                         {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
                         {c.montoMinimo ? (
-                          <span className="block text-[10px] text-gray-500">Min: ${formatPrice(c.montoMinimo)}</span>
+                          <span className="block text-[10px] text-[#2B2B2B]/50 dark:text-[#9090a8]">Min: ${formatPrice(c.montoMinimo)}</span>
                         ) : null}
                       </td>
                       <td className="px-6 py-4">
@@ -190,11 +214,13 @@ export const Coupons = () => {
                     </tr>
                   );
                 })}
-                {coupons.length === 0 && (
+                {filteredCoupons.length === 0 && (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
                       <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
-                      No hay cupones registrados
+                      {searchQuery
+                        ? `No se encontraron resultados para "${searchQuery}"`
+                        : "No hay cupones registrados"}
                     </td>
                   </tr>
                 )}

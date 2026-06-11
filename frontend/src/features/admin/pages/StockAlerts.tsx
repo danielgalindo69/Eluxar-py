@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { inventoryAPI, StockAlert } from "../../../core/api/api";
 import { AlertTriangle, AlertCircle, Settings } from "lucide-react";
 import { toast } from "sonner";
+import { SearchBar } from "../components/SearchBar";
 
 export const StockAlerts = () => {
   const [alerts, setAlerts] = useState<(StockAlert & { severity: 'warning' | 'critical' })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newThreshold, setNewThreshold] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     inventoryAPI.getAlerts()
@@ -52,12 +54,33 @@ export const StockAlerts = () => {
     }
   };
 
+  const filteredAlerts = alerts.filter(alert => {
+    const q = searchQuery.toLowerCase();
+    return (
+      alert.productoNombre.toLowerCase().includes(q) ||
+      (alert.sku || "").toLowerCase().includes(q) ||
+      alert.severity.includes(q) ||
+      (q === 'critico' || q === 'crítico' ? alert.severity === 'critical' : false) ||
+      (q === 'bajo' ? alert.severity === 'warning' : false)
+    );
+  });
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Alertas de Stock</h1>
         <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Productos con inventario por debajo del umbral mínimo</p>
       </div>
+
+      {!isLoading && alerts.length > 0 && (
+        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+          <SearchBar
+            placeholder="Buscar por producto, SKU o nivel de alerta..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
+        </div>
+      )}
 
       {isLoading ? (
         <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando alertas...</p>
@@ -68,7 +91,13 @@ export const StockAlerts = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {alerts.map(alert => (
+          {filteredAlerts.length === 0 ? (
+            <div className="col-span-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
+              <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
+                No se encontraron resultados para &ldquo;{searchQuery}&rdquo;
+              </p>
+            </div>
+          ) : filteredAlerts.map(alert => (
             <div key={alert.varianteId} className={`bg-white dark:bg-[#161616] border p-6 space-y-4 ${alert.severity === 'critical' ? 'border-red-400/50' : 'border-amber-400/50'}`}>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
