@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { ordersAPI, Order, formatPrice } from "../../../core/api/api";
-import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock } from "lucide-react";
+import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
+
+const PAGE_SIZE = 5;
 
 const statusConfig: Record<string, { icon: React.ElementType; color: string }> = {
   'PENDIENTE': { icon: Clock, color: 'text-[#2B2B2B]/60 dark:text-white/40' },
@@ -16,6 +18,8 @@ export const OrderHistory = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState("");
 
   useEffect(() => {
     ordersAPI.getAll().then(data => { setOrders(data); setIsLoading(false); });
@@ -41,7 +45,42 @@ export const OrderHistory = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {orders.map(order => {
+            {/* Filter bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30">
+                {orders.length} pedido{orders.length !== 1 ? 's' : ''} en total
+              </span>
+              <select
+                value={filterStatus}
+                onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+                className="bg-transparent border border-[#EDEDED] dark:border-white/10 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white px-3 py-2 outline-none"
+              >
+                <option value="">Todos los estados</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="CONFIRMADO">Confirmado</option>
+                <option value="EN_PROCESO">En Proceso</option>
+                <option value="ENVIADO">Enviado</option>
+                <option value="ENTREGADO">Entregado</option>
+                <option value="CANCELADO">Cancelado</option>
+              </select>
+            </div>
+
+            {/* Order list */}
+            {(() => {
+              const filtered = orders.filter(o =>
+                filterStatus === '' || (o.estado || o.status) === filterStatus
+              );
+              const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+              const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+              return (
+                <>
+                  {paginated.length === 0 && (
+                    <div className="text-center py-16 space-y-4">
+                      <Package size={40} className="mx-auto text-[#2B2B2B]/15 dark:text-white/15" strokeWidth={1} />
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/30 dark:text-white/30">Sin pedidos con ese estado</p>
+                    </div>
+                  )}
+                  {paginated.map(order => {
               const isExpanded = expandedId === order.id;
               const currentStatus = order.estado || order.status || '';
               const StatusIcon = statusConfig[currentStatus]?.icon || Clock;
@@ -120,7 +159,35 @@ export const OrderHistory = () => {
                   )}
                 </div>
               );
-            })}
+                  })}
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between pt-6 border-t border-[#EDEDED] dark:border-white/8">
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30">
+                        Pág. {currentPage} de {totalPages}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={currentPage === 1}
+                          className="p-2 border border-[#EDEDED] dark:border-white/10 hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors disabled:opacity-30"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+                        <button
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          disabled={currentPage === totalPages}
+                          className="p-2 border border-[#EDEDED] dark:border-white/10 hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors disabled:opacity-30"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
       </div>

@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Loader2, Heart } from "lucide-react";
+import { Loader2, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "../../products/types/products";
 import { wishlistAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
+
+const PAGE_SIZE = 6;
 
 export const Wishlist = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchWishlist();
@@ -74,24 +77,69 @@ export const Wishlist = () => {
     );
   }
 
+  const totalPages = Math.ceil(products.length / PAGE_SIZE);
+  const paginated = products.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="mb-8">
-        <h1 className="text-3xl font-light text-[#111111] dark:text-white mb-2">Lista de Deseos</h1>
-        <p className="text-[#2B2B2B]/60 dark:text-white/60 text-sm font-light">
-          {products.length} {products.length === 1 ? 'producto guardado' : 'productos guardados'}
-        </p>
+      <div className="mb-8 flex items-end justify-between">
+        <div>
+          <h1 className="text-3xl font-light text-[#111111] dark:text-white mb-2">Lista de Deseos</h1>
+          <p className="text-[#2B2B2B]/60 dark:text-white/60 text-sm font-light">
+            {products.length} {products.length === 1 ? 'producto guardado' : 'productos guardados'}
+          </p>
+        </div>
+        {totalPages > 1 && (
+          <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30">
+            Pág. {currentPage} / {totalPages}
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
-        {products.map((product) => (
+        {paginated.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-16 pt-8 border-t border-[#EDEDED] dark:border-white/8">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="flex items-center gap-2 px-6 py-3 border border-[#EDEDED] dark:border-white/10 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft size={16} /> Anterior
+          </button>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                className={`w-8 h-8 text-[10px] font-bold transition-colors ${
+                  currentPage === p
+                    ? 'bg-[#111111] dark:bg-white text-white dark:text-[#111111]'
+                    : 'hover:bg-[#EDEDED] dark:hover:bg-white/8 text-[#2B2B2B] dark:text-white/60'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="flex items-center gap-2 px-6 py-3 border border-[#EDEDED] dark:border-white/10 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Siguiente <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 };

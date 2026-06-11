@@ -4,10 +4,13 @@ import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter } fr
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchBar } from "../components/SearchBar";
+import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
+import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
+
+const PAGE_SIZE = 15;
 
 const tableWrap = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
-const inputCls = "border border-[#EDEDED] dark:border-white/10 bg-transparent dark:bg-[#111111] dark:text-white px-3 py-2 text-sm outline-none focus:border-[#111111] dark:focus:border-white/30 transition-colors";
 
 export const Inventory = () => {
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
@@ -19,10 +22,11 @@ export const Inventory = () => {
   const [isArchiving, setIsArchiving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filtros de fecha
+  // Filtros
   const [filterDesde, setFilterDesde] = useState('');
   const [filterHasta, setFilterHasta] = useState('');
   const [archiveBefore, setArchiveBefore] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [formData, setFormData] = useState({
     varianteId: '',
@@ -161,7 +165,7 @@ export const Inventory = () => {
             <SearchBar
               placeholder="Buscar por producto, tipo o motivo..."
               value={searchQuery}
-              onChange={setSearchQuery}
+              onChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
             />
           </div>
           <div className="flex items-center gap-3 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
@@ -216,6 +220,8 @@ export const Inventory = () => {
         )}
       </div>
 
+      
+
       {/* Tabla de Movimientos */}
       <div className={tableWrap}>
         <div className="overflow-x-auto">
@@ -235,48 +241,72 @@ export const Inventory = () => {
                     <span className="text-xs uppercase tracking-widest">Cargando...</span>
                   </div>
                 </td></tr>
-              ) : filteredMovements.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-[#2B2B2B]/40 dark:text-white/30">
-                  {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : 'Sin movimientos registrados'}
-                </td></tr>
-              ) : filteredMovements.map((m, i) => (
-                <motion.tr
-                  key={m.id}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.02 }}
-                  className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 whitespace-nowrap">
-                    {new Date(m.fecha).toLocaleDateString('es-CO', {
-                      year: 'numeric', month: 'short', day: '2-digit',
-                      hour: '2-digit', minute: '2-digit'
-                    })}
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</p>
-                    <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{m.tamanoMl}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
-                      m.tipo === 'ENTRADA'
-                        ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#C8A97E]/10 dark:text-[#C8A97E]'
-                        : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
-                    }`}>
-                      {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
-                      {m.tipo}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
-                    <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#C8A97E]' : 'text-red-500'}>
-                      {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 max-w-[260px] truncate">
-                    {m.motivo}
-                  </td>
-                </motion.tr>
-              ))}
+              ) : (() => {
+                const totalPages = Math.ceil(filteredMovements.length / PAGE_SIZE);
+                const paginated = filteredMovements.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+                return (
+                  <>
+                    {paginated.length === 0 ? (
+                      <EmptyStateRow
+                        icon={ArrowDownCircle}
+                        title="Sin movimientos"
+                        description={searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "Aún no se han registrado movimientos de inventario"}
+                        colSpan={5}
+                      />
+                    ) : paginated.map((m, i) => (
+                      <motion.tr
+                        key={m.id}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.02 }}
+                        className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 whitespace-nowrap">
+                          {new Date(m.fecha).toLocaleDateString('es-CO', {
+                            year: 'numeric', month: 'short', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</p>
+                          <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{m.tamanoMl}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
+                            m.tipo === 'ENTRADA'
+                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#C8A97E]/10 dark:text-[#C8A97E]'
+                              : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
+                          }`}>
+                            {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
+                            {m.tipo}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
+                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#C8A97E]' : 'text-red-500'}>
+                            {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 max-w-[260px] truncate">
+                          {m.motivo}
+                        </td>
+                      </motion.tr>
+                    ))}
+                    {totalPages > 1 && (
+                      <tr>
+                        <td colSpan={5} className="p-0">
+                          <AdminPaginator
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            totalItems={filteredMovements.length}
+                            pageSize={PAGE_SIZE}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })()}
             </tbody>
           </table>
         </div>

@@ -1,20 +1,36 @@
-import { Eye, Download } from "lucide-react";
+import { Eye, Download, Search, X, ShoppingBag, Filter } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ordersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
-import { SearchBar } from "../components/SearchBar";
+import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
+import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
 
-// Shared dark-compatible class strings
+
+
+const PAGE_SIZE = 15;
+
 const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
 const tableWrapClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
 const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3";
 const tdClass = "px-4 py-2 text-sm text-[#2B2B2B] dark:text-white/80";
 const tdMutedClass = "px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40";
 
+const STATUS_OPTIONS = [
+  { value: "", label: "Todos los estados" },
+  { value: "PENDIENTE", label: "Pendiente" },
+  { value: "CONFIRMADO", label: "Confirmado" },
+  { value: "EN_PROCESO", label: "En Proceso" },
+  { value: "ENVIADO", label: "Enviado" },
+  { value: "ENTREGADO", label: "Entregado" },
+  { value: "CANCELADO", label: "Cancelado" },
+];
+
 export const Orders = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchOrders = async () => {
     try {
@@ -35,9 +51,7 @@ export const Orders = () => {
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
@@ -49,15 +63,18 @@ export const Orders = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order => {
+  const filtered = orders.filter(o => {
     const q = searchQuery.toLowerCase();
-    return (
-      order.id.toLowerCase().includes(q) ||
-      order.client.toLowerCase().includes(q) ||
-      order.status.toLowerCase().includes(q) ||
-      order.product.toLowerCase().includes(q)
-    );
+    const matchesSearch = o.id.toLowerCase().includes(q) || o.client.toLowerCase().includes(q);
+    const matchesStatus = filterStatus === "" || o.status === filterStatus;
+    return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const handleSearch = (val: string) => { setSearchQuery(val); setCurrentPage(1); };
+  const handleFilter = (val: string) => { setFilterStatus(val); setCurrentPage(1); };
 
   return (
     <div className="space-y-8">
@@ -70,15 +87,6 @@ export const Orders = () => {
           <Download size={16} />
           Exportar
         </button>
-      </div>
-
-      {/* Search Bar */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
-        <SearchBar
-          placeholder="Buscar por ID, cliente, producto o estado..."
-          value={searchQuery}
-          onChange={setSearchQuery}
-        />
       </div>
 
       {/* Stats */}
@@ -101,6 +109,39 @@ export const Orders = () => {
         </div>
       </div>
 
+      {/* Filters */}
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative group flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
+            <input
+              type="text"
+              placeholder="Buscar por ID o nombre de cliente..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+            />
+            {searchQuery && (
+              <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40" size={14} />
+            <select
+              value={filterStatus}
+              onChange={(e) => handleFilter(e.target.value)}
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+            >
+              {STATUS_OPTIONS.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Orders Table */}
       <div className={tableWrapClass}>
         <div className="overflow-x-auto">
@@ -119,58 +160,65 @@ export const Orders = () => {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan={7} className="text-center py-8 text-sm text-[#2B2B2B]/40 dark:text-white/40">Cargando pedidos...</td></tr>
-              ) : filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
-                      {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "No hay pedidos"}
-                    </p>
-                  </td>
-                </tr>
-              ) : filteredOrders.map((order, index) => (
-                <tr key={index} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
-                  <td className={tdClass}>{order.id}</td>
-                  <td className={tdMutedClass}>{order.date}</td>
-                  <td className={tdClass}>{order.client}</td>
-                  <td className={tdClass}>{order.product}</td>
-                  <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white font-bold">{order.total}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        order.status === "ENTREGADO" ? "bg-green-500" :
-                        order.status === "ENVIADO" ? "bg-amber-500" :
-                        order.status === "CANCELADO" ? "bg-red-500" :
-                        "bg-blue-400"
-                      }`} />
-                      <select 
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.rawId, e.target.value)}
-                        className={`bg-transparent text-[10px] uppercase tracking-widest font-bold outline-none cursor-pointer ${
-                          order.status === "ENTREGADO" ? "text-[#3A4A3F]" :
-                          order.status === "ENVIADO" ? "text-amber-500" :
-                          order.status === "CANCELADO" ? "text-red-400" :
-                          "text-[#2B2B2B]/60 dark:text-white/60"
-                        }`}
-                      >
-                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="PENDIENTE">Pendiente</option>
-                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CONFIRMADO">Confirmado</option>
-                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="EN_PROCESO">En Proceso</option>
-                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENVIADO">Enviado</option>
-                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENTREGADO">Entregado</option>
-                        <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CANCELADO">Cancelado</option>
-                      </select>
-                    </div>
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    <button title="Ver Detalles" className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors inline-flex items-center gap-2">
-                      <Eye size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              ) : paginated.length > 0 ? (
+                paginated.map((order, index) => (
+                  <tr key={index} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
+                    <td className={tdClass}>{order.id}</td>
+                    <td className={tdMutedClass}>{order.date}</td>
+                    <td className={tdClass}>{order.client}</td>
+                    <td className={tdClass}>{order.product}</td>
+                    <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white font-bold">{order.total}</td>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          order.status === "ENTREGADO" ? "bg-green-500" :
+                          order.status === "ENVIADO" ? "bg-amber-500" :
+                          order.status === "CANCELADO" ? "bg-red-500" : "bg-blue-400"
+                        }`} />
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order.rawId, e.target.value)}
+                          className={`bg-transparent text-[10px] uppercase tracking-widest font-bold outline-none cursor-pointer ${
+                            order.status === "ENTREGADO" ? "text-[#3A4A3F]" :
+                            order.status === "ENVIADO" ? "text-amber-500" :
+                            order.status === "CANCELADO" ? "text-red-400" :
+                            "text-[#2B2B2B]/60 dark:text-white/60"
+                          }`}
+                        >
+                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="PENDIENTE">Pendiente</option>
+                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CONFIRMADO">Confirmado</option>
+                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="EN_PROCESO">En Proceso</option>
+                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENVIADO">Enviado</option>
+                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENTREGADO">Entregado</option>
+                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CANCELADO">Cancelado</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      <button title="Ver Detalles" className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors inline-flex items-center gap-2">
+                        <Eye size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <EmptyStateRow
+                  icon={ShoppingBag}
+                  title="No hay pedidos"
+                  description={searchQuery || filterStatus ? "Intenta con otros filtros" : "Aún no se han registrado pedidos"}
+                  colSpan={7}
+                />
+              )}
             </tbody>
           </table>
         </div>
+        <AdminPaginator
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={filtered.length}
+          pageSize={PAGE_SIZE}
+        />
       </div>
     </div>
   );

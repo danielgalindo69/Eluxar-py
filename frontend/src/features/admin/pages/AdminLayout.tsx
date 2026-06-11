@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, Navigate, useNavigate } from "react-router";
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Tag, DollarSign, Megaphone, Menu, X, Sun, Moon, Ticket } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Menu, X, Sun, Moon, Ticket } from "lucide-react";
 import { useAuth } from '../../auth/context/AuthContext';
 import { useTheme } from "next-themes";
 import { ScrollToTop } from '../../../shared/components/ScrollToTop';
