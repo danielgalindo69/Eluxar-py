@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle, Search, X } from "lucide-react";
 import { couponAPI, Coupon, formatPrice } from "../../../core/api/api";
+import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
+
+const PAGE_SIZE = 15;
 
 export const Coupons = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   
   // Form State
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -130,6 +135,25 @@ export const Coupons = () => {
         </button>
       </div>
 
+      {/* Search */}
+      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 p-4">
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
+          <input
+            type="text"
+            placeholder="Buscar cupón por código..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
+          />
+          {searchQuery && (
+            <button onClick={() => { setSearchQuery(''); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="animate-pulse space-y-4">
           <div className="h-12 bg-gray-200 dark:bg-white/5 rounded"></div>
@@ -150,54 +174,75 @@ export const Coupons = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EDEDED] dark:divide-white/10">
-                {coupons.map((c) => {
-                  const expired = isExpired(c.fechaExpiracion);
-                  return (
-                    <tr key={c.id} className="hover:bg-[#EDEDED]/20 dark:hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-4 font-bold tracking-widest">{c.codigo}</td>
-                      <td className="px-6 py-4">
-                        {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
-                        {c.montoMinimo ? (
-                          <span className="block text-[10px] text-gray-500">Min: ${formatPrice(c.montoMinimo)}</span>
-                        ) : null}
-                      </td>
-                      <td className="px-6 py-4">
-                        {c.usosActuales} / {c.limiteUsos || '∞'}
-                      </td>
-                      <td className="px-6 py-4 text-xs">
-                        {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleString('es-CO') : 'Sin expiración'}
-                        {expired && <span className="text-red-500 ml-2">(Expirado)</span>}
-                      </td>
-                      <td className="px-6 py-4">
-                        {c.activo && !expired ? (
-                          <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold uppercase">
-                            <CheckCircle2 size={14} /> Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-bold uppercase">
-                            <XCircle size={14} /> {expired ? 'Expirado' : 'Inactivo'}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right space-x-3">
-                        <button onClick={() => handleOpenModal(c)} className="text-[#3A4A3F] dark:text-[#A5BAA8] hover:text-[#111111] dark:hover:text-white transition-colors">
-                          <Edit2 size={16} />
-                        </button>
-                        <button onClick={() => handleDelete(c.id!)} className="text-red-500 hover:text-red-700 transition-colors">
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
+                {(() => {
+                  const filtered = coupons.filter(c =>
+                    searchQuery === '' || c.codigo.toLowerCase().includes(searchQuery.toLowerCase())
                   );
-                })}
-                {coupons.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
-                      <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
-                      No hay cupones registrados
-                    </td>
-                  </tr>
-                )}
+                  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+                  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+                  return (
+                    <>
+                      {paginated.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
+                            <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
+                            {searchQuery ? 'No se encontraron cupones con ese código' : 'No hay cupones registrados'}
+                          </td>
+                        </tr>
+                      ) : paginated.map((c) => {
+                        const expired = isExpired(c.fechaExpiracion);
+                        return (
+                          <tr key={c.id} className="hover:bg-[#EDEDED]/20 dark:hover:bg-white/5 transition-colors">
+                            <td className="px-6 py-4 font-bold tracking-widest">{c.codigo}</td>
+                            <td className="px-6 py-4">
+                              {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
+                              {c.montoMinimo ? (
+                                <span className="block text-[10px] text-gray-500">Min: ${formatPrice(c.montoMinimo)}</span>
+                              ) : null}
+                            </td>
+                            <td className="px-6 py-4">{c.usosActuales} / {c.limiteUsos || '∞'}</td>
+                            <td className="px-6 py-4 text-xs">
+                              {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleString('es-CO') : 'Sin expiración'}
+                              {expired && <span className="text-red-500 ml-2">(Expirado)</span>}
+                            </td>
+                            <td className="px-6 py-4">
+                              {c.activo && !expired ? (
+                                <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold uppercase">
+                                  <CheckCircle2 size={14} /> Activo
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-bold uppercase">
+                                  <XCircle size={14} /> {expired ? 'Expirado' : 'Inactivo'}
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-right space-x-3">
+                              <button onClick={() => handleOpenModal(c)} className="text-[#3A4A3F] dark:text-[#A5BAA8] hover:text-[#111111] dark:hover:text-white transition-colors">
+                                <Edit2 size={16} />
+                              </button>
+                              <button onClick={() => handleDelete(c.id!)} className="text-red-500 hover:text-red-700 transition-colors">
+                                <Trash2 size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {totalPages > 1 && (
+                        <tr>
+                          <td colSpan={6} className="p-0">
+                            <AdminPaginator
+                              currentPage={currentPage}
+                              totalPages={totalPages}
+                              onPageChange={setCurrentPage}
+                              totalItems={filtered.length}
+                              pageSize={PAGE_SIZE}
+                            />
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  );
+                })()}
               </tbody>
             </table>
           </div>

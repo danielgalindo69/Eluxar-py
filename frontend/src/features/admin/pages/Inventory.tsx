@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
-import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter } from "lucide-react";
+import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, Search } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
+import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
+import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
+
+const PAGE_SIZE = 15;
 
 const tableWrap = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
@@ -17,10 +21,12 @@ export const Inventory = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
 
-  // Filtros de fecha
+  // Filtros
   const [filterDesde, setFilterDesde] = useState('');
   const [filterHasta, setFilterHasta] = useState('');
   const [archiveBefore, setArchiveBefore] = useState('');
+  const [searchProduct, setSearchProduct] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [formData, setFormData] = useState({
     varianteId: '',
@@ -190,6 +196,25 @@ export const Inventory = () => {
         </div>
       </div>
 
+      {/* Búsqueda de producto en movimientos */}
+      <div className={`${tableWrap} p-4`}>
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
+          <input
+            type="text"
+            placeholder="Buscar por nombre de producto..."
+            value={searchProduct}
+            onChange={(e) => { setSearchProduct(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
+          />
+          {searchProduct && (
+            <button onClick={() => { setSearchProduct(''); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Tabla de Movimientos */}
       <div className={tableWrap}>
         <div className="overflow-x-auto">
@@ -209,48 +234,75 @@ export const Inventory = () => {
                     <span className="text-xs uppercase tracking-widest">Cargando...</span>
                   </div>
                 </td></tr>
-              ) : movements.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-[#2B2B2B]/40 dark:text-white/30">
-                  Sin movimientos registrados
-                </td></tr>
-              ) : movements.map((m, i) => (
-                <motion.tr
-                  key={m.id}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.02 }}
-                  className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 whitespace-nowrap">
-                    {new Date(m.fecha).toLocaleDateString('es-CO', {
-                      year: 'numeric', month: 'short', day: '2-digit',
-                      hour: '2-digit', minute: '2-digit'
-                    })}
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</p>
-                    <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{m.tamanoMl}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
-                      m.tipo === 'ENTRADA'
-                        ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8]'
-                        : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
-                    }`}>
-                      {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
-                      {m.tipo}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
-                    <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#A5BAA8]' : 'text-red-500'}>
-                      {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 max-w-[260px] truncate">
-                    {m.motivo}
-                  </td>
-                </motion.tr>
-              ))}
+              ) : (() => {
+                const filteredMovements = movements.filter(m =>
+                  searchProduct === '' || m.productoNombre?.toLowerCase().includes(searchProduct.toLowerCase())
+                );
+                const totalPages = Math.ceil(filteredMovements.length / PAGE_SIZE);
+                const paginated = filteredMovements.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+                return (
+                  <>
+                    {paginated.length === 0 ? (
+                      <EmptyStateRow
+                        icon={ArrowDownCircle}
+                        title="Sin movimientos"
+                        description={searchProduct ? "No hay movimientos para ese producto" : "Aún no se han registrado movimientos de inventario"}
+                        colSpan={5}
+                      />
+                    ) : paginated.map((m, i) => (
+                      <motion.tr
+                        key={m.id}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.02 }}
+                        className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 whitespace-nowrap">
+                          {new Date(m.fecha).toLocaleDateString('es-CO', {
+                            year: 'numeric', month: 'short', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</p>
+                          <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{m.tamanoMl}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
+                            m.tipo === 'ENTRADA'
+                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8]'
+                              : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
+                          }`}>
+                            {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
+                            {m.tipo}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
+                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#A5BAA8]' : 'text-red-500'}>
+                            {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 max-w-[260px] truncate">
+                          {m.motivo}
+                        </td>
+                      </motion.tr>
+                    ))}
+                    {totalPages > 1 && (
+                      <tr>
+                        <td colSpan={5} className="p-0">
+                          <AdminPaginator
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            totalItems={filteredMovements.length}
+                            pageSize={PAGE_SIZE}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })()}
             </tbody>
           </table>
         </div>

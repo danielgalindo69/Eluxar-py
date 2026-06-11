@@ -1,8 +1,12 @@
 import React, { useState, useRef } from "react";
-import { Plus, Edit2, Trash2, Search, Loader2, X, Package, ImageIcon, Sparkles, Upload, CheckCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, Loader2, X, Package, ImageIcon, Sparkles, Upload, CheckCircle, Filter } from "lucide-react";
 import { productsAPI } from "../../../core/api/api";
 import { Product } from "../../products/types/products";
 import { toast } from "sonner";
+import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
+import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
+
+const PAGE_SIZE = 15;
 
 // ─── Enum de categorías fijas ─────────────────────────────────
 const CATEGORIAS = [
@@ -16,6 +20,8 @@ export const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -46,16 +52,33 @@ export const Products = () => {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(product => {
+    const matchesName = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = filterCategory === "" || product.category === filterCategory;
+    return matchesName && matchesCategory;
+  });
+
+  const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
+
+  // Reset to page 1 on filter change
+  const handleSearch = (val: string) => { setSearchQuery(val); setCurrentPage(1); };
+  const handleCategory = (val: string) => { setFilterCategory(val); setCurrentPage(1); };
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Productos</h1>
-          <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra el catálogo de perfumes</p>
+          <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">
+            Administra el catálogo de perfumes
+            {filteredProducts.length !== products.length && (
+              <span className="ml-2 text-[#3A4A3F] font-bold">{filteredProducts.length} resultados</span>
+            )}
+          </p>
         </div>
         <button
           onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
@@ -66,17 +89,39 @@ export const Products = () => {
         </button>
       </div>
 
-      {/* Search Bar */}
+      {/* Filters Row */}
       <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={20} strokeWidth={1.5} />
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 focus:bg-white dark:focus:bg-[#111111] transition-all"
-          />
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="relative group flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#111111] dark:group-focus-within:text-white transition-colors" size={18} strokeWidth={1.5} />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o marca..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white/30 transition-all"
+            />
+            {searchQuery && (
+              <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          {/* Category filter */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40" size={14} />
+            <select
+              value={filterCategory}
+              onChange={(e) => handleCategory(e.target.value)}
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#111111] dark:focus:border-white/30 transition-all"
+            >
+              <option value="">Todas las categorías</option>
+              {CATEGORIAS.map(c => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -88,74 +133,84 @@ export const Products = () => {
             <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">Cargando catálogo...</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[#EDEDED] dark:border-white/8 bg-[#EDEDED] dark:bg-white/5">
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Imagen</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Nombre</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Categoría</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Precio</th>
-                  <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Stock</th>
-                  <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
-                    <tr key={product.id} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
-                      <td className="px-4 py-2">
-                        {product.image ? (
-                          <img src={product.image} alt={product.name} className="w-10 h-10 object-cover" />
-                        ) : (
-                          <div className="w-10 h-10 bg-[#EDEDED] dark:bg-white/10 flex items-center justify-center">
-                            <ImageIcon size={16} className="text-[#2B2B2B]/30" />
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white/80">{product.name}</td>
-                      <td className="px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40">
-                        {CATEGORIAS.find(c => c.value === product.category)?.label || product.category}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-[#2B2B2B] font-bold">{product.price}</td>
-                      <td className="px-4 py-2">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-                          <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? 'text-[#3A4A3F]' : 'text-red-500'}`}>
-                            {product.stock > 0 ? `En stock (${product.stock})` : 'Sin stock'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            title="Editar Producto"
-                            onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
-                            className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors"
-                          >
-                            <Edit2 size={16} className="text-[#2B2B2B]" strokeWidth={1.5} />
-                          </button>
-                          <button
-                            title="Eliminar Producto"
-                            onClick={() => handleDelete(product.id)}
-                            className="p-2 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 size={16} className="text-red-500" strokeWidth={1.5} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-20 text-center">
-                      <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">No se encontraron productos</p>
-                    </td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#EDEDED] dark:border-white/8 bg-[#EDEDED] dark:bg-white/5">
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Imagen</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Nombre</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Categoría</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Precio</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Stock</th>
+                    <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Acciones</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {paginatedProducts.length > 0 ? (
+                    paginatedProducts.map((product) => (
+                      <tr key={product.id} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
+                        <td className="px-4 py-2">
+                          {product.image ? (
+                            <img src={product.image} alt={product.name} className="w-10 h-10 object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 bg-[#EDEDED] dark:bg-white/10 flex items-center justify-center">
+                              <ImageIcon size={16} className="text-[#2B2B2B]/30" />
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white/80">{product.name}</td>
+                        <td className="px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40">
+                          {CATEGORIAS.find(c => c.value === product.category)?.label || product.category}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-[#2B2B2B] font-bold">{product.price}</td>
+                        <td className="px-4 py-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                            <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? 'text-[#3A4A3F]' : 'text-red-500'}`}>
+                              {product.stock > 0 ? `En stock (${product.stock})` : 'Sin stock'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              title="Editar Producto"
+                              onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
+                              className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors"
+                            >
+                              <Edit2 size={16} className="text-[#2B2B2B]" strokeWidth={1.5} />
+                            </button>
+                            <button
+                              title="Eliminar Producto"
+                              onClick={() => handleDelete(product.id)}
+                              className="p-2 hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 size={16} className="text-red-500" strokeWidth={1.5} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <EmptyStateRow
+                      icon={Package}
+                      title="No se encontraron productos"
+                      description={searchQuery || filterCategory ? "Intenta con otros filtros de búsqueda" : "Agrega tu primer producto al catálogo"}
+                      colSpan={6}
+                    />
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <AdminPaginator
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredProducts.length}
+              pageSize={PAGE_SIZE}
+            />
+          </>
         )}
       </div>
 
@@ -247,8 +302,8 @@ interface ProductModalProps {
 
 interface ImageEntry {
   file: File | null;
-  preview: string;      // blob URL for local preview OR cloudinary URL
-  cloudinaryUrl: string | null;  // null while uploading, URL after upload
+  preview: string;
+  cloudinaryUrl: string | null;
   isUploading: boolean;
 }
 
@@ -267,10 +322,8 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     stock:           product?.variants?.[0]?.stock || 0,
   });
 
-  // Image state — up to 3 slots
   const [images, setImages] = useState<(ImageEntry | null)[]>([null, null, null]);
 
-  // On select: show local preview immediately, then upload to Cloudinary after product is created
   const handleImageSelect = (index: number, file: File) => {
     const previewUrl = URL.createObjectURL(file);
     setImages(prev => {
@@ -304,12 +357,11 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     setIsLoading(true);
 
     try {
-      // 1. Crear el producto primero (sin imágenes)
       const payload = {
         ...formData,
         variantes: [{
           id: product?.variants?.[0]?.id,
-          tamanoMl: 100, // TODO: Permitir múltiples tamaños en el futuro
+          tamanoMl: 100,
           precioVenta: formData.precio,
           stockActual: formData.stock,
           activa: true,
@@ -326,7 +378,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
 
       const productId = savedProduct?.id || product?.id;
 
-      // 2. Subir imágenes a Cloudinary si hay archivos nuevos
       const filesToUpload = filledSlots
         .filter(img => img?.file !== null)
         .map(img => img!.file as File);
@@ -371,7 +422,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
 
             {/* ── Col izquierda ── */}
             <div className="space-y-5">
-              {/* Nombre */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Nombre</label>
                 <div className="relative group">
@@ -387,7 +437,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 </div>
               </div>
 
-              {/* Descripción */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Descripción</label>
                 <textarea
@@ -400,7 +449,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 />
               </div>
 
-              {/* Precio + Stock */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Precio (COP)</label>
@@ -429,7 +477,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
 
             {/* ── Col derecha ── */}
             <div className="space-y-5">
-              {/* Categoría (Enum fijo) */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Categoría</label>
                 <select
@@ -445,7 +492,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 </select>
               </div>
 
-              {/* Marca (texto libre) */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Marca</label>
                 <input
@@ -458,7 +504,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 />
               </div>
 
-              {/* Familia Olfativa */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">Familia Olfativa</label>
                 <input
@@ -470,7 +515,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 />
               </div>
 
-              {/* Destacado */}
               <label className="flex items-center gap-2 cursor-pointer pt-1">
                 <input
                   type="checkbox"
