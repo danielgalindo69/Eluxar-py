@@ -14,7 +14,7 @@ export interface Product {
   hoverImage?: string;
   description: string;
   brand: string;
-  gender: 'Unisex' | 'Masculino' | 'Femenino';
+  gender: 'Unisex' | 'Masculino' | 'Femenino' | 'Niño' | 'Niña';
   olfactoryFamily: string;
   category: string;
   variants: ProductVariant[];

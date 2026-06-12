@@ -44,16 +44,27 @@ async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promis
 }
 
 // ─── Mappers ─────────────────────────────────────────────────
+// Mapeo de CategoriaEnum del backend al campo gender del frontend
+const mapCategoriaToGender = (categoria: string): Product['gender'] => {
+  switch (categoria?.toUpperCase()) {
+    case 'CABALLERO': return 'Masculino';
+    case 'DAMA':      return 'Femenino';
+    case 'NINO':      return 'Niño';
+    case 'NINA':      return 'Niña';
+    default:          return 'Unisex';
+  }
+};
+
 const mapProductoDTOToProduct = (dto: any): Product => ({
   id: String(dto.id),
   name: dto.nombre || '',
-  type: dto.categoria || '',
+  type: dto.familiaOlfativa || dto.categoria || '',  // muestra familia olfativa como tipo
   price: `${formatPrice(dto.variantes?.[0]?.precioVenta || 0)} COP`,
   image: dto.imagenes?.[0] || 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1080',
   hoverImage: dto.imagenes?.[1],
   description: dto.descripcion || '',
   brand: dto.marca || 'Eluxar',
-  gender: 'Unisex', // Default as backend doesn't seem to have it in DTO
+  gender: mapCategoriaToGender(dto.categoria),
   olfactoryFamily: dto.familiaOlfativa || '',
   category: dto.categoria || '',
   variants: (dto.variantes || []).map((v: any) => ({
@@ -66,7 +77,7 @@ const mapProductoDTOToProduct = (dto: any): Product => ({
   rating: dto.promedioCalificacion || 0,
   reviewCount: dto.totalResenas || 0,
   notes: {
-    top: 'Notas de salida', // Placeholders as backend doesn't have detailed notes
+    top: 'Notas de salida',
     heart: 'Notas de corazón',
     base: 'Notas de fondo'
   },
