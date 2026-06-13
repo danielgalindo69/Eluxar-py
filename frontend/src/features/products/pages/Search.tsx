@@ -1,14 +1,33 @@
-﻿import { useState, useMemo, useEffect, useRef } from "react";
-import { Search as SearchIcon, X } from "lucide-react";
-import { PRODUCTS } from "../types/products";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Search as SearchIcon, X, Loader2 } from "lucide-react";
+import { Product } from "../types/products";
+import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../components/ProductCard";
 
 export const Search = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [selectedGender, setSelectedGender] = useState<Product['gender'] | 'Todos'>('Todos');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const data = await productsAPI.getAll();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products for search:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300);
@@ -18,16 +37,21 @@ export const Search = () => {
   const results = useMemo(() => {
     if (!debouncedQuery.trim()) return [];
     const q = debouncedQuery.toLowerCase();
-    return PRODUCTS.filter(p =>
+    let filtered = products.filter(p =>
       p.name.toLowerCase().includes(q) ||
       p.brand.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
-      p.notes.top.toLowerCase().includes(q) ||
-      p.notes.heart.toLowerCase().includes(q) ||
-      p.notes.base.toLowerCase().includes(q) ||
+      (p.notes?.top && p.notes.top.toLowerCase().includes(q)) ||
+      (p.notes?.heart && p.notes.heart.toLowerCase().includes(q)) ||
+      (p.notes?.base && p.notes.base.toLowerCase().includes(q)) ||
       p.olfactoryFamily.toLowerCase().includes(q)
     );
-  }, [debouncedQuery]);
+
+    if (selectedGender !== 'Todos') {
+      filtered = filtered.filter(p => p.gender === selectedGender);
+    }
+    return filtered;
+  }, [debouncedQuery, products, selectedGender]);
 
   const suggestions = ['Santal', 'Oud', 'Iris', 'Floral', 'Amaderada', 'Oriental', 'Cítrica'];
 
@@ -35,7 +59,7 @@ export const Search = () => {
     <main className="pt-32 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         {/* Search Input */}
-        <div className="max-w-2xl mx-auto mb-16">
+        <div className="max-w-2xl mx-auto mb-10">
           <div className="relative border-b-2 border-[#111111] dark:border-white/20 focus-within:border-[#111111] dark:focus-within:border-white transition-colors pb-4">
             <SearchIcon className="absolute left-0 top-1/2 -translate-y-1/2 text-[#111111] dark:text-white" size={24} strokeWidth={1.5} />
             <input
@@ -54,12 +78,35 @@ export const Search = () => {
           </div>
         </div>
 
-        {/* Results */}
-        {debouncedQuery.trim() ? (
+        {/* Gender Filter Buttons */}
+        <div className="flex flex-wrap justify-center gap-2 mb-16">
+          {(['Todos', 'Masculino', 'Femenino', 'Niño', 'Niña', 'Unisex'] as const).map((gender) => (
+            <button
+              key={gender}
+              onClick={() => setSelectedGender(gender)}
+              className={`px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold border transition-all duration-300 rounded-sm ${
+                selectedGender === gender
+                  ? 'bg-[#3A4A3F] text-white border-[#3A4A3F] shadow-sm'
+                  : 'bg-transparent text-[#2B2B2B]/60 dark:text-white/60 border-[#EDEDED] dark:border-white/10 hover:border-[#111111] dark:hover:border-white hover:text-[#111111] dark:hover:text-white'
+              }`}
+            >
+              {gender}
+            </button>
+          ))}
+        </div>
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-[#2B2B2B]/40 dark:text-white/30">
+            <Loader2 size={32} className="animate-spin text-[#3A4A3F] dark:text-[#A5BAA8]" />
+            <span className="text-xs uppercase tracking-widest font-bold">Cargando colección...</span>
+          </div>
+        ) : debouncedQuery.trim() ? (
           <>
             <div className="mb-10">
               <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60 font-bold">
                 {results.length} resultado{results.length !== 1 ? 's' : ''} para "{debouncedQuery}"
+                {selectedGender !== 'Todos' && ` en ${selectedGender}`}
               </span>
             </div>
 
@@ -75,7 +122,7 @@ export const Search = () => {
                   No se encontraron resultados
                 </p>
                 <p className="text-[#2B2B2B]/40 dark:text-white/40 text-sm font-light">
-                  Prueba con otros términos de búsqueda
+                  Prueba con otros términos de búsqueda o filtros
                 </p>
               </div>
             )}

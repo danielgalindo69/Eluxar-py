@@ -14,6 +14,7 @@ type GridSize = 2 | 3;
 export const Catalog = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("Todos");
+  const [activeGenderFilter, setActiveGenderFilter] = useState<Product['gender'] | 'all'>('all');
   const [activePriceRange, setActivePriceRange] = useState<PriceRange>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -49,7 +50,7 @@ export const Catalog = () => {
   }, []);
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [activeFilter, activePriceRange, sortOption]);
+  useEffect(() => { setCurrentPage(1); }, [activeFilter, activeGenderFilter, activePriceRange, sortOption]);
 
   const parsePrice = (priceStr: string) => {
     // Convierte "150.000 COP" a 150000
@@ -63,6 +64,11 @@ export const Catalog = () => {
     // Category/brand filter
     if (activeFilter !== "Todos") {
       result = result.filter(p => p.category === activeFilter || p.brand === activeFilter);
+    }
+
+    // Gender filter
+    if (activeGenderFilter !== 'all') {
+      result = result.filter(p => p.gender === activeGenderFilter);
     }
 
     // Price filter
@@ -83,7 +89,7 @@ export const Catalog = () => {
       if (sortOption === 'name-asc') return a.name.localeCompare(b.name);
       return 0;
     });
-  }, [products, activeFilter, activePriceRange, sortOption]);
+  }, [products, activeFilter, activeGenderFilter, activePriceRange, sortOption]);
 
   const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredAndSorted.slice(
@@ -146,6 +152,29 @@ export const Catalog = () => {
             </div>
 
             <div>
+              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white mb-6">Género</h3>
+              <ul className="space-y-4">
+                {([
+                  { value: 'all', label: 'Todos' },
+                  { value: 'Masculino', label: 'Masculino' },
+                  { value: 'Femenino', label: 'Femenino' },
+                  { value: 'Niño', label: 'Niño' },
+                  { value: 'Niña', label: 'Niña' },
+                  { value: 'Unisex', label: 'Unisex' }
+                ] as { value: Product['gender'] | 'all'; label: string }[]).map((genderItem) => (
+                  <li key={genderItem.value}>
+                    <button
+                      onClick={() => setActiveGenderFilter(genderItem.value)}
+                      className={`text-xs uppercase tracking-widest transition-colors ${activeGenderFilter === genderItem.value ? "text-[#3A4A3F] dark:text-[#A5BAA8] font-bold" : "text-[#2B2B2B]/50 hover:text-[#111111] dark:text-white"}`}
+                    >
+                      {genderItem.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
               <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white mb-6">Marca</h3>
               <ul className="space-y-4">
                 {brands.map((brand) => (
@@ -181,6 +210,67 @@ export const Catalog = () => {
 
           {/* Main Grid Content */}
           <div className="flex-1">
+            {/* Mobile Filters Swiper */}
+            <div className="lg:hidden mb-8 space-y-4">
+              <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none">
+                <button
+                  onClick={() => setActiveFilter("Todos")}
+                  className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
+                    activeFilter === "Todos"
+                      ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                      : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
+                  }`}
+                >
+                  Categoría: Todos
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveFilter(cat.name)}
+                    className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
+                      activeFilter === cat.name
+                        ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                        : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none">
+                <button
+                  onClick={() => setActiveGenderFilter("all")}
+                  className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
+                    activeGenderFilter === "all"
+                      ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                      : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
+                  }`}
+                >
+                  Género: Todos
+                </button>
+                {([
+                  { value: 'Masculino', label: 'Masculino' },
+                  { value: 'Femenino', label: 'Femenino' },
+                  { value: 'Niño', label: 'Niño' },
+                  { value: 'Niña', label: 'Niña' },
+                  { value: 'Unisex', label: 'Unisex' }
+                ] as const).map((genderItem) => (
+                  <button
+                    key={genderItem.value}
+                    onClick={() => setActiveGenderFilter(genderItem.value)}
+                    className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
+                      activeGenderFilter === genderItem.value
+                        ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                        : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
+                    }`}
+                  >
+                    {genderItem.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Toolbar */}
             <div className="flex items-center justify-between mb-10 border-b border-[#EDEDED] dark:border-white/8 pb-6">
               <div className="flex items-center space-x-6">

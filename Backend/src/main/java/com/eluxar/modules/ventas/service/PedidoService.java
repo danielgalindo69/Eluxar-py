@@ -1,6 +1,7 @@
 package com.eluxar.modules.ventas.service;
 
 import com.eluxar.exception.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import com.eluxar.exception.StockInsuficienteException;
 import com.eluxar.modules.inventario.entity.Inventario;
 import com.eluxar.modules.inventario.entity.MovimientoInventario;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -279,5 +281,89 @@ public class PedidoService {
                             .build();
                 }).toList())
                 .build();
+    }
+
+    /**
+     * Procesa un pago aprobado recibido por Webhook.
+     * Actualiza el estado a CONFIRMADO, descuenta stock del inventario y envía correo de confirmación.
+     */
+    @Transactional
+    public PedidoDTO procesarPagoAprobado(Long pedidoId, String paymentId) {
+        log.info("[PedidoService] Procesando pago aprobado para Pedido #{} | PaymentId: {}", pedidoId, paymentId);
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", pedidoId));
+
+        // Evitar procesar dos veces si ya está confirmado
+        if (pedido.getEstado() == Pedido.EstadoPedido.CONFIRMADO) {
+            log.info("[PedidoService] El pedido #{} ya se encuentra CONFIRMADO. Ignorando proceso de inventario.", pedidoId);
+            return mapToDTO(pedido);
+        }
+
+        if (pedido.getEstado() != Pedido.EstadoPedido.PENDIENTE) {
+            throw new IllegalStateException("El pedido #" + pedidoId + " no está en estado PENDIENTE. Estado actual: " + pedido.getEstado());
+        }
+
+        pedido.setEstado(Pedido.EstadoPedido.CONFIRMADO);
+        pedido.setPaymentId(paymentId);
+
+        // Descontar inventario para cada variante en el pedido
+        for (PedidoItem item : pedido.getItems()) {
+            Inventario inventario = inventarioRepository.findByVarianteId(item.getVariante().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Inventario", item.getVariante().getId()));
+
+            if (inventario.getStockActual() < item.getCantidad()) {
+                throw new StockInsuficienteException(item.getVariante().getId(), inventario.getStockActual(), item.getCantidad());
+            }
+
+            // Descontar inventario
+            inventario.setStockActual(inventario.getStockActual() - item.getCantidad());
+            inventarioRepository.save(inventario);
+
+            // Registrar movimiento de salida
+            movimientoRepository.save(MovimientoInventario.builder()
+                    .inventario(inventario)
+                    .tipo(MovimientoInventario.TipoMovimiento.SALIDA)
+                    .cantidad(item.getCantidad())
+                    .motivo("Venta Webhook Pago #" + paymentId + " (Pedido #" + pedidoId + ")")
+                    .build());
+            log.debug("[PedidoService] Descontadas {} unidades del inventario variante ID {} para Pedido #{}", item.getCantidad(), item.getVariante().getId(), pedidoId);
+        }
+
+        pedido = pedidoRepository.save(pedido);
+        PedidoDTO dto = mapToDTO(pedido);
+
+        // Enviar correo de confirmación
+        try {
+            emailService.sendOrderSummaryEmail(dto, pedido.getUsuario().getEmail(), pedido.getUsuario().getNombre());
+            log.info("[PedidoService] Correo de confirmación enviado exitosamente para Pedido #{}", pedidoId);
+        } catch (Exception e) {
+            log.error("[PedidoService] Error al enviar el correo de confirmación del pedido #{}: {}", pedidoId, e.getMessage(), e);
+        }
+
+        return dto;
+    }
+
+    /**
+     * Procesa un pago rechazado/cancelado recibido por Webhook.
+     * Actualiza el estado a CANCELADO.
+     */
+    @Transactional
+    public PedidoDTO procesarPagoRechazado(Long pedidoId, String paymentId) {
+        log.warn("[PedidoService] Procesando pago rechazado/cancelado para Pedido #{} | PaymentId: {}", pedidoId, paymentId);
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", pedidoId));
+
+        if (pedido.getEstado() == Pedido.EstadoPedido.CANCELADO) {
+            return mapToDTO(pedido);
+        }
+
+        if (pedido.getEstado() != Pedido.EstadoPedido.PENDIENTE) {
+            throw new IllegalStateException("El pedido #" + pedidoId + " no está en estado PENDIENTE. Estado actual: " + pedido.getEstado());
+        }
+
+        pedido.setEstado(Pedido.EstadoPedido.CANCELADO);
+        pedido.setPaymentId(paymentId);
+
+        return mapToDTO(pedidoRepository.save(pedido));
     }
 }

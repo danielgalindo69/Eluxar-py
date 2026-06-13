@@ -313,6 +313,12 @@ interface ImageEntry {
 const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const parseVolume = (volStr?: string) => {
+    if (!volStr) return 100;
+    const match = volStr.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 100;
+  };
+
   const [formData, setFormData] = useState({
     nombre:          product?.name || "",
     descripcion:     product?.description || "",
@@ -323,6 +329,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     destacado:       false,
     precio:          product?.variants?.[0]?.price || 0,
     stock:           product?.variants?.[0]?.stock || 0,
+    tamanoMl:        parseVolume(product?.variants?.[0]?.volume),
   });
 
   // Image state — up to 3 slots
@@ -372,10 +379,16 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     try {
       // 1. Crear el producto primero (sin subir nuevas imágenes todavía)
       const payload = {
-        ...formData,
+        nombre:          formData.nombre,
+        descripcion:     formData.descripcion,
+        categoria:       formData.categoria,
+        marca:           formData.marca,
+        familiaOlfativa: formData.familiaOlfativa,
+        activo:          formData.activo,
+        destacado:       formData.destacado,
         variantes: [{
           id: product?.variants?.[0]?.id,
-          tamanoMl: 100,
+          tamanoMl: formData.tamanoMl,
           precioVenta: formData.precio,
           stockActual: formData.stock,
           activa: true,
@@ -464,7 +477,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Precio (COP)</label>
                   <input
@@ -473,7 +486,18 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                     min={0}
                     value={formData.precio}
                     onChange={(e) => setFormData({ ...formData, precio: Number(e.target.value) })}
-                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
+                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-3 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Tamaño (ml)</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={formData.tamanoMl}
+                    onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
+                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-3 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -484,7 +508,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                     min={0}
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
+                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-3 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
                   />
                 </div>
               </div>
