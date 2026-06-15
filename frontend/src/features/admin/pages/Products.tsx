@@ -451,64 +451,64 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             {/* ── Col izquierda ── */}
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Nombre</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Nombre</label>
                 <div className="relative group">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#3A4A3F] transition-colors" size={14} />
+                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#C8A97E] transition-colors" size={14} />
                   <input
                     type="text"
                     required
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     placeholder="Ej: L'Eau de Parfum"
-                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-10 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Descripción</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Descripción</label>
                 <textarea
                   required
                   rows={3}
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   placeholder="Describe las notas y la esencia..."
-                  className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none resize-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
+                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Precio (COP)</label>
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Precio (COP)</label>
                   <input
                     type="number"
                     required
                     min={0}
                     value={formData.precio}
                     onChange={(e) => setFormData({ ...formData, precio: Number(e.target.value) })}
-                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-3 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Tamaño (ml)</label>
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tamaño (ml)</label>
                   <input
                     type="number"
                     required
                     min={1}
                     value={formData.tamanoMl}
                     onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
-                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-3 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Stock Inicial</label>
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Stock Inicial</label>
                   <input
                     type="number"
                     required
                     min={0}
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-                    className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-3 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   />
                 </div>
               </div>
@@ -517,12 +517,12 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             {/* ── Col derecha ── */}
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Categoría</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Categoría</label>
                 <select
                   required
                   value={formData.categoria}
                   onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                  className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none appearance-none"
+                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] appearance-none"
                 >
                   <option value="">Seleccionar...</option>
                   {CATEGORIAS.map(c => (
@@ -532,25 +532,25 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Marca</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Marca</label>
                 <input
                   type="text"
                   required
                   value={formData.marca}
                   onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
                   placeholder="Ej: Chanel, Dior, Tom Ford..."
-                  className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
+                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Familia Olfativa</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Familia Olfativa</label>
                 <input
                   type="text"
                   value={formData.familiaOlfativa}
                   onChange={(e) => setFormData({ ...formData, familiaOlfativa: e.target.value })}
                   placeholder="Ej: Floral, Amaderada..."
-                  className="w-full bg-white dark:bg-[#222222] text-[#111111] dark:text-white border border-[#EDEDED] dark:border-white/20 px-4 py-3 text-xs focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/25"
+                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                 />
               </div>
 
@@ -559,9 +559,9 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   type="checkbox"
                   checked={formData.destacado}
                   onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
-                  className="w-4 h-4 accent-[#3A4A3F]"
+                  className="w-4 h-4 accent-[#C8A97E]"
                 />
-                <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
               </label>
             </div>
           </div>
@@ -570,14 +570,14 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
           <div className="mt-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">
                   Imágenes del Producto
                 </label>
                 <p className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 mt-0.5 uppercase tracking-wider">
                   Máximo 3 fotos · JPEG, PNG o WEBP
                 </p>
               </div>
-              <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-1 ${filledSlots.length === 3
+              <span className={`text-[9px] uppercase tracking-[0.2em] font-bold px-2 py-1 ${filledSlots.length === 3
                 ? 'bg-[#C8A97E]/10 text-[#C8A97E]'
                 : 'bg-[#EDEDED] dark:bg-[#1A1A1A] text-[#2B2B2B]/40 dark:text-white/40'
                 }`}>
@@ -600,7 +600,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             </div>
 
             {filledSlots.length === 0 && (
-              <p className="text-center text-[9px] text-red-400 uppercase tracking-widest mt-3 font-bold">
+              <p className="text-center text-[9px] text-red-400 uppercase tracking-[0.2em] mt-3 font-bold">
                 ↑ Selecciona al menos una imagen
               </p>
             )}
@@ -611,14 +611,14 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-[#EDEDED] dark:border-white/10 py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-all"
+              className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[#1E1E1E] transition-all text-[#111111] dark:text-white"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-[2] bg-[#111111] dark:bg-[#C8A97E] text-white dark:text-[#111111] py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-[2] bg-[#C8A97E] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
               <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>

@@ -1,4 +1,4 @@
-import { UserPlus, Edit2, Ban, CheckCircle, Shield, User} from "lucide-react";
+import { Edit2, Ban, CheckCircle, Shield, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { adminUsersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
@@ -85,10 +85,6 @@ export const Users = () => {
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Usuarios</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra clientes y permisos</p>
         </div>
-        <button className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white dark:hover:text-[#111111] transition-colors flex items-center gap-2">
-          <UserPlus size={16} />
-          Nuevo Usuario
-        </button>
       </div>
 
       {/* Search Bar */}

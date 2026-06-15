@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ordersAPI, Order, formatPrice } from "../../../core/api/api";
 import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
+import { motion, AnimatePresence } from "motion/react";
 
 const PAGE_SIZE = 5;
 
@@ -81,7 +82,7 @@ export const OrderHistory = () => {
                     </div>
                   )}
                   {paginated.map(order => {
-              const isExpanded = expandedId === order.id;
+              const isExpanded = expandedId === String(order.id);
               const currentStatus = order.estado || order.status || '';
               const StatusIcon = statusConfig[currentStatus]?.icon || Clock;
               const statusColor = statusConfig[currentStatus]?.color || 'text-[#2B2B2B]/60';
@@ -107,56 +108,66 @@ export const OrderHistory = () => {
                     </div>
                   </button>
 
-                  {isExpanded && (
-                    <div className="border-t border-[#EDEDED] dark:border-white/8 p-6 bg-[#EDEDED]/20 dark:bg-[#111111]/60 space-y-6">
-                      <div>
-                        <h3 className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-4">Productos</h3>
-                        {order.items.map((item: any, i: number) => (
-                          <div key={i} className="flex items-center justify-between py-3 border-b border-[#EDEDED] dark:border-white/8 last:border-0">
-                            <div className="flex items-center gap-4">
-                              {item.imagenUrl && (
-                                <img src={item.imagenUrl} alt={item.productoNombre || item.name} className="w-10 h-10 object-cover" />
-                              )}
-                              <div>
-                                <p className="text-sm font-bold uppercase tracking-widest text-[#111111] dark:text-white">{item.productoNombre || item.name}</p>
-                                <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{item.tamanoMl ? `${item.tamanoMl}ml` : item.volume} × {item.cantidad}</p>
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-[#EDEDED] dark:border-white/8 p-6 bg-[#EDEDED]/20 dark:bg-[#111111]/60 space-y-6">
+                          <div>
+                            <h3 className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-4">Productos</h3>
+                            {order.items.map((item: any, i: number) => (
+                              <div key={i} className="flex items-center justify-between py-3 border-b border-[#EDEDED] dark:border-white/8 last:border-0">
+                                <div className="flex items-center gap-4">
+                                  {item.imagenUrl && (
+                                    <img src={item.imagenUrl} alt={item.productoNombre || item.name} className="w-10 h-10 object-cover" />
+                                  )}
+                                  <div>
+                                    <p className="text-sm font-bold uppercase tracking-widest text-[#111111] dark:text-white">{item.productoNombre || item.name}</p>
+                                    <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{item.tamanoMl ? `${item.tamanoMl}ml` : item.volume} × {item.cantidad}</p>
+                                  </div>
+                                </div>
+                                <span className="text-sm font-bold text-[#111111] dark:text-white">{formatPrice(item.precioUnitario * item.cantidad)} COP</span>
                               </div>
-                            </div>
-                            <span className="text-sm font-bold text-[#111111] dark:text-white">{formatPrice(item.precioUnitario * item.cantidad)} COP</span>
+                            ))}
                           </div>
-                        ))}
-                      </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
-                        <div>
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Dirección</p>
-                          <p className="text-sm text-[#2B2B2B]/80 dark:text-white/70 font-light">{(order as any).direccionEnvio || order.address || 'No especificada'}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Método de Pago</p>
-                          <p className="text-sm text-[#2B2B2B]/80 dark:text-white/70 font-light">{(order as any).metodoPago || order.paymentMethod || 'No especificado'}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Total</p>
-                          <p className="text-xl font-light text-[#111111] dark:text-white">{order.total ? formatPrice(order.total) : '0'} COP</p>
-                        </div>
-                      </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+                            <div>
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Dirección</p>
+                              <p className="text-sm text-[#2B2B2B]/80 dark:text-white/70 font-light">{(order as any).direccionEnvio || order.address || 'No especificada'}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Método de Pago</p>
+                              <p className="text-sm text-[#2B2B2B]/80 dark:text-white/70 font-light">{(order as any).metodoPago || order.paymentMethod || 'No especificado'}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Total</p>
+                              <p className="text-xl font-light text-[#111111] dark:text-white">{order.total ? formatPrice(order.total) : '0'} COP</p>
+                            </div>
+                          </div>
 
-                      {order.trackingNumber && (
-                        <div className="pt-4 border-t border-[#EDEDED] dark:border-white/8">
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Número de Seguimiento</p>
-                          <p className="text-sm font-bold text-[#3A4A3F]">{order.trackingNumber}</p>
-                        </div>
-                      )}
+                          {order.trackingNumber && (
+                            <div className="pt-4 border-t border-[#EDEDED] dark:border-white/8">
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/30 mb-2">Número de Seguimiento</p>
+                              <p className="text-sm font-bold text-[#3A4A3F]">{order.trackingNumber}</p>
+                            </div>
+                          )}
 
-                      {['PENDIENTE', 'CONFIRMADO', 'EN_PROCESO'].includes((order as any).estado || order.status) && (
-                        <Link to={`/order/${order.id}/edit-address`}
-                          className="inline-block border border-[#111111] dark:border-white text-[#111111] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white hover:text-white dark:hover:text-[#111111] transition-colors mt-4">
-                          Modificar Dirección de Envío
-                        </Link>
-                      )}
-                    </div>
-                  )}
+                          {['PENDIENTE', 'CONFIRMADO', 'EN_PROCESO'].includes((order as any).estado || order.status) && (
+                            <Link to={`/order/${order.id}/edit-address`}
+                              className="inline-block border border-[#111111] dark:border-white text-[#111111] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white hover:text-white dark:hover:text-[#111111] transition-colors mt-4">
+                              Modificar Dirección de Envío
+                            </Link>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
                   })}

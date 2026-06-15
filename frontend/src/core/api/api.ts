@@ -378,7 +378,7 @@ export interface Order {
   trackingNumber?: string;
 }
 
-export const MOCK_ORDERS: Order[] = []; // Se mantiene para compatibilidad temporal si es necesario
+
 
 export const ordersAPI = {
   async getAll() {
@@ -577,25 +577,6 @@ export const shippingAPI = {
   async updateStatus(id: string, status: Shipment['status']) { await delay(); return { success: true, id, status }; },
 };
 
-// ─── Banners (Admin) ─────────────────────────────────────────
-export interface Banner {
-  id: string;
-  title: string;
-  imageUrl: string;
-  link: string;
-  active: boolean;
-  order: number;
-}
-
-export const MOCK_BANNERS: Banner[] = [];
-
-export const bannersAPI = {
-  async getAll() { await delay(); return [...MOCK_BANNERS]; },
-  async create(b: Omit<Banner, 'id'>) { await delay(); return { ...b, id: crypto.randomUUID() }; },
-  async update(id: string, data: Partial<Banner>) { await delay(); return { success: true, id, ...data }; },
-  async remove(id: string) { await delay(); return { success: true, id }; },
-  async reorder(ids: string[]) { await delay(); return { success: true, ids }; },
-};
 
 // ─── Categories & Brands ─────────────────────────────────────
 export interface Category {
@@ -732,16 +713,6 @@ export const cartAPI = {
   async removeItem(itemId: number) {
     return apiClient<any>(`/carrito/item/${itemId}`, {
       method: 'DELETE',
-    });
-  }
-};
-
-// ─── Prices ──────────────────────────────────────────────────
-export const pricesAPI = {
-  async bulkUpdate(updates: Array<{ varianteId: number; nuevoPrecioVenta: number; nuevoPrecioOferta?: number; nuevoPrecioCosto?: number }>) {
-    return apiClient<any>('/admin/precios/masivo', {
-      method: 'PUT',
-      body: JSON.stringify({ actualizaciones: updates }),
     });
   }
 };

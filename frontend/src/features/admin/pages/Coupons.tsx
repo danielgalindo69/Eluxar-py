@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle, X, ChevronDown } from "lucide-react";
 import { couponAPI, Coupon, formatPrice } from "../../../core/api/api";
 import { SearchBar } from "../components/SearchBar";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
@@ -140,9 +140,9 @@ export const Coupons = () => {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-4 py-2 text-xs uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#A5BAA8] transition-colors flex items-center gap-2"
+          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors flex items-center gap-2"
         >
-          <Plus size={16} />
+          <Ticket size={16} />
           Crear Cupón
         </button>
       </div>
@@ -256,39 +256,59 @@ export const Coupons = () => {
 
       {/* Modal Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#161616] w-full max-w-md p-6 border border-[#EDEDED] dark:border-white/10 shadow-2xl">
-            <h2 className="text-xl font-light mb-6">
-              {editingId ? "Editar Cupón" : "Nuevo Cupón"}
-            </h2>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-[#111111]/40 backdrop-blur-sm" onClick={handleCloseModal} />
+          <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-lg shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden max-h-[95vh] flex flex-col">
             
-            <form onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="block text-xs uppercase tracking-widest font-bold mb-1">Código</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.codigo}
-                  onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
-                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 uppercase placeholder:normal-case focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
-                  placeholder="Ej. VERANO20"
-                />
+            {/* Header */}
+            <div className="bg-[#3A4A3F] p-6 text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/10 flex items-center justify-center">
+                  <Ticket size={18} />
+                </div>
+                <div>
+                  <h2 className="text-xs uppercase tracking-[0.2em] font-bold">{editingId ? "Editar" : "Nuevo"} Cupón</h2>
+                  <p className="text-[9px] uppercase tracking-widest text-white/60 mt-0.5">Configura el código de descuento</p>
+                </div>
+              </div>
+              <button type="button" onClick={handleCloseModal} className="hover:rotate-90 transition-transform p-1">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSave} className="p-8 overflow-y-auto flex-1 space-y-5">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Código</label>
+                <div className="relative group">
+                  <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#C8A97E] transition-colors" size={14} />
+                  <input
+                    type="text"
+                    required
+                    value={formData.codigo}
+                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] uppercase placeholder:normal-case"
+                    placeholder="Ej. VERANO20"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest font-bold mb-1">Tipo</label>
-                  <select
-                    value={formData.tipo}
-                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
-                  >
-                    <option value="PORCENTAJE">Porcentaje (%)</option>
-                    <option value="VALOR_FIJO">Monto Fijo ($)</option>
-                  </select>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tipo</label>
+                  <div className="relative group">
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#C8A97E] transition-colors pointer-events-none" size={14} />
+                    <select
+                      value={formData.tipo}
+                      onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
+                      className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm pl-4 pr-10 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] appearance-none cursor-pointer"
+                    >
+                      <option value="PORCENTAJE">Porcentaje (%)</option>
+                      <option value="VALOR_FIJO">Monto Fijo ($)</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest font-bold mb-1">Descuento</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Descuento</label>
                   <input
                     type="number"
                     required
@@ -297,70 +317,71 @@ export const Coupons = () => {
                     max={formData.tipo === 'PORCENTAJE' ? '100' : undefined}
                     value={formData.descuento}
                     onChange={(e) => setFormData({ ...formData, descuento: Number(e.target.value) })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-widest font-bold mb-1">Compra Mínima (Opcional)</label>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Compra Mínima (Opcional)</label>
                 <input
                   type="number"
                   min="0"
                   value={formData.montoMinimo || ''}
                   onChange={(e) => setFormData({ ...formData, montoMinimo: Number(e.target.value) })}
-                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
+                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   placeholder="0 para sin mínimo"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest font-bold mb-1">Límite de Usos</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Límite de Usos</label>
                   <input
                     type="number"
                     min="1"
                     value={formData.limiteUsos || ''}
                     onChange={(e) => setFormData({ ...formData, limiteUsos: Number(e.target.value) })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                     placeholder="En blanco = Ilimitado"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest font-bold mb-1">Expiración (Opcional)</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Expiración (Opcional)</label>
                   <input
                     type="datetime-local"
                     value={formData.fechaExpiracion as string}
                     onChange={(e) => setFormData({ ...formData, fechaExpiracion: e.target.value })}
-                    className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent px-4 py-2 text-sm focus:outline-none focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
+                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
+              <label className="flex items-center gap-2 cursor-pointer pt-1">
                 <input
                   type="checkbox"
-                  id="activo"
                   checked={formData.activo}
                   onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
-                  className="accent-[#111111] dark:accent-white"
+                  className="w-4 h-4 accent-[#C8A97E]"
                 />
-                <label htmlFor="activo" className="text-sm cursor-pointer">Cupón Activo</label>
-              </div>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Cupón Activo</span>
+              </label>
 
-              <div className="flex gap-4 pt-4">
+              {/* Actions */}
+              <div className="flex gap-4 pt-4 mt-8">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 border border-[#111111] dark:border-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors"
+                  className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[#1E1E1E] transition-all text-[#111111] dark:text-white"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#A5BAA8] transition-colors"
+                  className="flex-[2] bg-[#C8A97E] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-2"
                 >
-                  Guardar
+                  <Ticket size={16} />
+                  <span>{editingId ? "Actualizar Cupón" : "Crear Cupón"}</span>
                 </button>
               </div>
             </form>

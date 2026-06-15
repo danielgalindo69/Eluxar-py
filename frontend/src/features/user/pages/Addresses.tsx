@@ -79,6 +79,16 @@ export const Addresses = () => {
     setErrors({});
   };
 
+  // Field definitions for the form
+  const formFields = [
+    { key: 'label', label: 'Nombre (ej: Casa)', placeholder: 'Casa', col: 'col-span-full' },
+    { key: 'street', label: 'Calle y Número', placeholder: 'Calle 80 # 12-34', col: 'col-span-full' },
+    { key: 'barrio', label: 'Barrio', placeholder: 'El Poblado', col: '' },
+    { key: 'city', label: 'Ciudad', placeholder: 'Medellín', col: '' },
+    { key: 'state', label: 'Departamento', placeholder: 'Antioquia', col: '' },
+    { key: 'zip', label: 'Código Postal', placeholder: '050001', col: '' },
+  ];
+
   return (
     <div>
       <div className="w-full">
@@ -90,7 +100,7 @@ export const Addresses = () => {
           <button
             onClick={() => { setIsFormOpen(true); setEditingId(null); setFormData(emptyAddress); setErrors({}); }}
             disabled={addresses.length >= MAX_ADDRESSES}
-            className="bg-[#111111] text-white px-6 py-3 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+            className="bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-6 py-3 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
             <Plus size={14} /> Nueva Dirección
           </button>
         </div>
@@ -138,40 +148,77 @@ export const Addresses = () => {
           </div>
         )}
 
-        {/* Form Overlay */}
+        {/* ─── Form Overlay — redesigned for dark mode legibility ─── */}
         <AnimatePresence>
           {isFormOpen && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-6">
-              <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="bg-white dark:bg-[#161616] w-full max-w-lg p-8 space-y-6 relative max-h-[90vh] overflow-y-auto">
-                <button onClick={closeForm} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white"><X size={20} /></button>
-                <h2 className="text-lg font-light text-[#111111] dark:text-white tracking-tight">{editingId ? 'Editar Dirección' : 'Nueva Dirección'}</h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                  {[
-                    { key: 'label', label: 'Nombre (ej: Casa)', placeholder: 'Casa', col: 'col-span-full' },
-                    { key: 'street', label: 'Calle y Número', placeholder: 'Calle 80 # 12-34', col: 'col-span-full' },
-                    { key: 'barrio', label: 'Barrio', placeholder: 'El Poblado', col: '' },
-                    { key: 'city', label: 'Ciudad', placeholder: 'Medellín', col: '' },
-                    { key: 'state', label: 'Departamento', placeholder: 'Antioquia', col: '' },
-                    { key: 'zip', label: 'Código Postal', placeholder: '050001', col: '' },
-                  ].map(field => (
-                    <div key={field.key} className={`flex flex-col space-y-1 ${field.col}`}>
-                      <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40">{field.label}</label>
-                      <div className="border-b border-[#2B2B2B]/20 dark:border-white/20 py-1.5 focus-within:border-[#111111] transition-colors">
-                        <input type="text" value={(formData as any)[field.key]}
-                          onChange={e => { setFormData(prev => ({ ...prev, [field.key]: e.target.value })); if (errors[field.key]) setErrors(prev => { const n = { ...prev }; delete n[field.key]; return n; }); }}
-                          placeholder={field.placeholder}
-                          className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium placeholder:text-[#2B2B2B]/20" />
-                      </div>
-                      {errors[field.key] && <span className="text-red-500 text-[10px] uppercase tracking-widest mt-1">{errors[field.key]}</span>}
-                    </div>
-                  ))}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                className="bg-white dark:bg-[#161616] w-full max-w-lg relative max-h-[90vh] overflow-y-auto rounded-sm border border-[#EDEDED] dark:border-white/10 shadow-2xl"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between px-8 py-6 border-b border-[#EDEDED] dark:border-white/10">
+                  <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white">
+                    {editingId ? 'Editar Dirección' : 'Nueva Dirección'}
+                  </h2>
+                  <button
+                    onClick={closeForm}
+                    className="text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
 
-                <button onClick={handleSave}
-                  className="w-full bg-[#111111] text-white py-4 mt-2 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] transition-all">
-                  {editingId ? 'Actualizar Dirección' : 'Guardar Dirección'}
-                </button>
+                {/* Fields */}
+                <div className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+                    {formFields.map(field => (
+                      <div key={field.key} className={`flex flex-col space-y-2 ${field.col}`}>
+                        <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">
+                          {field.label}
+                        </label>
+                        <input
+                          type="text"
+                          value={(formData as any)[field.key]}
+                          onChange={e => {
+                            setFormData(prev => ({ ...prev, [field.key]: e.target.value }));
+                            if (errors[field.key]) setErrors(prev => { const n = { ...prev }; delete n[field.key]; return n; });
+                          }}
+                          placeholder={field.placeholder}
+                          className={`
+                            bg-[#F5F5F5] dark:bg-[#1E1E1E] 
+                            border rounded-sm px-4 py-3
+                            text-sm font-medium text-[#111111] dark:text-white
+                            placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30
+                            outline-none transition-all
+                            ${errors[field.key]
+                              ? 'border-red-500 dark:border-red-500'
+                              : 'border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]'
+                            }
+                          `}
+                        />
+                        {errors[field.key] && (
+                          <span className="text-red-500 text-[9px] uppercase tracking-widest font-bold">{errors[field.key]}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    onClick={handleSave}
+                    className="w-full mt-2 bg-[#C8A97E] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm"
+                  >
+                    {editingId ? 'Actualizar Dirección' : 'Guardar Dirección'}
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}
