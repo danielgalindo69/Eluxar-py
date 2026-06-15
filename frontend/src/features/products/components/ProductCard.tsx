@@ -110,7 +110,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <span className="text-[#2B2B2B] dark:text-[#EDEDED] text-xs font-medium">{product.price}</span>
         </div>
         <p className="text-[#2B2B2B]/40 dark:text-white/40 text-[10px] uppercase tracking-[0.15em] font-light">
-          {product.type}
+          {product.type} <span className="mx-1 text-[#2B2B2B]/20 dark:text-white/20">|</span> {product.specs.volume}
         </p>
       </div>
     </div>

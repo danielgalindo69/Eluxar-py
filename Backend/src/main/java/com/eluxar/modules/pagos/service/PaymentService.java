@@ -12,7 +12,9 @@ import com.mercadopago.client.preference.PreferenceRequest;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import com.mercadopago.resources.preference.Preference;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,8 +30,16 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentService {
 
-    // URLs de retorno — en producción deben apuntar al dominio real
-    private static final String BASE_URL = "https://www.eluxar.com";
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    @Value("${app.backend-url}")
+    private String backendUrl;
+
+    @PostConstruct
+    public void init() {
+        log.info("[PaymentService] URLs cargadas desde propiedades — Frontend: '{}', Backend: '{}'", frontendUrl, backendUrl);
+    }
 
     /**
      * Crea una preferencia de pago en Mercado Pago a partir del carrito del usuario.
@@ -70,13 +80,44 @@ public class PaymentService {
                     .email(request.getPayerEmail())
                     .build();
 
+            // ── Normalizar y Sanitizar URLs ────────────────────────
+            String cleanFrontend = frontendUrl != null ? frontendUrl.trim() : "";
+            if (cleanFrontend.endsWith("/")) {
+                cleanFrontend = cleanFrontend.substring(0, cleanFrontend.length() - 1);
+            }
+            if (!cleanFrontend.isEmpty() && !cleanFrontend.startsWith("http://") && !cleanFrontend.startsWith("https://")) {
+                cleanFrontend = "http://" + cleanFrontend;
+            }
+
+            String cleanBackend = backendUrl != null ? backendUrl.trim() : "";
+            if (cleanBackend.endsWith("/")) {
+                cleanBackend = cleanBackend.substring(0, cleanBackend.length() - 1);
+            }
+            if (!cleanBackend.isEmpty() && !cleanBackend.startsWith("http://") && !cleanBackend.startsWith("https://")) {
+                cleanBackend = "http://" + cleanBackend;
+            }
+
+            log.info("[PaymentService] URLs sanitizadas: frontend='{}', backend='{}'", cleanFrontend, cleanBackend);
+
+            // ── Configurar URLs de retorno ──────────────────────────
+            PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
+                    .success(cleanFrontend + "/checkout/success")
+                    .pending(cleanFrontend + "/checkout/pending")
+                    .failure(cleanFrontend + "/checkout/failure")
+                    .build();
+
             // ── Construir la preferencia completa ─────────────────
+            // Configurado para producción: Vercel (frontend) + Render (backend).
+            // autoReturn="approved" requiere back_url.success con URL pública, garantizado en producción.
             PreferenceRequest preferenceRequest = PreferenceRequest.builder()
                     .items(items)
                     .payer(payer)
                     .paymentMethods(paymentMethods)
+                    .backUrls(backUrls)
+                    .autoReturn("approved")
                     .statementDescriptor("ELUXAR")
                     .externalReference(request.getExternalReference())
+                    .notificationUrl(cleanBackend + "/api/payments/webhook")
                     .build();
 
             Preference preference = client.create(preferenceRequest);
