@@ -68,38 +68,42 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
   };
 
   return (
-    <div className="mt-24 border-t border-[#EDEDED] dark:border-white/10 pt-16">
+    <div className="mt-24 border-t border-[#EDEDED] dark:border-[#2A2A2A] pt-16">
       <div className="flex flex-col md:flex-row gap-16">
         
         {/* Formulario de Reseña */}
         <div className="w-full md:w-1/3">
-          <h3 className="text-2xl font-light text-[#111111] dark:text-white mb-6">Deja tu Opinión</h3>
+          <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white mb-6 pb-4 border-b border-[#EDEDED] dark:border-[#2A2A2A]">Deja tu Opinión</h3>
           
           {user ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Calificación</label>
+              <div className="space-y-3">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Calificación</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       type="button"
                       key={star}
                       onClick={() => setRating(star)}
-                      className={`transition-colors ${star <= rating ? 'text-[#3A4A3F] dark:text-[#A5BAA8]' : 'text-[#EDEDED] dark:text-white/10 hover:text-[#3A4A3F]/50'}`}
+                      className="transition-all hover:scale-110 active:scale-95 group"
                     >
-                      <Star size={24} className={star <= rating ? 'fill-current' : ''} />
+                      <Star 
+                        size={28} 
+                        strokeWidth={1.5}
+                        className={`transition-colors ${star <= rating ? 'fill-[#C8A97E] text-[#C8A97E]' : 'text-[#EDEDED] dark:text-white/20 group-hover:text-[#C8A97E]'}`} 
+                      />
                     </button>
                   ))}
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Tu Experiencia</label>
+              <div className="space-y-3">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tu Experiencia</label>
                 <textarea 
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Describe qué te pareció esta fragancia..."
-                  className="w-full bg-[#EDEDED]/50 dark:bg-white/5 border-none p-4 text-sm font-light min-h-[120px] focus:ring-1 focus:ring-[#111111] dark:focus:ring-white outline-none transition-all placeholder:text-[#2B2B2B]/30"
+                  className="w-full bg-[#F5F5F5] dark:bg-[#1A1A1A] border rounded-sm px-4 py-4 text-sm font-light text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] min-h-[140px] resize-none"
                 />
               </div>
 
@@ -107,16 +111,16 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                 whileTap={{ scale: 0.98 }}
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#E5E5E5] transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                className="w-full bg-[#C8A97E] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#b8946a] transition-colors rounded-sm disabled:opacity-50 flex justify-center items-center gap-2"
               >
                 {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : 'Publicar Valoración'}
               </motion.button>
             </form>
           ) : (
-            <div className="bg-[#EDEDED]/50 dark:bg-white/5 p-8 text-center border border-[#EDEDED] dark:border-white/10">
-              <User className="mx-auto text-[#2B2B2B]/40 mb-4" size={32} />
-              <p className="text-sm font-light text-[#2B2B2B]/80 dark:text-white/80 mb-4">Inicia sesión para compartir tu experiencia con la comunidad Eluxar.</p>
-              <a href="/auth" className="inline-block border border-[#111111] dark:border-white px-6 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors">
+            <div className="bg-[#F5F5F5] dark:bg-[#1A1A1A] p-8 text-center border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm">
+              <User className="mx-auto text-[#2B2B2B]/30 dark:text-white/30 mb-4" size={32} strokeWidth={1} />
+              <p className="text-[11px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-6 leading-relaxed">Inicia sesión para compartir tu experiencia con la comunidad Eluxar.</p>
+              <a href="/auth" className="inline-block border border-[#C8A97E] text-[#C8A97E] px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#C8A97E] hover:text-[#111111] transition-colors rounded-sm">
                 Iniciar Sesión
               </a>
             </div>
@@ -125,41 +129,51 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
 
         {/* Lista de Reseñas */}
         <div className="w-full md:w-2/3">
-          <h3 className="text-2xl font-light text-[#111111] dark:text-white mb-6">Valoraciones de Clientes</h3>
+          <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white mb-6 pb-4 border-b border-[#EDEDED] dark:border-[#2A2A2A]">Valoraciones de Clientes</h3>
           
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="animate-spin text-[#3A4A3F]" size={24} />
+              <Loader2 className="animate-spin text-[#C8A97E]" size={24} />
             </div>
           ) : reviews.length === 0 ? (
-            <p className="text-[#2B2B2B]/50 dark:text-white/50 font-light italic">Aún no hay valoraciones para este producto. ¡Sé el primero en opinar!</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Star className="text-[#EDEDED] dark:text-white/10 mb-4" size={48} strokeWidth={1} />
+              <p className="text-[11px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B]/40 dark:text-white/40">Sé el primero en compartir tu experiencia</p>
+            </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {reviews.map((review, i) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                   key={review.id} 
-                  className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 p-6 flex flex-col space-y-4"
+                  className="bg-[#F5F5F5] dark:bg-[#1A1A1A] border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm py-5 px-6 flex flex-col space-y-4"
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#EDEDED] dark:bg-white/10 rounded-full flex items-center justify-center text-[10px] font-bold text-[#111111] dark:text-white tracking-widest">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-[#C8A97E]/20 rounded-full flex items-center justify-center text-[10px] font-bold text-[#C8A97E] tracking-widest shrink-0">
                         {review.usuarioIniciales}
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">{review.usuarioNombre}</p>
-                        <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest">{new Date(review.creadoEn).toLocaleDateString()}</p>
+                      <div className="flex flex-col">
+                        <p className="text-sm font-medium text-[#111111] dark:text-white">{review.usuarioNombre}</p>
+                        <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest mt-0.5">{new Date(review.creadoEn).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="flex gap-1 text-[#3A4A3F] dark:text-[#A5BAA8]">
+                    <div className="flex gap-1 shrink-0">
                       {[...Array(5)].map((_, index) => (
-                        <Star key={index} size={14} className={index < review.calificacion ? 'fill-current' : 'text-[#EDEDED] dark:text-white/10'} />
+                        <Star 
+                          key={index} 
+                          size={14} 
+                          strokeWidth={1.5}
+                          className={index < review.calificacion ? 'fill-[#C8A97E] text-[#C8A97E]' : 'text-[#EDEDED] dark:text-white/20'} 
+                        />
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm font-light text-[#2B2B2B]/80 dark:text-white/80 leading-relaxed">"{review.comentario}"</p>
+                  <div className="pt-2">
+                    <p className="text-sm font-light text-[#2B2B2B]/80 dark:text-white/80 leading-relaxed">{review.comentario}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, MapPin, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon, Search } from "lucide-react";
+import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon, Search } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { SearchBar } from "../../../features/products/components/SearchBar";
 import { motion, AnimatePresence } from "motion/react";
@@ -108,9 +108,6 @@ export const Navbar = () => {
                         </div>
                         <Link to="/profile" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
                           <Settings size={14} />Mi Perfil
-                        </Link>
-                        <Link to="/profile/addresses" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
-                          <MapPin size={14} />Direcciones
                         </Link>
                         <Link to="/profile/orders" className="flex items-center gap-3 px-5 py-3 text-[10px] uppercase tracking-widest text-[#2B2B2B] dark:text-[#EDEDED] hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors">
                           <ClipboardList size={14} />Mis Pedidos

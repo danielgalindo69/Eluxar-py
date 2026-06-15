@@ -158,7 +158,7 @@ export const ProductDetail = () => {
               <ImageWithFallback
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover grayscale opacity-90"
+                className="w-full h-full object-cover"
               />
             </div>
             <div className="aspect-square bg-[#EDEDED] dark:bg-white/5 overflow-hidden">

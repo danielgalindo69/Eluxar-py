@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, Navigate } from "react-router";
-import { User, Package, MapPin, LogOut, Heart } from "lucide-react";
+import { User, Package, LogOut, Heart } from "lucide-react";
 import { useAuth } from "../../auth/context/AuthContext";
 import { authAPI } from "../../../core/api/api";
 import { toast } from "sonner";
@@ -28,7 +28,6 @@ export const UserLayout = () => {
     { name: "Mi Perfil", path: "/profile", icon: User, exact: true },
     { name: "Mis Pedidos", path: "/profile/orders", icon: Package, exact: false },
     { name: "Favoritos", path: "/profile/wishlist", icon: Heart, exact: false },
-    { name: "Direcciones", path: "/profile/addresses", icon: MapPin, exact: false },
   ];
 
   return (
@@ -36,7 +35,7 @@ export const UserLayout = () => {
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12">
         
         {/* Sidebar */}
-        <aside className="w-full lg:w-64 shrink-0">
+        <aside className="w-full lg:w-64 lg:min-w-[16rem] lg:max-w-[16rem] shrink-0">
           <div className="sticky top-32 space-y-8">
             <div>
               <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight mb-2">Mi Cuenta</h1>
