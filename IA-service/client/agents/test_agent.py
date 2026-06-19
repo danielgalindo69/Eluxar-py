@@ -9,7 +9,7 @@ from .tools import (
 
 # ── Fragrance Test ────────────────────────────────────────────────────────────
 
-@llm.call("google/gemini-2.5-flash")
+@llm.call("groq/llama-3.3-70b-versatile")
 def fragrance_question_generator(history_summary: str, current_step: int, total_steps: int):
     return f"""
     SYSTEM: Eres ELUXAR, un experto en perfumería de lujo. Estás guiando a un usuario a través de un test 
@@ -41,7 +41,7 @@ def fragrance_question_generator(history_summary: str, current_step: int, total_
     """
 
 @llm.call(
-    "google/gemini-2.5-flash",
+    "groq/llama-3.3-70b-versatile",
     tools=[get_perfumes_for_test]
 )
 def fragrance_test_agent(answers_summary: str, history: list):

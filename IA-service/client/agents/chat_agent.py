@@ -12,7 +12,7 @@ from .tools import (
 # ── Chat Agent ────────────────────────────────────────────────────────────────
 
 @llm.call(
-    "google/gemini-2.5-flash",
+    "groq/llama-3.3-70b-versatile",
     tools=[get_all_perfumes, get_perfume_by_id, search_perfumes_by_family]
 )
 def perfume_advisor(query: str, history: list):
