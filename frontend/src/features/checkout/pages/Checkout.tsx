@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { paymentService } from "../services/paymentService";
 import { MercadoPagoBrick } from "../components/MercadoPagoBrick";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Step = 1 | 2 | 3;
 
@@ -20,6 +21,7 @@ export const Checkout = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -121,6 +123,7 @@ export const Checkout = () => {
         codigoDescuento: coupon?.codigo,
         notas: '',
       });
+      queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] });
       clearCart();
       navigate('/order-confirmation', { state: { order: res } });
     } catch (e: any) {
@@ -332,6 +335,7 @@ export const Checkout = () => {
                             codigoDescuento: coupon?.codigo,
                             notas: '',
                           });
+                          queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] });
                           setPreferenceId(res.preferenceId);
                         } catch (e: any) {
                           toast.error(e.message || 'Error al iniciar el pago. Intenta de nuevo.');

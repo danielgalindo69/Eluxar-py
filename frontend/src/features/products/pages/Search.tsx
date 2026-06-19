@@ -3,10 +3,9 @@ import { Search as SearchIcon, X, Loader2 } from "lucide-react";
 import { Product } from "../types/products";
 import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../components/ProductCard";
+import { useQuery } from "@tanstack/react-query";
 
 export const Search = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedGender, setSelectedGender] = useState<Product['gender'] | 'Todos'>('Todos');
@@ -14,20 +13,12 @@ export const Search = () => {
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true);
-        const data = await productsAPI.getAll();
-        setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products for search:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ['products'],
+    queryFn: () => productsAPI.getAll(),
+    staleTime: 300000,   // 5 minutos
+    gcTime: 600000,      // 10 minutos
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300);

@@ -1,31 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { inventoryAPI, StockAlert } from "../../../core/api/api";
 import { AlertTriangle, AlertCircle, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { SearchBar } from "../components/SearchBar";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const StockAlerts = () => {
-  const [alerts, setAlerts] = useState<(StockAlert & { severity: 'warning' | 'critical' })[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newThreshold, setNewThreshold] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    inventoryAPI.getAlerts()
-      .then((data) => {
-        const formatted = data.map(d => ({
-          ...d,
-          severity: (d.stockActual <= d.stockMinimo / 2 ? 'critical' : 'warning') as 'critical' | 'warning',
-        }));
-        setAlerts(formatted);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false);
-        toast.error('Error al cargar alertas de stock');
-      });
-  }, []);
+  const { data: alerts = [], isLoading } = useQuery<(StockAlert & { severity: 'warning' | 'critical' })[]>({
+    queryKey: ['admin-alertas'],
+    queryFn: async () => {
+      const data = await inventoryAPI.getAlerts();
+      return data.map(d => ({
+        ...d,
+        severity: (d.stockActual <= d.stockMinimo / 2 ? 'critical' : 'warning') as 'critical' | 'warning',
+      }));
+    },
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleUpdateThreshold = async (varianteId: number) => {
     const val = parseInt(newThreshold);
@@ -41,11 +38,8 @@ export const StockAlerts = () => {
         motivo: 'Actualización de umbral mínimo desde alertas',
       });
 
-      setAlerts(prev => prev.map(a =>
-        a.varianteId === varianteId
-          ? { ...a, stockMinimo: val, severity: (a.stockActual <= val / 2 ? 'critical' : 'warning') as 'critical' | 'warning' }
-          : a
-      ));
+      queryClient.invalidateQueries({ queryKey: ['admin-alertas'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-inventario'] });
       setEditingId(null);
       setNewThreshold('');
       toast.success('Umbral actualizado');

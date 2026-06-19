@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Hero } from "../components/Hero";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Link } from "react-router";
@@ -8,12 +8,9 @@ import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { useQuery } from "@tanstack/react-query";
 
 export const Home = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [destacados, setDestacados] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingDestacados, setIsLoadingDestacados] = useState(true);
   const [newsletterEmail, setNewsletterEmail] = useState('');
 
   const handleNewsletter = (e: React.FormEvent) => {
@@ -23,34 +20,25 @@ export const Home = () => {
     setNewsletterEmail('');
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true);
-        const data = await productsAPI.getAll();
-        setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products for Home:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const {
+    data: products = [],
+    isLoading,
+  } = useQuery<Product[]>({
+    queryKey: ['products'],
+    queryFn: () => productsAPI.getAll(),
+    staleTime: 300000,   // 5 minutos
+    gcTime: 600000,      // 10 minutos
+  });
 
-    const fetchDestacados = async () => {
-      try {
-        setIsLoadingDestacados(true);
-        const data = await productsAPI.getDestacados();
-        setDestacados(data);
-      } catch (err) {
-        console.error("Error fetching destacados:", err);
-      } finally {
-        setIsLoadingDestacados(false);
-      }
-    };
-
-    fetchProducts();
-    fetchDestacados();
-  }, []);
+  const {
+    data: destacados = [],
+    isLoading: isLoadingDestacados,
+  } = useQuery<Product[]>({
+    queryKey: ['destacados'],
+    queryFn: () => productsAPI.getDestacados(),
+    staleTime: 300000,   // 5 minutos
+    gcTime: 600000,      // 10 minutos
+  });
 
   // AI Recommended Products (primeros 2 productos)
   const aiRecommended = products.slice(0, 2);

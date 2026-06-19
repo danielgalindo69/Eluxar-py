@@ -2,48 +2,42 @@ import { useParams, Link, useNavigate } from "react-router";
 import { Product } from "../types/products";
 import { productsAPI, formatPrice } from "../../../core/api/api";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
-import { Plus, Minus, ArrowLeft, Share2, Loader2, ShoppingBag, Heart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Plus, Minus, ArrowLeft, Share2, ShoppingBag, Heart } from "lucide-react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { useCart } from "../../cart/context/CartContext";
 import { toast } from "sonner";
 import { ProductReviews } from "../components/ProductReviews";
 import { useWishlist } from "../../user/context/WishlistContext";
 import { useAuth } from "../../auth/context/AuthContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("details");
 
   const { wishlistIds, toggleWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
+
+  const {
+    data: product,
+    isLoading,
+    error: productError,
+  } = useQuery<Product>({
+    queryKey: ['product', id],
+    queryFn: () => productsAPI.getById(id!),
+    enabled: !!id,
+    staleTime: 300000,   // 5 minutos
+    gcTime: 600000,      // 10 minutos
+  });
+
   const inWishlist = product ? isInWishlist(product.id) : false;
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      if (!id) return;
-      try {
-        setIsLoading(true);
-        const data = await productsAPI.getById(id);
-        setProduct(data);
-        setError(null);
-      } catch (err: any) {
-        console.error("Error fetching product:", err);
-        setError("No se pudo cargar la información del producto.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [id]);
+  const error = productError ? "No se pudo cargar la información del producto." : null;
 
   const selectedVariant = product?.variants?.[selectedVariantIndex];
   const currentPrice = selectedVariant?.price ?? parseFloat((product?.price ?? '0').replace('COP', ''));
@@ -318,8 +312,8 @@ export const ProductDetail = () => {
         <ProductReviews 
           productId={product.id} 
           onReviewAdded={() => {
-            // Recargar producto para actualizar el rating promedio
-            productsAPI.getById(product.id).then(setProduct);
+            // Invalida la caché del producto para que se recargue con el nuevo rating promedio
+            queryClient.invalidateQueries({ queryKey: ['product', id] });
           }} 
         />
 

@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Ticket, Plus, Trash2, Edit2, CheckCircle2, XCircle, AlertCircle, X, ChevronDown } from "lucide-react";
 import { couponAPI, Coupon, formatPrice } from "../../../core/api/api";
 import { SearchBar } from "../components/SearchBar";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const PAGE_SIZE = 15;
 
 export const Coupons = () => {
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,21 +26,12 @@ export const Coupons = () => {
     activo: true
   });
 
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
-
-  const fetchCoupons = async () => {
-    try {
-      setIsLoading(true);
-      const data = await couponAPI.getAllAdmin();
-      setCoupons(data);
-    } catch (err: any) {
-      toast.error(err.message || "Error al cargar los cupones");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: coupons = [], isLoading } = useQuery<Coupon[]>({
+    queryKey: ['admin-cupones'],
+    queryFn: () => couponAPI.getAllAdmin(),
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleOpenModal = (coupon?: Coupon) => {
     if (coupon) {
@@ -93,7 +84,7 @@ export const Coupons = () => {
         toast.success("Cupón creado exitosamente");
       }
       handleCloseModal();
-      fetchCoupons();
+      queryClient.invalidateQueries({ queryKey: ['admin-cupones'] });
     } catch (err: any) {
       toast.error(err.message || "Error al guardar el cupón");
     }
@@ -104,7 +95,7 @@ export const Coupons = () => {
     try {
       await couponAPI.remove(id);
       toast.success("Cupón eliminado");
-      fetchCoupons();
+      queryClient.invalidateQueries({ queryKey: ['admin-cupones'] });
     } catch (err: any) {
       toast.error(err.message || "Error al eliminar");
     }
