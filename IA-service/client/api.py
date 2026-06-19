@@ -102,6 +102,18 @@ def edit_image_endpoint():
 import sys
 import io
 import os
+from dotenv import load_dotenv
+
+# Asegurar que las variables de entorno estén cargadas antes de registrar el provider
+load_dotenv()
+
+from mirascope import llm
+llm.register_provider(
+    "openai",
+    scope="groq/",
+    base_url="https://api.groq.com/openai/v1",
+    api_key=os.environ.get("GROQ_API_KEY", ""),
+)
 
 # Fix Windows charmap errors (emojis in user answers crash stdout)
 # Must run before any import that triggers output
