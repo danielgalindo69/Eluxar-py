@@ -8,3 +8,4 @@ gunicorn
 onnxruntime
 pillow==10.4.0
 requests
+mirascope[groq]==2.4.0
