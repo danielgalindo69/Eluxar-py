@@ -5,6 +5,7 @@ import { Product } from "../../products/types/products";
 import { toast } from "sonner";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 
 const PAGE_SIZE = 15;
@@ -18,36 +19,26 @@ const CATEGORIAS = [
 ] as const;
 
 export const Products = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    try {
-      const data = await productsAPI.getAll();
-      setProducts(data);
-    } catch (error) {
-      toast.error("Error al cargar productos");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchProducts();
-  }, []);
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ['admin-productos'],
+    queryFn: () => productsAPI.getAll(),
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este producto?")) return;
     try {
       await productsAPI.remove(id);
       toast.success("Producto eliminado");
-      fetchProducts();
+      queryClient.invalidateQueries({ queryKey: ['admin-productos'] });
     } catch (error) {
       toast.error("Error al eliminar producto");
     }
@@ -93,7 +84,7 @@ export const Products = () => {
       </div>
 
       {/* Filters Row */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+      <div className="bg-white dark:bg-[#1E1E1E] border border-[#EDEDED] dark:border-white/10 p-4 shadow-sm rounded-sm">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative group flex-1">
@@ -119,9 +110,9 @@ export const Products = () => {
               onChange={(e) => handleCategory(e.target.value)}
               className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
             >
-              <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="">Todas las categorías</option>
+              <option className="bg-white dark:bg-[#1E1E1E] text-[#111111] dark:text-white" value="">Todas las categorías</option>
               {CATEGORIAS.map(c => (
-                <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" key={c.value} value={c.value}>{c.label}</option>
+                <option className="bg-white dark:bg-[#1E1E1E] text-[#111111] dark:text-white" key={c.value} value={c.value}>{c.label}</option>
               ))}
             </select>
           </div>
@@ -129,7 +120,7 @@ export const Products = () => {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8">
+      <div className="bg-white dark:bg-[#1E1E1E] border border-[#EDEDED] dark:border-white/10 shadow-sm rounded-sm">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
@@ -140,19 +131,19 @@ export const Products = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[#EDEDED] dark:border-white/8 bg-[#EDEDED] dark:bg-white/5">
-                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Imagen</th>
-                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Nombre</th>
-                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Categoría</th>
-                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Precio</th>
-                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Stock</th>
-                    <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Acciones</th>
+                  <tr className="border-b border-[#EDEDED] dark:border-white/10 bg-[#EDEDED] dark:bg-[#2A2A2A]">
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/70 px-4 py-3">Imagen</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/70 px-4 py-3">Nombre</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/70 px-4 py-3">Categoría</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/70 px-4 py-3">Precio</th>
+                    <th className="text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/70 px-4 py-3">Stock</th>
+                    <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/70 px-4 py-3">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedProducts.length > 0 ? (
                     paginatedProducts.map((product) => (
-                      <tr key={product.id} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
+                      <tr key={product.id} className="border-b border-[#EDEDED] dark:border-white/10 hover:bg-[#EDEDED]/30 dark:hover:bg-[#2A2A2A] transition-colors">
                         <td className="px-4 py-2">
                           {product.image ? (
                             <img src={product.image} alt={product.name} className="w-10 h-10 object-cover" />
@@ -221,7 +212,7 @@ export const Products = () => {
         <ProductModal
           product={editingProduct}
           onClose={() => setIsModalOpen(false)}
-          onSuccess={() => { setIsModalOpen(false); fetchProducts(); }}
+          onSuccess={() => { setIsModalOpen(false); queryClient.invalidateQueries({ queryKey: ['admin-productos'] }); }}
         />
       )}
     </div>

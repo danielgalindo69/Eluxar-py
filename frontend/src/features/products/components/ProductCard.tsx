@@ -96,7 +96,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
           {product.id === "1" && (
             <div className="absolute top-4 left-4 bg-white dark:bg-[#161616] px-3 py-1">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#3A4A3F]">Nuevo</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#3A4A3F] dark:text-[#C8A97E]">Nuevo</span>
             </div>
           )}
         </div>

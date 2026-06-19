@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
 import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { SearchBar } from "../components/SearchBar";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const PAGE_SIZE = 15;
 
@@ -13,9 +14,7 @@ const tableWrap = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:borde
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
 
 export const Inventory = () => {
-  const [movements, setMovements] = useState<InventoryMovement[]>([]);
-  const [inventario, setInventario] = useState<InventoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -35,34 +34,29 @@ export const Inventory = () => {
     motivo: ''
   });
 
-  const loadData = async (desde?: string, hasta?: string) => {
-    try {
-      setIsLoading(true);
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-inventario', filterDesde, filterHasta],
+    queryFn: async () => {
       const [movs, inv] = await Promise.all([
-        inventoryAPI.getMovements(desde || undefined, hasta || undefined),
+        inventoryAPI.getMovements(filterDesde || undefined, filterHasta || undefined),
         inventoryAPI.getAll(),
       ]);
-      setMovements(movs);
-      setInventario(inv);
-    } catch {
-      toast.error('Error al cargar datos de inventario');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return { movs, inv };
+    },
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const movements = data?.movs || [];
+  const inventario = data?.inv || [];
 
   const handleFilter = () => {
-    loadData(filterDesde || undefined, filterHasta || undefined);
+    queryClient.invalidateQueries({ queryKey: ['admin-inventario'] });
   };
 
   const handleClearFilter = () => {
     setFilterDesde('');
     setFilterHasta('');
-    loadData();
   };
 
   const handleSubmit = async () => {
@@ -76,7 +70,7 @@ export const Inventory = () => {
         stockMinimo: formData.stockMinimo ? parseInt(formData.stockMinimo) : undefined,
         motivo: formData.motivo || 'Ajuste manual desde panel admin',
       });
-      await loadData(filterDesde || undefined, filterHasta || undefined);
+      queryClient.invalidateQueries({ queryKey: ['admin-inventario'] });
       setFormData({ varianteId: '', stockActual: '', stockMinimo: '', motivo: '' });
       setShowForm(false);
       toast.success('Stock actualizado correctamente');
@@ -108,7 +102,7 @@ export const Inventory = () => {
       toast.success('Movimientos archivados correctamente. Los datos siguen en la base de datos.');
       setShowArchiveModal(false);
       setArchiveBefore('');
-      await loadData();
+      queryClient.invalidateQueries({ queryKey: ['admin-inventario'] });
     } catch {
       toast.error('Error al archivar los movimientos');
     } finally {

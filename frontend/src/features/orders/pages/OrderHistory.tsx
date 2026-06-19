@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ordersAPI, Order, formatPrice } from "../../../core/api/api";
 import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../../auth/context/AuthContext";
 
 const PAGE_SIZE = 5;
 
@@ -16,15 +18,18 @@ const statusConfig: Record<string, { icon: React.ElementType; color: string }> =
 };
 
 export const OrderHistory = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { user } = useAuth();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState("");
 
-  useEffect(() => {
-    ordersAPI.getAll().then(data => { setOrders(data); setIsLoading(false); });
-  }, []);
+  const { data: orders = [], isLoading } = useQuery<Order[]>({
+    queryKey: ['mis-pedidos', user?.id],
+    queryFn: () => ordersAPI.getAll(),
+    enabled: !!user?.id,
+    staleTime: 30000,   // 30 segundos
+    gcTime: 300000,      // 5 minutos
+  });
 
   return (
     <div>

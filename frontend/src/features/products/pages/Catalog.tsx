@@ -1,9 +1,10 @@
 import { ProductCard } from "../components/ProductCard";
 import { Product } from "../types/products";
 import { productsAPI, categoriesAPI, brandsAPI, Category } from "../../../core/api/api";
-import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles, Loader2 } from "lucide-react";
+import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -16,38 +17,44 @@ export const Catalog = () => {
   const [activeFilter, setActiveFilter] = useState("Todos");
   const [activeGenderFilter, setActiveGenderFilter] = useState<Product['gender'] | 'all'>('all');
   const [activePriceRange, setActivePriceRange] = useState<PriceRange>('all');
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [brands, setBrands] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [gridSize, setGridSize] = useState<GridSize>(3);
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [productsData, categoriesData, brandsData] = await Promise.all([
-          productsAPI.getAll(),
-          categoriesAPI.getAll(),
-          brandsAPI.getAll()
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-        setBrands(brandsData);
-        setError(null);
-      } catch (err: any) {
-        console.error("Error fetching catalog data:", err);
-        setError("No se pudo cargar la colección. Por favor, intenta de nuevo.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const {
+    data: products = [],
+    isLoading: isLoadingProducts,
+    error: productsError,
+  } = useQuery<Product[]>({
+    queryKey: ['products'],
+    queryFn: () => productsAPI.getAll(),
+    staleTime: 300000,   // 5 minutos
+    gcTime: 600000,      // 10 minutos
+  });
+
+  const {
+    data: categories = [],
+    isLoading: isLoadingCategories,
+  } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: () => categoriesAPI.getAll(),
+    staleTime: 1800000,  // 30 minutos
+    gcTime: 3600000,     // 1 hora
+  });
+
+  const {
+    data: brands = [],
+    isLoading: isLoadingBrands,
+  } = useQuery<Category[]>({
+    queryKey: ['brands'],
+    queryFn: () => brandsAPI.getAll(),
+    staleTime: 1800000,  // 30 minutos
+    gcTime: 3600000,     // 1 hora
+  });
+
+  const isLoading = isLoadingProducts || isLoadingCategories || isLoadingBrands;
+  const error = productsError ? "No se pudo cargar la colección. Por favor, intenta de nuevo." : null;
 
   // Reset page when filters change
   useEffect(() => { setCurrentPage(1); }, [activeFilter, activeGenderFilter, activePriceRange, sortOption]);
@@ -127,33 +134,35 @@ export const Catalog = () => {
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block w-64 space-y-12 shrink-0">
-            <div>
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white mb-6">Categoría</h3>
-              <ul className="space-y-4">
+            <div className="border-b border-[#EDEDED] dark:border-white/10 pb-8">
+              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Categoría</h3>
+              <ul className="space-y-2">
                 <li>
                   <button
                     onClick={() => setActiveFilter("Todos")}
-                    className={`text-xs uppercase tracking-widest transition-colors ${activeFilter === "Todos" ? "text-[#3A4A3F] dark:text-[#A5BAA8] font-bold" : "text-[#2B2B2B]/50 hover:text-[#111111] dark:text-white"}`}
+                    className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                   >
-                    Todos
+                    <span>Todos</span>
+                    {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                   </button>
                 </li>
                 {categories.map((cat) => (
                   <li key={cat.id}>
                     <button
                       onClick={() => setActiveFilter(cat.name)}
-                      className={`text-xs uppercase tracking-widest transition-colors ${activeFilter === cat.name ? "text-[#3A4A3F] dark:text-[#A5BAA8] font-bold" : "text-[#2B2B2B]/50 hover:text-[#111111] dark:text-white"}`}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                     >
-                      {cat.name}
+                      <span>{cat.name}</span>
+                      {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white mb-6">Género</h3>
-              <ul className="space-y-4">
+            <div className="border-b border-[#EDEDED] dark:border-white/10 pb-8">
+              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Género</h3>
+              <ul className="space-y-2">
                 {([
                   { value: 'all', label: 'Todos' },
                   { value: 'Masculino', label: 'Masculino' },
@@ -165,25 +174,27 @@ export const Catalog = () => {
                   <li key={genderItem.value}>
                     <button
                       onClick={() => setActiveGenderFilter(genderItem.value)}
-                      className={`text-xs uppercase tracking-widest transition-colors ${activeGenderFilter === genderItem.value ? "text-[#3A4A3F] dark:text-[#A5BAA8] font-bold" : "text-[#2B2B2B]/50 hover:text-[#111111] dark:text-white"}`}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeGenderFilter === genderItem.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                     >
-                      {genderItem.label}
+                      <span>{genderItem.label}</span>
+                      {activeGenderFilter === genderItem.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white mb-6">Marca</h3>
-              <ul className="space-y-4">
+            <div className="border-b border-[#EDEDED] dark:border-white/10 pb-8">
+              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Marca</h3>
+              <ul className="space-y-2">
                 {brands.map((brand) => (
                   <li key={brand.id}>
                     <button
                       onClick={() => setActiveFilter(brand.name)}
-                      className={`text-xs uppercase tracking-widest transition-colors ${activeFilter === brand.name ? "text-[#3A4A3F] dark:text-[#A5BAA8] font-bold" : "text-[#2B2B2B]/50 hover:text-[#111111] dark:text-white"}`}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === brand.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                     >
-                      {brand.name}
+                      <span>{brand.name}</span>
+                      {activeFilter === brand.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                     </button>
                   </li>
                 ))}
@@ -191,17 +202,22 @@ export const Catalog = () => {
             </div>
 
             <div>
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white mb-6">Precio</h3>
-              <ul className="space-y-4">
+              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Precio</h3>
+              <ul className="space-y-2">
                 {([
                   { value: 'all', label: 'Todos los precios' },
                   { value: 'under150', label: 'Menos de $150.000' },
                   { value: '150to200', label: '$150.000 – $200.000' },
                   { value: 'over200', label: 'Más de $200.000' },
                 ] as { value: PriceRange; label: string }[]).map((item) => (
-                  <li key={item.value} className="flex items-center space-x-3 cursor-pointer group" onClick={() => setActivePriceRange(item.value)}>
-                    <div className={`w-3 h-3 border transition-colors ${activePriceRange === item.value ? 'border-[#3A4A3F] dark:border-[#A5BAA8] bg-[#3A4A3F] dark:bg-[#A5BAA8]' : 'border-[#EDEDED] dark:border-white/8 group-hover:border-[#111111]'}`} />
-                    <span className={`text-xs uppercase tracking-widest transition-colors ${activePriceRange === item.value ? 'text-[#3A4A3F] dark:text-[#A5BAA8] font-bold' : 'text-[#2B2B2B]/50 group-hover:text-[#111111] dark:text-white'}`}>{item.label}</span>
+                  <li key={item.value}>
+                    <button
+                      onClick={() => setActivePriceRange(item.value)}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activePriceRange === item.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                    >
+                      <span>{item.label}</span>
+                      {activePriceRange === item.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -217,7 +233,7 @@ export const Catalog = () => {
                   onClick={() => setActiveFilter("Todos")}
                   className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
                     activeFilter === "Todos"
-                      ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                      ? "bg-[#3A4A3F] text-white border-[#3A4A3F] dark:bg-[#A5BAA8] dark:text-[#111111] dark:border-[#A5BAA8]"
                       : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
                   }`}
                 >
@@ -229,7 +245,7 @@ export const Catalog = () => {
                     onClick={() => setActiveFilter(cat.name)}
                     className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
                       activeFilter === cat.name
-                        ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                        ? "bg-[#3A4A3F] text-white border-[#3A4A3F] dark:bg-[#A5BAA8] dark:text-[#111111] dark:border-[#A5BAA8]"
                         : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
                     }`}
                   >
@@ -243,7 +259,7 @@ export const Catalog = () => {
                   onClick={() => setActiveGenderFilter("all")}
                   className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
                     activeGenderFilter === "all"
-                      ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                      ? "bg-[#3A4A3F] text-white border-[#3A4A3F] dark:bg-[#A5BAA8] dark:text-[#111111] dark:border-[#A5BAA8]"
                       : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
                   }`}
                 >
@@ -261,7 +277,7 @@ export const Catalog = () => {
                     onClick={() => setActiveGenderFilter(genderItem.value)}
                     className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
                       activeGenderFilter === genderItem.value
-                        ? "bg-[#3A4A3F] text-white border-[#3A4A3F]"
+                        ? "bg-[#3A4A3F] text-white border-[#3A4A3F] dark:bg-[#A5BAA8] dark:text-[#111111] dark:border-[#A5BAA8]"
                         : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
                     }`}
                   >
