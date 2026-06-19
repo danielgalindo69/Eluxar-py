@@ -2,10 +2,9 @@ Flask==3.0.3
 Flask-Cors==4.0.0
 pydantic>=2.0.0
 python-dotenv
-mirascope[google]==2.4.0
+mirascope[google,openai]==2.4.0
 mcp
 gunicorn
 onnxruntime
 pillow==10.4.0
 requests
-mirascope[groq]==2.4.0
