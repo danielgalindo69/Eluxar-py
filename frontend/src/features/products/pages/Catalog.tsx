@@ -1,7 +1,7 @@
 import { ProductCard } from "../components/ProductCard";
 import { Product } from "../types/products";
 import { productsAPI, categoriesAPI, brandsAPI, Category } from "../../../core/api/api";
-import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles } from "lucide-react";
+import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ export const Catalog = () => {
   const [activePriceRange, setActivePriceRange] = useState<PriceRange>('all');
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [gridSize, setGridSize] = useState<GridSize>(3);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -112,7 +113,8 @@ export const Catalog = () => {
   };
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
+    <>
+      <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col mb-16 space-y-6">
@@ -290,7 +292,7 @@ export const Catalog = () => {
             {/* Toolbar */}
             <div className="flex items-center justify-between mb-10 border-b border-[#EDEDED] dark:border-white/8 pb-6">
               <div className="flex items-center space-x-6">
-                <button className="lg:hidden flex items-center space-x-2 text-[10px] uppercase tracking-widest text-[#111111] dark:text-white font-bold">
+                <button onClick={() => setShowMobileFilters(true)} className="lg:hidden flex items-center space-x-2 text-[10px] uppercase tracking-widest text-[#111111] dark:text-white font-bold">
                   <Filter size={14} />
                   <span>Filtros</span>
                 </button>
@@ -377,7 +379,7 @@ export const Catalog = () => {
                 {paginatedProducts.length === 0 ? (
                   <div className="py-32 text-center">
                     <p className="text-[#2B2B2B]/60 dark:text-white/60 text-sm font-light uppercase tracking-widest">No se encontraron productos con los filtros seleccionados.</p>
-                    <button onClick={() => { setActiveFilter("Todos"); setActivePriceRange('all'); }} className="mt-6 text-[10px] uppercase tracking-widest font-bold border-b border-[#111111] pb-1">
+                    <button onClick={() => { setActiveFilter("Todos"); setActiveGenderFilter('all'); setActivePriceRange('all'); }} className="mt-6 text-[10px] uppercase tracking-widest font-bold border-b border-[#111111] pb-1">
                       Limpiar filtros
                     </button>
                   </div>
@@ -425,5 +427,135 @@ export const Catalog = () => {
         </div>
       </div>
     </main>
+
+      {/* Mobile Filters Modal */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 flex bg-black/50 backdrop-blur-sm lg:hidden">
+          <div className="w-full max-w-sm bg-white dark:bg-[#161616] h-full flex flex-col shadow-2xl ml-auto animate-in slide-in-from-right duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-[#EDEDED] dark:border-white/10">
+              <span className="text-[10px] uppercase tracking-widest font-bold dark:text-white">Filtros</span>
+              <button onClick={() => setShowMobileFilters(false)} className="text-[#2B2B2B] dark:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              {/* Categoria */}
+              <div>
+                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Categoría</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <button
+                      onClick={() => setActiveFilter("Todos")}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                    >
+                      <span>Todos</span>
+                      {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                    </button>
+                  </li>
+                  {categories.map((cat) => (
+                    <li key={cat.id}>
+                      <button
+                        onClick={() => setActiveFilter(cat.name)}
+                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                      >
+                        <span>{cat.name}</span>
+                        {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Genero */}
+              <div>
+                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Género</h3>
+                <ul className="space-y-2">
+                  {([
+                    { value: 'all', label: 'Todos' },
+                    { value: 'Masculino', label: 'Masculino' },
+                    { value: 'Femenino', label: 'Femenino' },
+                    { value: 'Niño', label: 'Niño' },
+                    { value: 'Niña', label: 'Niña' },
+                    { value: 'Unisex', label: 'Unisex' }
+                  ] as { value: Product['gender'] | 'all'; label: string }[]).map((genderItem) => (
+                    <li key={genderItem.value}>
+                      <button
+                        onClick={() => setActiveGenderFilter(genderItem.value)}
+                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeGenderFilter === genderItem.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                      >
+                        <span>{genderItem.label}</span>
+                        {activeGenderFilter === genderItem.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Marca */}
+              <div>
+                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Marca</h3>
+                <ul className="space-y-2">
+                  {brands.map((brand) => (
+                    <li key={brand.id}>
+                      <button
+                        onClick={() => setActiveFilter(brand.name)}
+                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === brand.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                      >
+                        <span>{brand.name}</span>
+                        {activeFilter === brand.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Precio */}
+              <div>
+                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Precio</h3>
+                <ul className="space-y-2">
+                  {([
+                    { value: 'all', label: 'Todos los precios' },
+                    { value: 'under150', label: 'Menos de $150.000' },
+                    { value: '150to200', label: '$150.000 – $200.000' },
+                    { value: 'over200', label: 'Más de $200.000' },
+                  ] as { value: PriceRange; label: string }[]).map((item) => (
+                    <li key={item.value}>
+                      <button
+                        onClick={() => setActivePriceRange(item.value)}
+                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activePriceRange === item.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                      >
+                        <span>{item.label}</span>
+                        {activePriceRange === item.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer actions */}
+            <div className="p-6 border-t border-[#EDEDED] dark:border-white/10 flex gap-4">
+              <button
+                onClick={() => {
+                  setActiveFilter("Todos");
+                  setActiveGenderFilter("all");
+                  setActivePriceRange("all");
+                }}
+                className="flex-1 px-4 py-3 text-[10px] uppercase tracking-widest font-bold border border-[#2B2B2B]/20 dark:border-white/20 dark:text-white hover:bg-[#F5F5F5] dark:hover:bg-white/5 transition-colors"
+              >
+                Limpiar
+              </button>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="flex-1 px-4 py-3 bg-[#111111] text-white dark:bg-white dark:text-[#111111] text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#A5BAA8] transition-colors"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
