@@ -4,6 +4,8 @@ import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, Alert
 import { useAuth } from '../../auth/context/AuthContext';
 import { useTheme } from "next-themes";
 import { ScrollToTop } from '../../../shared/components/ScrollToTop';
+import { PageLoader } from '../../../shared/components/ui/PageLoader';
+import { Suspense } from "react";
 
 export const AdminLayout = () => {
   const { user, hasRole, isLoading, logout } = useAuth();
@@ -14,7 +16,7 @@ export const AdminLayout = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+  if (isLoading) return <PageLoader />;
   if (!user || !hasRole("ADMIN")) return <Navigate to="/auth" state={{ from: location }} replace />;
 
   const menuItems = [
@@ -115,7 +117,9 @@ export const AdminLayout = () => {
 
       {/* Main Content */}
       <main className={`flex-1 transition-all duration-300 ${isDesktopCollapsed ? 'lg:ml-20' : 'lg:ml-64'} p-4 lg:p-8 mt-14 lg:mt-0`}>
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );
