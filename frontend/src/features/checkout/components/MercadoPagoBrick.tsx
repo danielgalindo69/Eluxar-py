@@ -96,10 +96,9 @@ export const MercadoPagoBrick = ({
             },
           },
         }}
-        onSubmit={async ({ selectedPaymentMethod, formData }) => {
+        onSubmit={async () => {
           // El Brick maneja el submit internamente con la preferencia
           // Solo notificamos al padre
-          console.log('[MercadoPagoBrick] Submit:', selectedPaymentMethod, formData);
           onSuccess?.();
         }}
         onError={(error) => {
@@ -107,7 +106,6 @@ export const MercadoPagoBrick = ({
           onError?.(error);
         }}
         onReady={() => {
-          console.log('[MercadoPagoBrick] Brick listo');
           onReady?.();
         }}
       />
