@@ -1,40 +1,43 @@
 import { createBrowserRouter, Outlet, Navigate } from "react-router";
 import { Navbar } from "../../shared/components/layout/Navbar";
 import { Footer } from "../../shared/components/layout/Footer";
-import { Home } from "../../features/home/pages/Home";
-import { Catalog } from "../../features/products/pages/Catalog";
-import { ProductDetail } from "../../features/products/pages/ProductDetail";
-import { Cart } from "../../features/cart/pages/Cart";
-import { Checkout } from "../../features/checkout/pages/Checkout";
-import { Auth } from "../../features/auth/pages/Auth";
-import { Register } from "../../features/auth/pages/Register";
-import { ForgotPassword } from "../../features/auth/pages/ForgotPassword";
-import { Profile } from "../../features/user/pages/Profile";
-import { Addresses } from "../../features/user/pages/Addresses";
-import { Wishlist } from "../../features/user/pages/Wishlist";
-import { UserLayout } from "../../features/user/pages/UserLayout";
-import { Search } from "../../features/products/pages/Search";
-import { OrderConfirmation } from "../../features/orders/pages/OrderConfirmation";
-import { OrderHistory } from "../../features/orders/pages/OrderHistory";
-import { CheckoutSuccess } from "../../features/checkout/pages/CheckoutSuccess";
-import { CheckoutPending } from "../../features/checkout/pages/CheckoutPending";
-import { CheckoutFailure } from "../../features/checkout/pages/CheckoutFailure";
-import { EditOrderAddress } from "../../features/orders/pages/EditOrderAddress";
-import { FragranceTest } from "../../features/IA/pages/FragranceTest";
-import { Recommendations } from "../../features/IA/pages/Recommendations";
-import { Chat } from "../../features/IA/pages/Chat";
+import { lazy, Suspense } from "react";
+import { PageLoader } from "../../shared/components/ui/PageLoader";
+
+const Home = lazy(() => import("../../features/home/pages/Home").then(m => ({ default: m.Home })));
+const Catalog = lazy(() => import("../../features/products/pages/Catalog").then(m => ({ default: m.Catalog })));
+const ProductDetail = lazy(() => import("../../features/products/pages/ProductDetail").then(m => ({ default: m.ProductDetail })));
+const Cart = lazy(() => import("../../features/cart/pages/Cart").then(m => ({ default: m.Cart })));
+const Checkout = lazy(() => import("../../features/checkout/pages/Checkout").then(m => ({ default: m.Checkout })));
+const Auth = lazy(() => import("../../features/auth/pages/Auth").then(m => ({ default: m.Auth })));
+const Register = lazy(() => import("../../features/auth/pages/Register").then(m => ({ default: m.Register })));
+const ForgotPassword = lazy(() => import("../../features/auth/pages/ForgotPassword").then(m => ({ default: m.ForgotPassword })));
+const Profile = lazy(() => import("../../features/user/pages/Profile").then(m => ({ default: m.Profile })));
+const Addresses = lazy(() => import("../../features/user/pages/Addresses").then(m => ({ default: m.Addresses })));
+const Wishlist = lazy(() => import("../../features/user/pages/Wishlist").then(m => ({ default: m.Wishlist })));
+const UserLayout = lazy(() => import("../../features/user/pages/UserLayout").then(m => ({ default: m.UserLayout })));
+const Search = lazy(() => import("../../features/products/pages/Search").then(m => ({ default: m.Search })));
+const OrderConfirmation = lazy(() => import("../../features/orders/pages/OrderConfirmation").then(m => ({ default: m.OrderConfirmation })));
+const OrderHistory = lazy(() => import("../../features/orders/pages/OrderHistory").then(m => ({ default: m.OrderHistory })));
+const CheckoutSuccess = lazy(() => import("../../features/checkout/pages/CheckoutSuccess").then(m => ({ default: m.CheckoutSuccess })));
+const CheckoutPending = lazy(() => import("../../features/checkout/pages/CheckoutPending").then(m => ({ default: m.CheckoutPending })));
+const CheckoutFailure = lazy(() => import("../../features/checkout/pages/CheckoutFailure").then(m => ({ default: m.CheckoutFailure })));
+const EditOrderAddress = lazy(() => import("../../features/orders/pages/EditOrderAddress").then(m => ({ default: m.EditOrderAddress })));
+const FragranceTest = lazy(() => import("../../features/IA/pages/FragranceTest").then(m => ({ default: m.FragranceTest })));
+const Recommendations = lazy(() => import("../../features/IA/pages/Recommendations").then(m => ({ default: m.Recommendations })));
+const Chat = lazy(() => import("../../features/IA/pages/Chat").then(m => ({ default: m.Chat })));
+const Dashboard = lazy(() => import("../../features/admin/pages/Dashboard").then(m => ({ default: m.Dashboard })));
+const Products = lazy(() => import("../../features/admin/pages/Products").then(m => ({ default: m.Products })));
+const Orders = lazy(() => import("../../features/admin/pages/Orders").then(m => ({ default: m.Orders })));
+const Users = lazy(() => import("../../features/admin/pages/Users").then(m => ({ default: m.Users })));
+const Inventory = lazy(() => import("../../features/admin/pages/Inventory").then(m => ({ default: m.Inventory })));
+const StockAlerts = lazy(() => import("../../features/admin/pages/StockAlerts").then(m => ({ default: m.StockAlerts })));
+const Payments = lazy(() => import("../../features/admin/pages/Payments").then(m => ({ default: m.Payments })));
+const Shipping = lazy(() => import("../../features/admin/pages/Shipping").then(m => ({ default: m.Shipping })));
+const Images = lazy(() => import("../../features/admin/pages/Images").then(m => ({ default: m.Images })));
+const Coupons = lazy(() => import("../../features/admin/pages/Coupons").then(m => ({ default: m.Coupons })));
 import { AdminLayout } from "../../features/admin/pages/AdminLayout";
 import { AdminAuth } from "../../features/admin/pages/AdminAuth";
-import { Dashboard } from "../../features/admin/pages/Dashboard";
-import { Products } from "../../features/admin/pages/Products";
-import { Orders } from "../../features/admin/pages/Orders";
-import { Users } from "../../features/admin/pages/Users";
-import { Inventory } from "../../features/admin/pages/Inventory";
-import { StockAlerts } from "../../features/admin/pages/StockAlerts";
-import { Payments } from "../../features/admin/pages/Payments";
-import { Shipping } from "../../features/admin/pages/Shipping";
-import { Images } from "../../features/admin/pages/Images";
-import { Coupons } from "../../features/admin/pages/Coupons";
 import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
 import { NotFound } from "../../features/shared/pages/NotFound";
 import { ScrollToTop } from "../../shared/components/ScrollToTop";
@@ -57,7 +60,9 @@ const PageTransition = () => {
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="flex-1 flex flex-col"
       >
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </motion.div>
     </AnimatePresence>
   );
