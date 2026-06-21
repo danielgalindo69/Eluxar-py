@@ -9,38 +9,6 @@ from .tools import (
     safe_print, get_server_params, run_with_retry,
 )
 
-# ── Groq schema compatibility patch ──────────────────────────────────────────
-# Mirascope 2.4.0 bug: always serializes required=[] even for no-arg tools.
-# Groq rejects schemas with 'required' present but 'properties' empty.
-# This patch strips 'required' when it's an empty list.
-def _patch_mirascope_groq_schema():
-    try:
-        from mirascope.llm.providers.openai.completions._utils.encode import (
-            _convert_tool_to_tool_param as _original,
-        )
-        import mirascope.llm.providers.openai.completions._utils.encode as _enc_mod
-
-        @lru_cache(maxsize=128)
-        def _patched_convert_tool_to_tool_param(tool):
-            result = _original(tool)
-            # result is a dictionary-like TypedDict
-            params = dict(result["function"]["parameters"])
-            # Strip 'required' if it's an empty list — Groq rejects this
-            if params.get("required") == []:
-                params.pop("required")
-            
-            # Reconstruct as a pure dictionary to avoid TypedDict instantiation issues
-            patched_result = dict(result)
-            patched_result["function"] = dict(result["function"])
-            patched_result["function"]["parameters"] = params
-            return patched_result
-
-        _enc_mod._convert_tool_to_tool_param = _patched_convert_tool_to_tool_param
-        safe_print("[Agent] Groq schema compatibility patch applied.")
-    except Exception as e:
-        safe_print(f"[Agent] WARNING: Could not apply schema patch: {e}")
-
-_patch_mirascope_groq_schema()
 
 
 # ── Chat Agent ────────────────────────────────────────────────────────────────
@@ -66,13 +34,11 @@ def perfume_advisor(query: str, history: list):
     5. Usa negritas (**) para resaltar nombres de productos y precios.
     
     CONTEXTO:
-    Tienes acceso al catálogo de Eluxar (datos de prueba) vía MCP:
-    - `get_all_perfumes`, `get_perfume_by_id`, `search_perfumes_by_family`.
+    Tienes acceso al catálogo de Eluxar vía herramientas integradas.
     
     REGLAS DE ORO:
     - Sé cálido y sofisticado.
     - Responde en el mismo idioma del cliente.
-    - SIEMPRE consulta el catálogo antes de recomendar.
     
     MESSAGES: {history}
     USER: {query}
@@ -81,7 +47,7 @@ def perfume_advisor(query: str, history: list):
 
 async def _do_chat(query: str, history: list) -> tuple[str, list]:
     """Inner implementation of process_chat (single attempt)."""
-    current_query = query + " \n\n (Analiza si necesitas consultar el catálogo. SIEMPRE usa las herramientas para obtener datos reales del catálogo Eluxar antes de responder.)"
+    current_query = query
 
     server_params = get_server_params()
 
