@@ -98,7 +98,7 @@ export const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.18, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-4 bg-white dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 shadow-lg shadow-black/5 min-w-[220px] z-50"
+                    className="absolute right-0 top-full mt-4 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 shadow-lg shadow-black/5 min-w-[220px] z-50"
                   >
                     {isAuthenticated ? (
                       <div className="py-2">

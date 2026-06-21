@@ -32,7 +32,7 @@ export const OrderConfirmation = () => {
   }, [orderFromState, items, subtotal]);
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-2xl mx-auto text-center">
         {/* Success Animation */}
         <motion.div

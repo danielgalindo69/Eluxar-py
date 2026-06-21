@@ -8,7 +8,7 @@ export const Cart = () => {
    const { items, removeItem, updateQuantity, subtotal } = useCart();
 
    return (
-      <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
+      <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
          <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-16">Tu Bolsa de Compra</h1>
 
@@ -35,7 +35,7 @@ export const Cart = () => {
                                     <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 font-bold">{item.type} | {item.volume}</p>
                                     <button
                                        onClick={() => removeItem(item.productId, item.volume)}
-                                       className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 hover:text-red-500 pt-2 flex items-center space-x-2 transition-colors"
+                                       className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#E07A6B] pt-2 flex items-center space-x-2 transition-colors duration-200 cursor-pointer"
                                     >
                                        <Trash2 size={12} />
                                        <span>Eliminar</span>

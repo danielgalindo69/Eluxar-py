@@ -90,7 +90,7 @@ export const Profile = () => {
   };
 
   // Shared styles
-  const fieldBorder = "relative border-b border-[#EDEDED] dark:border-white/8 dark:border-white/10 pb-3 group";
+  const fieldBorder = `relative group transition-all rounded-sm ${isEditing ? 'border border-[var(--color-gold)]/40 focus-within:border-[var(--color-gold)] bg-[#F9F9F9] dark:bg-[var(--bg-elevated)] px-4 py-3 mt-2 shadow-sm' : 'border-b border-[#EDEDED] dark:border-white/10 pb-3'}`;
   const inputClass = "bg-transparent border-none outline-none w-full text-[15px] font-medium pr-10 text-[#111111] dark:text-white disabled:text-[#2B2B2B]/60 dark:text-white/60 dark:disabled:text-white/40 placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/20 transition-all";
 
   return (
@@ -105,7 +105,7 @@ export const Profile = () => {
             onClick={() => setActiveTab("info")}
             className={`flex-1 sm:flex-none py-3 px-6 text-[11px] uppercase tracking-[0.2em] font-semibold transition-all border-b-2 -mb-px ${
               activeTab === "info"
-                ? "border-[#C8A97E] text-[#111111] dark:text-white"
+                ? "border-[var(--color-gold)] text-[#111111] dark:text-white"
                 : "border-transparent text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white"
             }`}
           >
@@ -115,7 +115,7 @@ export const Profile = () => {
             onClick={() => setActiveTab("addresses")}
             className={`flex-1 sm:flex-none py-3 px-6 text-[11px] uppercase tracking-[0.2em] font-semibold transition-all border-b-2 -mb-px ${
               activeTab === "addresses"
-                ? "border-[#C8A97E] text-[#111111] dark:text-white"
+                ? "border-[var(--color-gold)] text-[#111111] dark:text-white"
                 : "border-transparent text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white"
             }`}
           >
@@ -127,7 +127,7 @@ export const Profile = () => {
         {activeTab === "info" && (
           <>
             {/* Unified Dashboard Card */}
-            <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 shadow-[0_10px_60px_rgba(0,0,0,0.02)] dark:shadow-none flex flex-col md:flex-row overflow-hidden rounded-sm">
+            <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 shadow-[0_10px_60px_rgba(0,0,0,0.02)] dark:shadow-none flex flex-col md:flex-row overflow-hidden rounded-sm">
               
               {/* LEFT COLUMN: Profile & Identity */}
               <div className="w-full md:w-[35%] bg-[#F9F9F9] dark:bg-[#111111] border-r border-[#EDEDED] dark:border-white/8 py-16 flex flex-col items-center justify-center">
@@ -163,7 +163,7 @@ export const Profile = () => {
                   <div className="flex flex-col space-y-3">
                     <label className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#2B2B2B]/30 dark:text-white/30">Nombre</label>
                     <div className={fieldBorder}>
-                      <User className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/15 dark:text-white/15 group-hover:text-[#111111]/30 dark:group-hover:text-white/30 transition-colors" size={18} />
+                      <User className={`absolute top-1/2 -translate-y-1/2 text-[#2B2B2B]/15 dark:text-white/15 group-hover:text-[#111111]/30 dark:group-hover:text-white/30 transition-colors ${isEditing ? 'right-4' : 'right-0'}`} size={18} />
                       <input type="text" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
                         disabled={!isEditing} className={inputClass} />
                     </div>
@@ -174,7 +174,7 @@ export const Profile = () => {
                   <div className="flex flex-col space-y-3">
                     <label className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#2B2B2B]/30 dark:text-white/30">Correo Electrónico</label>
                     <div className={fieldBorder}>
-                      <Mail className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/15 dark:text-white/15 group-hover:text-[#111111]/30 dark:group-hover:text-white/30 transition-colors" size={18} />
+                      <Mail className={`absolute top-1/2 -translate-y-1/2 text-[#2B2B2B]/15 dark:text-white/15 group-hover:text-[#111111]/30 dark:group-hover:text-white/30 transition-colors ${isEditing ? 'right-4' : 'right-0'}`} size={18} />
                       <input type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
                         disabled={!isEditing} className={inputClass} />
                     </div>
@@ -186,7 +186,7 @@ export const Profile = () => {
             </div>
 
             {/* Change Password */}
-            <div className="mt-8 bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 shadow-[0_10px_60px_rgba(0,0,0,0.02)] dark:shadow-none p-10 md:p-16 rounded-sm">
+            <div className="mt-8 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 shadow-[0_10px_60px_rgba(0,0,0,0.02)] dark:shadow-none p-10 md:p-16 rounded-sm">
               <div className="flex items-center justify-between">
                 <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white">Seguridad</h2>
                 <button onClick={() => { setShowPasswordChange(!showPasswordChange); setErrors({}); }}
@@ -235,7 +235,7 @@ export const Profile = () => {
                   </div>
 
                   <button onClick={handleChangePassword} disabled={isSaving}
-                    className="bg-[#111111] dark:bg-white dark:bg-[#161616] text-white dark:text-[#111111] dark:text-white py-4 px-12 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] dark:bg-white/5 transition-all disabled:opacity-50 rounded-sm shadow-md">
+                    className="bg-[#111111] dark:bg-white dark:bg-[var(--bg-surface)] text-white dark:text-[#111111] dark:text-white py-4 px-12 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] dark:bg-white/5 transition-all disabled:opacity-50 rounded-sm shadow-md">
                     {isSaving ? 'Guardando...' : 'Actualizar Contraseña'}
                   </button>
                 </div>

@@ -5,7 +5,7 @@ import { Link } from "react-router";
 
 export const Hero = () => {
   return (
-    <section className="relative h-screen w-full flex items-center justify-center bg-[#EDEDED] dark:bg-[#161616] overflow-hidden">
+    <section className="relative h-screen w-full flex items-center justify-center bg-[#EDEDED] dark:bg-[var(--bg-surface)] overflow-hidden">
 
 
       {/* Content */}

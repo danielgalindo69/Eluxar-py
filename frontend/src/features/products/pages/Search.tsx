@@ -47,7 +47,7 @@ export const Search = () => {
   const suggestions = ['Santal', 'Oud', 'Iris', 'Floral', 'Amaderada', 'Oriental', 'Cítrica'];
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         {/* Search Input */}
         <div className="max-w-2xl mx-auto mb-10">

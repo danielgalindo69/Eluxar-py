@@ -11,7 +11,7 @@ const PAGE_SIZE = 15;
 const statusConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
   'Preparando': { icon: Package, color: 'text-amber-500', bg: 'bg-amber-500/10' },
   'En tránsito': { icon: Truck, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-  'Entregado': { icon: CheckCircle, color: 'text-[#3A4A3F] dark:text-[#C8A97E]', bg: 'bg-[#3A4A3F]/10 dark:bg-[#C8A97E]/10' },
+  'Entregado': { icon: CheckCircle, color: 'text-[#3A4A3F] dark:text-[var(--color-gold)]', bg: 'bg-[#3A4A3F]/10 dark:bg-[var(--color-gold)]/10' },
   'Devuelto': { icon: RotateCcw, color: 'text-red-400', bg: 'bg-red-400/10' },
 };
 
@@ -59,16 +59,16 @@ export const Shipping = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+      <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[var(--color-gold)] transition-colors" size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Buscar por ID, cliente o número de tracking..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             />
             {searchQuery && (
               <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
@@ -81,24 +81,24 @@ export const Shipping = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilter(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             >
-              <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="">Todos los estados</option>
-              <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="Preparando">Preparando</option>
-              <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="En tránsito">En tránsito</option>
-              <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="Entregado">Entregado</option>
-              <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="Devuelto">Devuelto</option>
+              <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="">Todos los estados</option>
+              <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="Preparando">Preparando</option>
+              <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="En tránsito">En tránsito</option>
+              <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="Entregado">Entregado</option>
+              <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="Devuelto">Devuelto</option>
             </select>
           </div>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-8 text-center">
+        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-8 text-center">
           <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando envíos...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8">
+        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8">
           <EmptyStateBlock
             icon={Truck}
             title={searchQuery || filterStatus ? "Sin resultados" : "Sin envíos registrados"}
@@ -116,7 +116,7 @@ export const Shipping = () => {
               const config = statusConfig[s.status] || statusConfig['Preparando'];
               const Icon = config.icon;
               return (
-                <div key={s.id} className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6">
+                <div key={s.id} className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="flex items-start gap-4">
                       <div className={`w-10 h-10 flex items-center justify-center ${config.bg}`}>
@@ -134,7 +134,7 @@ export const Shipping = () => {
                     <div className="flex items-center gap-6 text-sm">
                       <div>
                         <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Tracking</p>
-                        <p className="font-bold text-[#3A4A3F] dark:text-[#C8A97E]">{s.trackingNumber}</p>
+                        <p className="font-bold text-[#3A4A3F] dark:text-[var(--color-gold)]">{s.trackingNumber}</p>
                       </div>
                       <div>
                         <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Transportista</p>
@@ -148,7 +148,7 @@ export const Shipping = () => {
 
                     <select value={s.status}
                       onChange={e => setConfirmAction({ id: s.id, status: e.target.value as Shipment['status'] })}
-                      className="bg-transparent dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 text-[#111111] dark:text-white px-3 py-2 text-[10px] uppercase tracking-widest font-bold outline-none">
+                      className="bg-transparent dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 text-[#111111] dark:text-white px-3 py-2 text-[10px] uppercase tracking-widest font-bold outline-none">
                       <option value="Preparando">Preparando</option>
                       <option value="En tránsito">En tránsito</option>
                       <option value="Entregado">Entregado</option>
@@ -165,8 +165,8 @@ export const Shipping = () => {
                         const isCompleted = i <= currentIdx;
                         return (
                           <div key={step} className="flex-1 flex items-center">
-                            <div className={`w-3 h-3 rounded-full shrink-0 ${isCompleted ? 'bg-[#3A4A3F] dark:bg-[#C8A97E]' : 'bg-[#EDEDED] dark:bg-white/15'}`} />
-                            {i < 2 && <div className={`h-0.5 flex-1 ${i < currentIdx ? 'bg-[#3A4A3F] dark:bg-[#C8A97E]' : 'bg-[#EDEDED] dark:bg-white/10'}`} />}
+                            <div className={`w-3 h-3 rounded-full shrink-0 ${isCompleted ? 'bg-[#3A4A3F] dark:bg-[var(--color-gold)]' : 'bg-[#EDEDED] dark:bg-white/15'}`} />
+                            {i < 2 && <div className={`h-0.5 flex-1 ${i < currentIdx ? 'bg-[#3A4A3F] dark:bg-[var(--color-gold)]' : 'bg-[#EDEDED] dark:bg-white/10'}`} />}
                           </div>
                         );
                       })}
@@ -184,7 +184,7 @@ export const Shipping = () => {
 
           {/* Pagination as standalone block */}
           {totalPages > 1 && (
-            <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8">
+            <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8">
               <AdminPaginator
                 currentPage={currentPage}
                 totalPages={totalPages}

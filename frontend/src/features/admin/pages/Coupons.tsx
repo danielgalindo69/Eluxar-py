@@ -140,7 +140,7 @@ export const Coupons = () => {
 
       {/* Search Bar */}
       {!isLoading && (
-        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
           <SearchBar
             placeholder="Buscar por código, estado o tipo..."
             value={searchQuery}
@@ -151,11 +151,11 @@ export const Coupons = () => {
 
       {isLoading ? (
         <div className="animate-pulse space-y-4">
-          <div className="h-12 bg-[#EDEDED] dark:bg-[#1A1A1A] rounded"></div>
-          <div className="h-12 bg-[#EDEDED] dark:bg-[#1A1A1A] rounded"></div>
+          <div className="h-12 bg-[#EDEDED] dark:bg-[var(--bg-surface)] rounded"></div>
+          <div className="h-12 bg-[#EDEDED] dark:bg-[var(--bg-surface)] rounded"></div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 overflow-hidden">
+        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-[#EDEDED]/50 dark:bg-white/5 border-b border-[#EDEDED] dark:border-white/10">
@@ -249,7 +249,7 @@ export const Coupons = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#111111]/40 backdrop-blur-sm" onClick={handleCloseModal} />
-          <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-lg shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden max-h-[95vh] flex flex-col">
+          <div className="relative bg-white dark:bg-[var(--bg-surface)] w-full max-w-lg shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden max-h-[95vh] flex flex-col">
             
             {/* Header */}
             <div className="bg-[#3A4A3F] p-6 text-white flex items-center justify-between shrink-0">
@@ -271,13 +271,13 @@ export const Coupons = () => {
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Código</label>
                 <div className="relative group">
-                  <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#C8A97E] transition-colors" size={14} />
+                  <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
                   <input
                     type="text"
                     required
                     value={formData.codigo}
                     onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] uppercase placeholder:normal-case"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] uppercase placeholder:normal-case"
                     placeholder="Ej. VERANO20"
                   />
                 </div>
@@ -287,11 +287,11 @@ export const Coupons = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tipo</label>
                   <div className="relative group">
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#C8A97E] transition-colors pointer-events-none" size={14} />
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors pointer-events-none" size={14} />
                     <select
                       value={formData.tipo}
                       onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
-                      className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm pl-4 pr-10 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] appearance-none cursor-pointer"
+                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-4 pr-10 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none cursor-pointer"
                     >
                       <option value="PORCENTAJE">Porcentaje (%)</option>
                       <option value="VALOR_FIJO">Monto Fijo ($)</option>
@@ -308,7 +308,7 @@ export const Coupons = () => {
                     max={formData.tipo === 'PORCENTAJE' ? '100' : undefined}
                     value={formData.descuento}
                     onChange={(e) => setFormData({ ...formData, descuento: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
               </div>
@@ -320,7 +320,7 @@ export const Coupons = () => {
                   min="0"
                   value={formData.montoMinimo || ''}
                   onChange={(e) => setFormData({ ...formData, montoMinimo: Number(e.target.value) })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   placeholder="0 para sin mínimo"
                 />
               </div>
@@ -333,7 +333,7 @@ export const Coupons = () => {
                     min="1"
                     value={formData.limiteUsos || ''}
                     onChange={(e) => setFormData({ ...formData, limiteUsos: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                     placeholder="En blanco = Ilimitado"
                   />
                 </div>
@@ -343,7 +343,7 @@ export const Coupons = () => {
                     type="datetime-local"
                     value={formData.fechaExpiracion as string}
                     onChange={(e) => setFormData({ ...formData, fechaExpiracion: e.target.value })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
               </div>
@@ -353,7 +353,7 @@ export const Coupons = () => {
                   type="checkbox"
                   checked={formData.activo}
                   onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A97E]"
+                  className="w-4 h-4 accent-[var(--color-gold)]"
                 />
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Cupón Activo</span>
               </label>
@@ -363,13 +363,13 @@ export const Coupons = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[#1E1E1E] transition-all text-[#111111] dark:text-white"
+                  className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-[2] bg-[#C8A97E] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-2"
+                  className="flex-[2] bg-[var(--color-gold)] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-2"
                 >
                   <Ticket size={16} />
                   <span>{editingId ? "Actualizar Cupón" : "Crear Cupón"}</span>

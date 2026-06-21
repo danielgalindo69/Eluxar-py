@@ -118,7 +118,7 @@ export const FragranceTest = () => {
   /* ── IDLE ─────────────────────────────────────────────────────── */
   if (phase === "idle") {
     return (
-      <main className="pt-32 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6 flex items-center justify-center">
+      <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -131,8 +131,8 @@ export const FragranceTest = () => {
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#3A4A3F] to-[#1a2a1f] flex items-center justify-center shadow-2xl shadow-[#3A4A3F]/30">
                 <Sparkles size={36} className="text-white" />
               </div>
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-400 animate-ping opacity-60" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-400" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#A5BAA8] animate-ping opacity-60" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#A5BAA8]" />
             </div>
           </div>
 
@@ -141,7 +141,7 @@ export const FragranceTest = () => {
           </h1>
           <p className="text-sm font-light text-[#2B2B2B] dark:text-white/50 leading-relaxed mb-3">
             Responde{" "}
-            <span className="font-semibold text-[#3A4A3F] dark:text-emerald-400">
+            <span className="font-semibold text-[#3A4A3F] dark:text-[#A5BAA8]">
               7 preguntas
             </span>{" "}
             sobre tus preferencias y nuestra IA analizará el catálogo para
@@ -207,7 +207,7 @@ export const FragranceTest = () => {
   if (phase === "loading") {
     const isAnalyzing = state && state.step > state.totalSteps;
     return (
-      <main className="pt-32 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6 flex items-center justify-center">
+      <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -216,7 +216,7 @@ export const FragranceTest = () => {
           <div className="flex justify-center mb-8">
             <Loader2
               size={40}
-              className="text-[#3A4A3F] dark:text-emerald-400 animate-spin"
+              className="text-[#3A4A3F] dark:text-[#A5BAA8] animate-spin"
             />
           </div>
           <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/40">
@@ -238,7 +238,7 @@ export const FragranceTest = () => {
   if (phase === "question" && state) {
     const questionNumber = state.step - 1;
     return (
-      <main className="pt-28 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6">
+      <main className="pt-28 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-10">
@@ -258,13 +258,13 @@ export const FragranceTest = () => {
               <span className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/30">
                 Pregunta {questionNumber} de {state.totalSteps}
               </span>
-              <span className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-emerald-400">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-[#A5BAA8]">
                 {Math.round(progress)}%
               </span>
             </div>
             <div className="h-0.5 bg-[#EDEDED] dark:bg-white/5 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-[#3A4A3F] to-emerald-500"
+                className="h-full bg-gradient-to-r from-[#3A4A3F] to-[#3A4A3F]"
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               />
@@ -299,7 +299,7 @@ export const FragranceTest = () => {
                         ${
                           isSelected
                             ? "bg-[#3A4A3F] border-2 border-[#3A4A3F]"
-                            : "bg-transparent border-2 border-[#EDEDED] dark:border-white/8 hover:border-[#3A4A3F]/50 dark:hover:border-emerald-500/40 hover:bg-[#3A4A3F]/5 dark:hover:bg-emerald-500/5"
+                            : "bg-transparent border-2 border-[#EDEDED] dark:border-white/8 hover:border-[#3A4A3F]/50 dark:hover:border-[#3A4A3F]/40 hover:bg-[#3A4A3F]/5 dark:hover:bg-[#3A4A3F]/5"
                         }
                         disabled:cursor-wait`}
                     >
@@ -356,7 +356,7 @@ export const FragranceTest = () => {
   /* ── RESULT ───────────────────────────────────────────────────── */
   if (phase === "result" && state) {
     return (
-      <main className="pt-28 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6">
+      <main className="pt-28 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -378,7 +378,7 @@ export const FragranceTest = () => {
               <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight mb-2">
                 Tu Fragancia Ideal
               </h1>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-emerald-400">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-[#A5BAA8]">
                 Recomendación personalizada por IA
               </p>
             </div>
@@ -388,7 +388,7 @@ export const FragranceTest = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.5 }}
-              className="relative bg-gradient-to-br from-[#1a2a1f] to-[#111111] dark:from-[#1a2a1f] dark:to-[#0a0a0a] p-8 mb-6 overflow-hidden"
+              className="relative bg-gradient-to-br from-[#1a2a1f] to-[#111111] dark:from-[#1a2a1f] dark:to-[var(--bg-base)] p-8 mb-6 overflow-hidden"
             >
               {/* Decorative glow */}
               <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#3A4A3F]/20 blur-3xl pointer-events-none" />
@@ -425,7 +425,7 @@ export const FragranceTest = () => {
                       key={i}
                       className="flex items-start gap-3 p-3 border border-[#EDEDED] dark:border-white/5"
                     >
-                      <span className="text-[9px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-emerald-400 shrink-0 mt-0.5 w-4">
+                      <span className="text-[9px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-[#A5BAA8] shrink-0 mt-0.5 w-4">
                         {i + 1}
                       </span>
                       <div>

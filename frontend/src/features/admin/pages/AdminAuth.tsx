@@ -31,8 +31,8 @@ export const AdminAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDEDED] dark:bg-[#0f0f13] flex items-center justify-center px-4 py-20 transition-colors">
-      <div className="max-w-md w-full bg-white dark:bg-[#13131a] shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden transition-colors">
+    <div className="min-h-screen bg-[#EDEDED] dark:bg-[var(--bg-base)] flex items-center justify-center px-4 py-20 transition-colors">
+      <div className="max-w-md w-full bg-white dark:bg-[var(--bg-surface)] shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden transition-colors">
         {/* Header */}
         <div className="bg-[#3A4A3F] p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 -mr-12 -mt-12 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
@@ -53,7 +53,7 @@ export const AdminAuth = () => {
             <div className="space-y-2">
               <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Email Corporativo</label>
               <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 dark:text-white/30 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={14} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 dark:text-white/30 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
                 <input 
                   type="email" 
                   name="email"
@@ -61,7 +61,7 @@ export const AdminAuth = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="admin@eluxar.com"
-                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/25 focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none transition-all"
+                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/25 focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[var(--color-gold)] outline-none transition-all"
                 />
               </div>
             </div>
@@ -69,7 +69,7 @@ export const AdminAuth = () => {
             <div className="space-y-2">
               <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Contraseña</label>
               <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 dark:text-white/30 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={14} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 dark:text-white/30 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
                 <input 
                   type="password" 
                   name="password"
@@ -77,7 +77,7 @@ export const AdminAuth = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/25 focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[#C8A97E] outline-none transition-all"
+                  className="w-full bg-[#EDEDED]/50 dark:bg-[#111111] dark:text-white border border-transparent dark:border-white/10 px-10 py-3 text-xs placeholder:text-[#2B2B2B]/20 dark:placeholder:text-white/25 focus:ring-1 focus:ring-[#3A4A3F] dark:focus:ring-[var(--color-gold)] outline-none transition-all"
                 />
               </div>
             </div>
@@ -85,7 +85,7 @@ export const AdminAuth = () => {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#111111] dark:bg-[#C8A97E] text-white dark:text-[#111111] py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-[var(--color-gold)] text-[#111111] py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isLoading ? (
                 <Loader2 className="animate-spin" size={16} />

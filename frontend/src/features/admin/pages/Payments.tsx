@@ -14,7 +14,7 @@ const statusColors: Record<string, string> = {
   'Rechazado': 'text-red-400 bg-red-400/10',
 };
 
-const tableWrap = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
+const tableWrap = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8";
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
 
 export const Payments = () => {
@@ -61,16 +61,16 @@ export const Payments = () => {
 
 
       {/* Filters */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+      <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[var(--color-gold)] transition-colors" size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Buscar por ID de pago o cliente..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             />
             {searchQuery && (
               <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
@@ -83,7 +83,7 @@ export const Payments = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilter(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             >
               <option value="">Todos los estados</option>
               <option value="Pendiente">Pendiente</option>
@@ -123,7 +123,7 @@ export const Payments = () => {
                     <td className="px-6 py-4">
                       <select value={p.status}
                         onChange={e => setConfirmAction({ id: p.id, status: e.target.value as Payment['status'] })}
-                        className="bg-transparent dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 text-[#111111] dark:text-white px-2 py-1 text-[10px] uppercase tracking-widest font-bold outline-none">
+                        className="bg-transparent dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 text-[#111111] dark:text-white px-2 py-1 text-[10px] uppercase tracking-widest font-bold outline-none">
                         <option value="Pendiente">Pendiente</option>
                         <option value="Confirmado">Confirmado</option>
                         <option value="Rechazado">Rechazado</option>

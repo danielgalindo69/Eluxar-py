@@ -44,7 +44,7 @@ export const Register = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#161616] flex items-center justify-center px-6 pt-32 pb-24">
+    <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6 pt-32 pb-24">
       <div className="max-w-md w-full space-y-12">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight uppercase tracking-[0.3em]">Crear Cuenta</h1>

@@ -38,7 +38,7 @@ export const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-[#0F0F0F] z-[101] shadow-2xl flex flex-col border-l border-[#EDEDED] dark:border-white/10"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-[var(--bg-base)] z-[101] shadow-2xl flex flex-col border-l border-[#EDEDED] dark:border-white/10"
           >
             {/* Header */}
             <div className="flex flex-col border-b border-[#EDEDED] dark:border-white/10">
@@ -119,7 +119,7 @@ export const CartDrawer = () => {
                         transition={{ duration: 0.2 }}
                         className="flex gap-4 group"
                       >
-                        <Link to={`/product/${item.productId}`} onClick={closeDrawer} className="w-24 h-24 bg-[#F5F5F5] dark:bg-[#1A1A1A] shrink-0 overflow-hidden relative">
+                        <Link to={`/product/${item.productId}`} onClick={closeDrawer} className="w-24 h-24 bg-[#F5F5F5] dark:bg-[var(--bg-surface)] shrink-0 overflow-hidden relative">
                           <ImageWithFallback 
                             src={item.image} 
                             alt={item.name} 
@@ -137,7 +137,7 @@ export const CartDrawer = () => {
                               </Link>
                               <button 
                                 onClick={() => removeItem(item.productId, item.volume)}
-                                className="text-[#2B2B2B]/40 dark:text-white/40 hover:text-red-500 transition-colors shrink-0"
+                                className="text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#E07A6B] transition-colors duration-200 cursor-pointer shrink-0"
                               >
                                 <Trash2 size={14} />
                               </button>

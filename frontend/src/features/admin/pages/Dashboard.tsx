@@ -8,7 +8,7 @@ import { adminDashboardAPI, formatPrice } from "../../../core/api/api";
 
 // ─── Skeleton Card ────────────────────────────────────────────
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6 animate-pulse">
+  <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6 animate-pulse">
     <div className="flex items-start justify-between mb-4">
       <div className="w-9 h-9 rounded-full bg-[#F5F5F5] dark:bg-white/5" />
       <div className="w-16 h-5 bg-[#F5F5F5] dark:bg-white/5 rounded-sm" />
@@ -19,7 +19,7 @@ const SkeletonCard = () => (
 );
 
 const SkeletonChart = ({ height = 300 }: { height?: number }) => (
-  <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6 animate-pulse">
+  <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6 animate-pulse">
     <div className="h-4 w-40 bg-[#F5F5F5] dark:bg-white/5 rounded-sm mb-6" />
     <div className={`w-full bg-[#F5F5F5] dark:bg-white/5 rounded-sm`} style={{ height }} />
   </div>
@@ -29,7 +29,7 @@ const SkeletonChart = ({ height = 300 }: { height?: number }) => (
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#111111] dark:bg-[#1A1A1A] border border-white/10 px-4 py-3 text-white text-xs">
+      <div className="bg-[#111111] dark:bg-[var(--bg-surface)] border border-white/10 px-4 py-3 text-white text-xs">
         <p className="uppercase tracking-widest text-white/50 mb-1">{label}</p>
         <p className="font-bold">{typeof payload[0].value === 'number' && payload[0].value > 999
           ? `$${formatPrice(payload[0].value)} COP`
@@ -57,7 +57,7 @@ export const Dashboard = () => {
       label: "Ingresos Totales",
       value: `$${formatPrice(metrics.ingresosTotales)} COP`,
       icon: DollarSign,
-      color: "text-emerald-600 dark:text-emerald-400",
+      color: "text-emerald-600 dark:text-[#A5BAA8]",
       bg: "bg-emerald-50 dark:bg-emerald-900/20",
     },
     {
@@ -111,7 +111,7 @@ export const Dashboard = () => {
               return (
                 <div
                   key={stat.label}
-                  className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6 hover:border-[#111111]/20 dark:hover:border-white/20 transition-colors"
+                  className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6 hover:border-[#111111]/20 dark:hover:border-white/20 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-5">
                     <div className={`p-2 rounded-full ${stat.bg}`}>
@@ -137,7 +137,7 @@ export const Dashboard = () => {
         {isLoading ? (
           <SkeletonChart height={280} />
         ) : (
-          <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6">
+          <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6">
             <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white flex items-center gap-2 mb-6">
               <BarChart3 size={15} /> Volumen de Ventas Mensuales
             </h2>
@@ -173,7 +173,7 @@ export const Dashboard = () => {
         {isLoading ? (
           <SkeletonChart height={280} />
         ) : (
-          <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6">
+          <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6">
             <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white flex items-center gap-2 mb-6">
               <Package size={15} /> Top 5 Productos Más Vendidos
             </h2>

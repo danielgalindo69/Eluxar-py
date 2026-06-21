@@ -77,7 +77,7 @@ export const ProductDetail = () => {
   };
 
   if (isLoading) return (
-    <main className="pt-24 pb-24 bg-white dark:bg-[#161616] min-h-screen">
+    <main className="pt-24 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between py-8 animate-pulse">
           <div className="h-4 bg-[#F5F5F5] dark:bg-white/5 w-40 rounded-sm"></div>
@@ -123,7 +123,7 @@ export const ProductDetail = () => {
   );
 
   return (
-    <main className="pt-24 pb-24 bg-white dark:bg-[#161616] min-h-screen">
+    <main className="pt-24 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         {/* Breadcrumbs & Back */}
         <div className="flex items-center justify-between py-8">

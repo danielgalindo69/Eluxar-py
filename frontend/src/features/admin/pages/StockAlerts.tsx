@@ -67,7 +67,7 @@ export const StockAlerts = () => {
       </div>
 
       {!isLoading && alerts.length > 0 && (
-        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
           <SearchBar
             placeholder="Buscar por producto, SKU o nivel de alerta..."
             value={searchQuery}
@@ -79,20 +79,20 @@ export const StockAlerts = () => {
       {isLoading ? (
         <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando alertas...</p>
       ) : alerts.length === 0 ? (
-        <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
+        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
           <AlertCircle size={48} className="mx-auto text-[#3A4A3F] mb-4" />
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40">No hay alertas de stock activas. ¡Todo en orden!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredAlerts.length === 0 ? (
-            <div className="col-span-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
+            <div className="col-span-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
               <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/30 font-bold">
                 No se encontraron resultados para &ldquo;{searchQuery}&rdquo;
               </p>
             </div>
           ) : filteredAlerts.map(alert => (
-            <div key={alert.varianteId} className={`bg-white dark:bg-[#161616] border p-6 space-y-4 ${alert.severity === 'critical' ? 'border-red-400/50' : 'border-amber-400/50'}`}>
+            <div key={alert.varianteId} className={`bg-white dark:bg-[var(--bg-surface)] border p-6 space-y-4 ${alert.severity === 'critical' ? 'border-red-400/50' : 'border-amber-400/50'}`}>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   {alert.severity === 'critical' ? (

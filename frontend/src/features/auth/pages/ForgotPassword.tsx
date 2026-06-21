@@ -67,7 +67,7 @@ export const ForgotPassword = () => {
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#161616] flex items-center justify-center px-6 pt-32 pb-24">
+    <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6 pt-32 pb-24">
       <div className="max-w-md w-full space-y-12">
         <AnimatePresence mode="wait">
           

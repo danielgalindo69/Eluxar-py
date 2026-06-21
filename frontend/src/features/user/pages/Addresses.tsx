@@ -118,28 +118,31 @@ export const Addresses = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {addresses.map(addr => (
-              <div key={addr.id} className={`bg-[#EDEDED] dark:bg-white/5 p-8 relative group transition-all ${addr.isDefault ? 'ring-2 ring-[#3A4A3F]' : ''}`}>
+              <div key={addr.id} className={`bg-white dark:bg-[var(--bg-surface)] p-8 relative group transition-all border border-black/5 dark:border-white/10 rounded-sm hover:border-black/20 dark:hover:border-white/20 shadow-sm hover:shadow-md ${addr.isDefault ? 'ring-1 ring-[#3A4A3F] dark:ring-[var(--color-gold)]' : ''}`}>
                 {addr.isDefault && (
-                  <span className="absolute top-4 right-4 text-[11px] uppercase tracking-[0.2em] font-semibold text-[#3A4A3F] flex items-center gap-1">
-                    <Star size={12} fill="currentColor" /> Predeterminada
+                  <span className="absolute top-4 right-4 text-[9px] uppercase tracking-[0.2em] font-semibold bg-[#3A4A3F] dark:bg-[var(--color-gold)] text-white dark:text-[#111111] px-2.5 py-1 rounded-sm shadow-sm flex items-center gap-1">
+                    <Star size={10} fill="currentColor" /> Predeterminada
                   </span>
                 )}
-                <h3 className="text-sm font-bold uppercase tracking-widest mb-4">{addr.label}</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-5 flex items-center gap-2">
+                  <MapPin size={16} className="text-[#3A4A3F] dark:text-[var(--color-gold)]" />
+                  {addr.label}
+                </h3>
                 <div className="text-sm text-[#2B2B2B]/60 dark:text-white/60 font-light space-y-1">
                   <p>{addr.street}</p>
                   <p>{addr.city}, {addr.state} {addr.zip}</p>
                   <p>{addr.country}</p>
                 </div>
                 <div className="flex gap-4 mt-6 pt-4 border-t border-[#2B2B2B]/10">
-                  <button onClick={() => openEdit(addr)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white flex items-center gap-1">
+                  <button onClick={() => openEdit(addr)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white transition-colors flex items-center gap-1">
                     <Pencil size={12} /> Editar
                   </button>
                   {!addr.isDefault && (
-                    <button onClick={() => handleSetDefault(addr.id)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#3A4A3F] flex items-center gap-1">
+                    <button onClick={() => handleSetDefault(addr.id)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#3A4A3F] dark:hover:text-[var(--color-gold)] transition-colors flex items-center gap-1">
                       <Star size={12} /> Predeterminar
                     </button>
                   )}
-                  <button onClick={() => setDeleteId(addr.id)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 hover:text-red-500 flex items-center gap-1">
+                  <button onClick={() => setDeleteId(addr.id)} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1">
                     <Trash2 size={12} /> Eliminar
                   </button>
                 </div>
@@ -161,7 +164,7 @@ export const Addresses = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 40 }}
-                className="bg-white dark:bg-[#161616] w-full max-w-lg relative max-h-[90vh] overflow-y-auto rounded-sm border border-[#EDEDED] dark:border-white/10 shadow-2xl"
+                className="bg-white dark:bg-[var(--bg-surface)] w-full max-w-lg relative max-h-[90vh] overflow-y-auto rounded-sm border border-[#EDEDED] dark:border-white/10 shadow-2xl"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-[#EDEDED] dark:border-white/10">
@@ -193,14 +196,14 @@ export const Addresses = () => {
                           }}
                           placeholder={field.placeholder}
                           className={`
-                            bg-[#F5F5F5] dark:bg-[#1E1E1E] 
+                            bg-[#F5F5F5] dark:bg-[var(--bg-surface)] 
                             border rounded-sm px-4 py-3
                             text-sm font-medium text-[#111111] dark:text-white
                             placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30
                             outline-none transition-all
                             ${errors[field.key]
                               ? 'border-red-500 dark:border-red-500'
-                              : 'border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]'
+                              : 'border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]'
                             }
                           `}
                         />
@@ -214,7 +217,7 @@ export const Addresses = () => {
                   {/* Save Button */}
                   <button
                     onClick={handleSave}
-                    className="w-full mt-2 bg-[#C8A97E] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm"
+                    className="w-full mt-2 bg-[var(--color-gold)] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm"
                   >
                     {editingId ? 'Actualizar Dirección' : 'Guardar Dirección'}
                   </button>

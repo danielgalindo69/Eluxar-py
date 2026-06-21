@@ -33,7 +33,7 @@ export const ConfirmDialog: React.FC<Props> = ({
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-white dark:bg-[#161616] border-[#EDEDED] dark:border-white/10 max-w-md shadow-2xl">
+      <AlertDialogContent className="bg-white dark:bg-[var(--bg-surface)] border-[#EDEDED] dark:border-white/10 max-w-md shadow-2xl">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-lg font-light text-[#111111] dark:text-white tracking-tight">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-sm text-[#2B2B2B]/60 dark:text-white/60 font-light">{description}</AlertDialogDescription>
