@@ -48,7 +48,7 @@ export const AdminLayout = () => {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-[#111111] border-b border-[#EDEDED] dark:border-white/10 z-50 flex items-center justify-between p-4">
         <Link to="/" className="text-lg font-light tracking-[0.3em] uppercase text-[#111111] dark:text-white">Eluxar</Link>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-[#2B2B2B]">
+        <button aria-label={isSidebarOpen ? "Cerrar menú" : "Abrir menú"} onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-[#2B2B2B]">
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -67,7 +67,7 @@ export const AdminLayout = () => {
               <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40 mt-2">Panel Admin</p>
             </div>
           )}
-          <button onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)} className="text-[#2B2B2B] hover:text-[#111111] transition-colors">
+          <button aria-label={isDesktopCollapsed ? "Expandir menú" : "Colapsar menú"} onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)} className="text-[#2B2B2B] hover:text-[#111111] transition-colors">
             <Menu size={20} />
           </button>
         </div>

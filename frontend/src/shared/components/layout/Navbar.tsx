@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon, Search } from "lucide-react";
+import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { SearchBar } from "../../../features/products/components/SearchBar";
 import { motion, AnimatePresence } from "motion/react";
@@ -48,7 +48,7 @@ export const Navbar = () => {
     >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Mobile Menu Button */}
-          <button className="lg:hidden text-[#2B2B2B] dark:text-[#EDEDED]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"} className="lg:hidden text-[#2B2B2B] dark:text-[#EDEDED]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
@@ -79,7 +79,7 @@ export const Navbar = () => {
             <button
               onClick={() => setTheme(isDark ? "light" : "dark")}
               className="hidden sm:block text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity"
-              aria-label="Cambiar tema"
+              aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
               {isDark ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
             </button>
@@ -139,7 +139,7 @@ export const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            <button onClick={openDrawer} className="text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity relative focus:outline-none">
+            <button onClick={openDrawer} aria-label="Abrir bolsa de compra" className="text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity relative focus-visible:outline-none">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-[#3A4A3F] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
@@ -166,7 +166,7 @@ export const Navbar = () => {
                 {/* SearchBar mobile */}
                 <div className="pt-2 pb-1"><SearchBar /></div>
                 <Link to="/chat" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Chat IA</Link>
-                <button onClick={() => { openDrawer(); setIsMenuOpen(false); }} className="text-left text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest focus:outline-none">Bolsa ({itemCount})</button>
+                <button onClick={() => { openDrawer(); setIsMenuOpen(false); }} aria-label="Abrir bolsa de compra" className="text-left text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest focus-visible:outline-none">Bolsa ({itemCount})</button>
                 <button
                   onClick={() => setTheme(isDark ? "light" : "dark")}
                   className="flex items-center gap-2 text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest"

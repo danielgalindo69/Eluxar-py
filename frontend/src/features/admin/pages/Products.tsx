@@ -360,6 +360,16 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (formData.nombre.trim().length < 3) {
+      toast.error("El nombre debe tener al menos 3 caracteres");
+      return;
+    }
+
+    if (formData.precio <= 0) {
+      toast.error("El precio debe ser mayor a 0");
+      return;
+    }
+
     if (filledSlots.length === 0) {
       toast.error("Agrega al menos una imagen al producto");
       return;

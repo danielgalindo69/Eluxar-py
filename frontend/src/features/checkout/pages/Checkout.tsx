@@ -7,14 +7,13 @@ import { useCart } from "../../cart/context/CartContext";
 import { useAuth } from "../../auth/context/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
-import { paymentService } from "../services/paymentService";
 import { MercadoPagoBrick } from "../components/MercadoPagoBrick";
 import { useQueryClient } from "@tanstack/react-query";
 
 type Step = 1 | 2 | 3;
 
 const INPUT_CLS = "w-full bg-[#EDEDED] dark:bg-[var(--bg-surface)] border-none outline-none px-4 py-3.5 text-sm font-medium dark:text-white focus:ring-1 focus:ring-[#3A4A3F] transition-all placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20";
-const LABEL_CLS = "block text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/40 mb-2";
+const LABEL_CLS = "block text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-2";
 
 export const Checkout = () => {
   const { items, subtotal, clearCart } = useCart();
@@ -143,7 +142,7 @@ export const Checkout = () => {
         <div className="flex-1 space-y-14">
 
           {/* Breadcrumb */}
-          <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/40 dark:text-white/40">
+          <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">
             <Link to="/cart" className="hover:text-[#111111] dark:hover:text-white transition-colors">Bolsa</Link>
             <ChevronRight size={10} strokeWidth={3} />
             <span className={step >= 1 ? "text-[#111111] dark:text-white" : ""}>Información</span>
@@ -161,27 +160,27 @@ export const Checkout = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className={LABEL_CLS}>Nombres *</label>
-                    <input name="firstName" value={formData.firstName} onChange={handleChange} className={INPUT_CLS} placeholder="Juan" />
+                    <label htmlFor="firstName" className={LABEL_CLS}>Nombres *</label>
+                    <input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} className={INPUT_CLS} placeholder="Juan" />
                   </div>
                   <div>
-                    <label className={LABEL_CLS}>Apellidos *</label>
-                    <input name="lastName" value={formData.lastName} onChange={handleChange} className={INPUT_CLS} placeholder="García" />
+                    <label htmlFor="lastName" className={LABEL_CLS}>Apellidos *</label>
+                    <input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} className={INPUT_CLS} placeholder="García" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className={LABEL_CLS}>Correo Electrónico * <span className="normal-case tracking-normal font-normal opacity-60">(recibirás tu factura aquí)</span></label>
-                    <input name="email" value={formData.email} onChange={handleChange} type="email" className={INPUT_CLS} placeholder="juan@correo.com" />
+                    <label htmlFor="email" className={LABEL_CLS}>Correo Electrónico * <span className="normal-case tracking-normal font-normal opacity-60">(recibirás tu factura aquí)</span></label>
+                    <input id="email" name="email" value={formData.email} onChange={handleChange} type="email" className={INPUT_CLS} placeholder="juan@correo.com" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className={LABEL_CLS}>Teléfono</label>
-                    <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className={INPUT_CLS} placeholder="+57 300 000 0000" />
+                    <label htmlFor="phone" className={LABEL_CLS}>Teléfono</label>
+                    <input id="phone" name="phone" value={formData.phone} onChange={handleChange} type="tel" className={INPUT_CLS} placeholder="+57 300 000 0000" />
                   </div>
                 </div>
 
                 {/* Coupon */}
                 <div className="bg-[#EDEDED]/50 dark:bg-white/5 p-6 space-y-4">
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 flex items-center gap-2">
-                    <Tag size={12} /> Código de Descuento
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 flex items-center gap-2">
+                    <label htmlFor="couponCode" className="flex items-center gap-2 cursor-pointer"><Tag size={12} /> Código de Descuento</label>
                   </p>
                   {coupon ? (
                     <div className="flex items-center gap-3">
@@ -190,11 +189,11 @@ export const Checkout = () => {
                       <span className="text-sm text-[#3A4A3F] font-bold">
                         — {coupon.tipo === 'PORCENTAJE' ? `${coupon.descuento}% OFF` : `$${formatPrice(coupon.descuento)} COP OFF`}
                       </span>
-                      <button onClick={() => { setCoupon(null); setCouponCode(''); }} className="ml-auto text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 hover:text-red-500 transition-colors">Quitar</button>
+                      <button onClick={() => { setCoupon(null); setCouponCode(''); }} className="ml-auto text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60 hover:text-red-500 transition-colors">Quitar</button>
                     </div>
                   ) : (
                     <div className="flex gap-3">
-                      <input
+                      <input id="couponCode"
                         value={couponCode} onChange={e => setCouponCode(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleValidateCoupon()}
                         className={INPUT_CLS + " flex-1"} placeholder="ELUXAR20" />
@@ -211,10 +210,12 @@ export const Checkout = () => {
                     ← Volver al Carrito
                   </Link>
                   <button onClick={() => {
-                    if (!formData.firstName || !formData.email) { toast.error('Completa tu nombre y correo'); return; }
+                    if (!formData.firstName || !formData.lastName || !formData.email) { toast.error('Completa tu nombre, apellido y correo'); return; }
                     setStep(2);
-                  }} className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all">
-                    Continuar →
+                  }} 
+                  disabled={isSubmitting || isCreatingPreference}
+                  className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isSubmitting ? 'Procesando...' : 'Continuar →'}
                   </button>
                 </div>
               </motion.div>
@@ -252,29 +253,29 @@ export const Checkout = () => {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
                       className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden">
                       <div className="md:col-span-2">
-                        <label className={LABEL_CLS}>Dirección (Calle y Número) *</label>
-                        <input name="address" value={formData.address} onChange={handleChange} className={INPUT_CLS} placeholder="Calle 80 # 12-34" />
+                        <label htmlFor="address" className={LABEL_CLS}>Dirección (Calle y Número) *</label>
+                        <input id="address" name="address" value={formData.address} onChange={handleChange} className={INPUT_CLS} placeholder="Calle 80 # 12-34" />
                       </div>
                       <div>
-                        <label className={LABEL_CLS}>Barrio *</label>
-                        <input name="barrio" value={formData.barrio} onChange={handleChange} className={INPUT_CLS} placeholder="El Poblado" />
+                        <label htmlFor="barrio" className={LABEL_CLS}>Barrio *</label>
+                        <input id="barrio" name="barrio" value={formData.barrio} onChange={handleChange} className={INPUT_CLS} placeholder="El Poblado" />
                       </div>
                       <div>
-                        <label className={LABEL_CLS}>Ciudad *</label>
-                        <input name="city" value={formData.city} onChange={handleChange} className={INPUT_CLS} placeholder="Medellín" />
+                        <label htmlFor="city" className={LABEL_CLS}>Ciudad *</label>
+                        <input id="city" name="city" value={formData.city} onChange={handleChange} className={INPUT_CLS} placeholder="Medellín" />
                       </div>
                       <div>
-                        <label className={LABEL_CLS}>Departamento</label>
-                        <input name="department" value={formData.department} onChange={handleChange} className={INPUT_CLS} placeholder="Antioquia" />
+                        <label htmlFor="department" className={LABEL_CLS}>Departamento</label>
+                        <input id="department" name="department" value={formData.department} onChange={handleChange} className={INPUT_CLS} placeholder="Antioquia" />
                       </div>
                       <div>
-                        <label className={LABEL_CLS}>Código Postal</label>
-                        <input name="zip" value={formData.zip} onChange={handleChange} className={INPUT_CLS} placeholder="050001" />
+                        <label htmlFor="zip" className={LABEL_CLS}>Código Postal</label>
+                        <input id="zip" name="zip" value={formData.zip} onChange={handleChange} className={INPUT_CLS} placeholder="050001" />
                       </div>
                       <div className="md:col-span-2">
-                        <label className={LABEL_CLS}>País</label>
+                        <label htmlFor="country" className={LABEL_CLS}>País</label>
                         <div className="relative">
-                          <select name="country" value={formData.country} onChange={handleChange}
+                          <select id="country" name="country" value={formData.country} onChange={handleChange}
                             className={INPUT_CLS + " appearance-none cursor-pointer"}>
                             <option value="Colombia">Colombia</option>
                           </select>
@@ -286,15 +287,17 @@ export const Checkout = () => {
                 </AnimatePresence>
 
                 <div className="flex items-center justify-between pt-6 border-t border-[#EDEDED] dark:border-white/8">
-                  <button onClick={() => setStep(1)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
+                  <button onClick={() => setStep(1)} disabled={isSubmitting || isCreatingPreference} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors disabled:opacity-50">
                     ← Anterior
                   </button>
                   <button onClick={() => {
                     const addr = getShippingAddress();
                     if (!addr.direccion || !addr.ciudad) { toast.error('Completa la dirección y ciudad'); return; }
                     setStep(3);
-                  }} className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all">
-                    Continuar al Pago →
+                  }} 
+                  disabled={isSubmitting || isCreatingPreference}
+                  className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isSubmitting ? 'Procesando...' : 'Continuar al Pago →'}
                   </button>
                 </div>
               </motion.div>
@@ -369,7 +372,7 @@ export const Checkout = () => {
                 )}
 
                 <div className="pt-4">
-                  <button onClick={() => setStep(2)} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
+                  <button onClick={() => setStep(2)} disabled={isSubmitting || isCreatingPreference} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors disabled:opacity-50">
                     ← Volver a Dirección
                   </button>
                 </div>

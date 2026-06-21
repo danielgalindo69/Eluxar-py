@@ -13,6 +13,14 @@ export const AdminAuth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      toast.error('Formato de email inválido');
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -74,6 +82,7 @@ export const AdminAuth = () => {
                   type="password" 
                   name="password"
                   required
+                  minLength={6}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
