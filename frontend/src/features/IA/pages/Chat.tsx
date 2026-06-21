@@ -53,16 +53,16 @@ export const Chat = () => {
   const quickActions = ['Perfumes para hombre', 'Perfumes para mujer', 'Quiero un regalo', 'Larga duración'];
 
   return (
-    <main className="pt-24 bg-gradient-to-b from-white to-gray-50 dark:from-[#0A0A0A] dark:to-[#121212] min-h-screen flex flex-col font-sans">
+    <main className="pt-24 bg-white dark:bg-[var(--bg-base)] min-h-screen flex flex-col font-sans">
       <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col px-4 sm:px-6 relative">
         {/* Header */}
-        <div className="py-6 border-b border-gray-200 dark:border-white/10 flex items-center justify-between -mx-4 px-4 sm:-mx-6 sm:px-6">
+        <div className="py-6 border-b border-[#EDEDED] dark:border-white/10 flex items-center justify-between -mx-4 px-4 sm:-mx-6 sm:px-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#3A4A3F] to-[#2C3830] shadow-lg flex items-center justify-center">
               <Sparkles size={20} className="text-[#E8EFEA]" />
             </div>
             <div>
-              <h1 className="text-xl font-medium text-gray-900 dark:text-white tracking-tight">Asistente Eluxar</h1>
+              <h1 className="text-xl font-medium text-[#111111] dark:text-white dark:text-white tracking-tight">Asistente Eluxar</h1>
               <p className="text-xs uppercase tracking-widest text-[#3A4A3F] dark:text-[#A3B5AA] font-semibold mt-1">Asesoría de fragancias IA</p>
             </div>
           </div>
@@ -84,7 +84,7 @@ export const Chat = () => {
                   <div className={`p-5 shadow-sm text-[15px] leading-relaxed ${
                     msg.role === 'user' 
                       ? 'bg-[#111111] dark:bg-[#2A352D] text-white rounded-2xl rounded-tr-sm' 
-                      : 'bg-white dark:bg-[#1A1A1A] border border-gray-100 dark:border-white/5 rounded-2xl rounded-tl-sm text-gray-800 dark:text-gray-200'
+                      : 'bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED]/50 dark:border-white/5 dark:border-white/5 rounded-2xl rounded-tl-sm text-[#111111] dark:text-[#EDEDED] dark:text-gray-200'
                   }`}>
                     <div className="whitespace-pre-wrap">
                       {msg.text.split(/(\*\*.*?\*\*)/g).map((part, i) => 
@@ -94,7 +94,7 @@ export const Chat = () => {
                       )}
                     </div>
                   </div>
-                  <span className={`text-[10px] mt-2 font-medium tracking-wider ${msg.role === 'user' ? 'text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                  <span className={`text-[10px] mt-2 font-medium tracking-wider ${msg.role === 'user' ? 'text-[#2B2B2B]/40 dark:text-white/30 dark:text-[#2B2B2B]/50 dark:text-white/40' : 'text-[#2B2B2B]/40 dark:text-white/30 dark:text-[#2B2B2B]/50 dark:text-white/40'}`}>
                     {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -113,7 +113,7 @@ export const Chat = () => {
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3A4A3F] to-[#2C3830] flex items-center justify-center shrink-0 shadow-md">
                 <Bot size={18} className="text-white" />
               </div>
-              <div className="bg-white dark:bg-[#1A1A1A] border border-gray-100 dark:border-white/5 rounded-2xl rounded-tl-sm p-5 flex items-center gap-2 shadow-sm h-[60px]">
+              <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED]/50 dark:border-white/5 dark:border-white/5 rounded-2xl rounded-tl-sm p-5 flex items-center gap-2 shadow-sm h-[60px]">
                 <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -129,7 +129,7 @@ export const Chat = () => {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-wrap gap-3 mb-6 justify-center">
               {quickActions.map(action => (
                 <button key={action} onClick={() => { setInput(action); inputRef.current?.focus(); }}
-                  className="px-5 py-2.5 rounded-full border border-gray-200 dark:border-white/10 text-[11px] uppercase tracking-wider font-semibold text-gray-600 dark:text-gray-300 bg-white/50 dark:bg-[#1A1A1A]/50 backdrop-blur-sm hover:border-[#3A4A3F] hover:bg-[#3A4A3F] hover:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
+                  className="px-5 py-2.5 rounded-full border border-black/10 dark:border-white/20 text-[11px] uppercase tracking-wider font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-[var(--bg-surface)] hover:border-[#3A4A3F] hover:bg-[#3A4A3F] hover:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
                   {action}
                 </button>
               ))}
@@ -137,7 +137,7 @@ export const Chat = () => {
           )}
 
           {/* Input */}
-          <div className="relative flex items-center shadow-2xl rounded-full bg-white dark:bg-[#1A1A1A]">
+          <div className="relative flex items-center shadow-2xl rounded-full bg-white dark:bg-[var(--bg-elevated)]">
             <input
               ref={inputRef}
               type="text"
@@ -146,7 +146,7 @@ export const Chat = () => {
               onKeyDown={handleKeyDown}
               placeholder="Escribe tu mensaje..."
               disabled={isTyping}
-              className="w-full bg-transparent border border-gray-200 dark:border-white/10 rounded-full pl-6 pr-16 py-4 text-[15px] font-light outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-[#3A4A3F] dark:focus:border-white/30 transition-all disabled:opacity-50"
+              className="w-full bg-transparent border border-black/10 dark:border-white/20 rounded-full pl-6 pr-16 py-4 text-[15px] font-light outline-none text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/40 dark:placeholder:text-white/60 focus:border-[#3A4A3F] dark:focus:border-white/50 transition-all disabled:opacity-50"
             />
             <button onClick={handleSend} disabled={!input.trim() || isTyping}
               className="absolute right-2 top-2 bottom-2 aspect-square rounded-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] flex items-center justify-center hover:bg-[#3A4A3F] dark:hover:bg-gray-200 transition-colors disabled:opacity-30 disabled:hover:bg-[#111111] dark:disabled:hover:bg-white">
@@ -154,7 +154,7 @@ export const Chat = () => {
             </button>
           </div>
           <div className="text-center mt-4">
-            <p className="text-[10px] text-gray-400 dark:text-gray-600 font-light">
+            <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 dark:text-gray-600 font-light">
               La IA de Eluxar puede cometer errores. Verifica la información.
             </p>
           </div>

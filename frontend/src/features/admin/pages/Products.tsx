@@ -84,17 +84,17 @@ export const Products = () => {
       </div>
 
       {/* Filters Row */}
-      <div className="bg-white dark:bg-[#1E1E1E] border border-[#EDEDED] dark:border-white/10 p-4 shadow-sm rounded-sm">
+      <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 p-4 shadow-sm rounded-sm">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[var(--color-gold)] transition-colors" size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Buscar por nombre o marca..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             />
             {searchQuery && (
               <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
@@ -108,11 +108,11 @@ export const Products = () => {
             <select
               value={filterCategory}
               onChange={(e) => handleCategory(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             >
-              <option className="bg-white dark:bg-[#1E1E1E] text-[#111111] dark:text-white" value="">Todas las categorías</option>
+              <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="">Todas las categorías</option>
               {CATEGORIAS.map(c => (
-                <option className="bg-white dark:bg-[#1E1E1E] text-[#111111] dark:text-white" key={c.value} value={c.value}>{c.label}</option>
+                <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" key={c.value} value={c.value}>{c.label}</option>
               ))}
             </select>
           </div>
@@ -120,7 +120,7 @@ export const Products = () => {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-[#1E1E1E] border border-[#EDEDED] dark:border-white/10 shadow-sm rounded-sm">
+      <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 shadow-sm rounded-sm">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
@@ -417,7 +417,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[#111111]/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-3xl shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden max-h-[95vh] flex flex-col">
+      <div className="relative bg-white dark:bg-[var(--bg-surface)] w-full max-w-3xl shadow-2xl border border-[#EDEDED] dark:border-white/10 overflow-hidden max-h-[95vh] flex flex-col">
 
         {/* Header */}
         <div className="bg-[#3A4A3F] p-6 text-white flex items-center justify-between shrink-0">
@@ -444,14 +444,14 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Nombre</label>
                 <div className="relative group">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[#C8A97E] transition-colors" size={14} />
+                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
                   <input
                     type="text"
                     required
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     placeholder="Ej: L'Eau de Parfum"
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
               </div>
@@ -464,7 +464,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   placeholder="Describe las notas y la esencia..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] resize-none"
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
                 />
               </div>
 
@@ -477,7 +477,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                     min={0}
                     value={formData.precio}
                     onChange={(e) => setFormData({ ...formData, precio: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -488,7 +488,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                     min={1}
                     value={formData.tamanoMl}
                     onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -499,7 +499,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                     min={0}
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
               </div>
@@ -513,7 +513,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   required
                   value={formData.categoria}
                   onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] appearance-none"
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
                 >
                   <option value="">Seleccionar...</option>
                   {CATEGORIAS.map(c => (
@@ -530,7 +530,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   value={formData.marca}
                   onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
                   placeholder="Ej: Chanel, Dior, Tom Ford..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                 />
               </div>
 
@@ -541,7 +541,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   value={formData.familiaOlfativa}
                   onChange={(e) => setFormData({ ...formData, familiaOlfativa: e.target.value })}
                   placeholder="Ej: Floral, Amaderada..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[#1E1E1E] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E]"
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                 />
               </div>
 
@@ -550,7 +550,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   type="checkbox"
                   checked={formData.destacado}
                   onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A97E]"
+                  className="w-4 h-4 accent-[var(--color-gold)]"
                 />
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
               </label>
@@ -569,8 +569,8 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                 </p>
               </div>
               <span className={`text-[9px] uppercase tracking-[0.2em] font-bold px-2 py-1 ${filledSlots.length === 3
-                ? 'bg-[#C8A97E]/10 text-[#C8A97E]'
-                : 'bg-[#EDEDED] dark:bg-[#1A1A1A] text-[#2B2B2B]/40 dark:text-white/40'
+                ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]'
+                : 'bg-[#EDEDED] dark:bg-[var(--bg-surface)] text-[#2B2B2B]/40 dark:text-white/40'
                 }`}>
                 {filledSlots.length} / 3
               </span>
@@ -602,14 +602,14 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[#1E1E1E] transition-all text-[#111111] dark:text-white"
+              className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-[2] bg-[#C8A97E] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-[2] bg-[var(--color-gold)] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
               <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>

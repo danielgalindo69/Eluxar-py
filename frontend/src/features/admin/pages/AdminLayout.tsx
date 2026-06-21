@@ -43,7 +43,7 @@ export const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDEDED] dark:bg-[#0A0A0A] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased flex">
+    <div className="min-h-screen bg-[#EDEDED] dark:bg-[var(--bg-base)] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased flex">
       <ScrollToTop />
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-[#111111] border-b border-[#EDEDED] dark:border-white/10 z-50 flex items-center justify-between p-4">

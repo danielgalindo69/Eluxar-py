@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 type Step = 1 | 2 | 3;
 
-const INPUT_CLS = "w-full bg-[#EDEDED] dark:bg-[#1A1A1A] border-none outline-none px-4 py-3.5 text-sm font-medium dark:text-white focus:ring-1 focus:ring-[#3A4A3F] transition-all placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20";
+const INPUT_CLS = "w-full bg-[#EDEDED] dark:bg-[var(--bg-surface)] border-none outline-none px-4 py-3.5 text-sm font-medium dark:text-white focus:ring-1 focus:ring-[#3A4A3F] transition-all placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20";
 const LABEL_CLS = "block text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/40 mb-2";
 
 export const Checkout = () => {
@@ -136,7 +136,7 @@ export const Checkout = () => {
   if (!isAuthenticated) return null;
 
   return (
-    <main className="pt-24 pb-24 bg-white dark:bg-[#0F0F0F] min-h-screen px-6">
+    <main className="pt-24 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16">
 
         {/* ── Left: Form ── */}
@@ -386,7 +386,7 @@ export const Checkout = () => {
             <div className="space-y-5">
               {items.length > 0 ? items.map(item => (
                 <div key={`${item.productId}-${item.volume}`} className="flex gap-4">
-                  <div className="w-16 h-16 bg-white dark:bg-[#1A1A1A] shrink-0 overflow-hidden">
+                  <div className="w-16 h-16 bg-white dark:bg-[var(--bg-surface)] shrink-0 overflow-hidden">
                     <ImageWithFallback src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between py-0.5">

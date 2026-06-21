@@ -70,7 +70,7 @@ const PageTransition = () => {
 
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F0F] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[var(--bg-base)] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white flex flex-col">
       <ScrollToTop />
       <Navbar />
       <CartDrawer />

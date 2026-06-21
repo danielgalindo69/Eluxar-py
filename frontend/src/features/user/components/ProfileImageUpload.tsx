@@ -69,7 +69,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({ displayName }) 
             <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex items-center gap-3 py-3 px-8 border border-[#EDEDED] dark:border-white/8 bg-[#F7F7F7] hover:bg-white dark:bg-[#161616] text-[11px] uppercase tracking-[0.1em] font-medium text-[#111111]/70 hover:text-[#111111] dark:text-white transition-all rounded-md shadow-sm"
+                className="flex items-center gap-3 py-3 px-8 border border-[#EDEDED] dark:border-white/8 bg-[#F7F7F7] hover:bg-white dark:bg-[var(--bg-surface)] text-[11px] uppercase tracking-[0.1em] font-medium text-[#111111]/70 hover:text-[#111111] dark:text-white transition-all rounded-md shadow-sm"
             >
                 <Edit2 size={14} className="opacity-50" />
                 {isUploading ? 'Subiendo...' : 'Editar imagen'}

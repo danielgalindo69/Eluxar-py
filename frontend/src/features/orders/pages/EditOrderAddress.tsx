@@ -87,7 +87,7 @@ export const EditOrderAddress = () => {
   };
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-2xl mx-auto">
         <Link to="/profile/orders" className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white transition-colors font-bold mb-10">
           <ArrowLeft size={14} /> Volver a Mis Pedidos
@@ -134,7 +134,7 @@ export const EditOrderAddress = () => {
                       <div
                         key={addr.id}
                         onClick={() => setSelectedAddressStr(fullStr)}
-                        className={`p-5 cursor-pointer border transition-colors ${selectedAddressStr === fullStr ? 'border-[#111111] dark:border-white bg-white dark:bg-[#1A1A1A]' : 'border-[#EDEDED] dark:border-white/10 bg-transparent hover:border-[#111111]/30 dark:hover:border-white/30'}`}
+                        className={`p-5 cursor-pointer border transition-colors ${selectedAddressStr === fullStr ? 'border-[#111111] dark:border-white bg-white dark:bg-[var(--bg-surface)]' : 'border-[#EDEDED] dark:border-white/10 bg-transparent hover:border-[#111111]/30 dark:hover:border-white/30'}`}
                       >
                         <div className="flex items-start gap-4">
                           <MapPin size={18} className={selectedAddressStr === fullStr ? 'text-[#111111] dark:text-white' : 'text-[#2B2B2B]/40 dark:text-white/40'} />
@@ -160,7 +160,7 @@ export const EditOrderAddress = () => {
                   ].map(field => (
                     <div key={field.key} className="flex flex-col space-y-2">
                       <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">{field.label}</label>
-                      <div className="border-b border-[#2B2B2B]/10 dark:border-white/10 py-2 focus-within:border-[#111111] dark:focus-within:border-white transition-colors bg-white dark:bg-[#161616] px-3">
+                      <div className="border-b border-[#2B2B2B]/10 dark:border-white/10 py-2 focus-within:border-[#111111] dark:focus-within:border-white transition-colors bg-white dark:bg-[var(--bg-surface)] px-3">
                         <input type="text" value={(formData as any)[field.key]}
                           onChange={e => { setFormData(prev => ({ ...prev, [field.key]: e.target.value })); if (errors[field.key]) setErrors(prev => { const n = { ...prev }; delete n[field.key]; return n; }); }}
                           className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium" />

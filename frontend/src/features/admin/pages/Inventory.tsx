@@ -10,7 +10,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const PAGE_SIZE = 15;
 
-const tableWrap = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
+const tableWrap = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8";
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
 
 export const Inventory = () => {
@@ -163,9 +163,9 @@ export const Inventory = () => {
             />
           </div>
           <div className="flex items-center gap-3 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
-            <div className={`flex items-center gap-2 px-3 py-2 border transition-colors ${filterDesde || filterHasta ? 'border-[#C8A97E] bg-[#C8A97E]/5' : 'border-[#EDEDED] dark:border-white/10'}`}>
+            <div className={`flex items-center gap-2 px-3 py-2 border transition-colors ${filterDesde || filterHasta ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-[#EDEDED] dark:border-white/10'}`}>
               <div className="flex items-center gap-2 text-[#2B2B2B]/40 dark:text-white/40 border-r border-[#EDEDED] dark:border-white/10 pr-3">
-                <Filter size={14} className={filterDesde || filterHasta ? 'text-[#C8A97E]' : ''} />
+                <Filter size={14} className={filterDesde || filterHasta ? 'text-[var(--color-gold)]' : ''} />
                 <span className="text-[10px] uppercase tracking-widest font-bold hidden sm:inline">Rango</span>
               </div>
               <div className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export const Inventory = () => {
 
             <button
               onClick={handleFilter}
-              className="shrink-0 bg-[#111111] dark:bg-[#C8A97E] text-white dark:text-[#111111] px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-colors"
+              className="shrink-0 bg-[#111111] dark:bg-[var(--color-gold)] text-white dark:text-[#111111] px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-colors"
             >
               Filtrar
             </button>
@@ -207,7 +207,7 @@ export const Inventory = () => {
         {(filterDesde || filterHasta || searchQuery) && (
           <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold border-t border-[#EDEDED] dark:border-white/5 pt-3">
             <span className="text-[#2B2B2B]/40 dark:text-white/40">Mostrando resultados filtrados</span>
-            <span className="text-[#C8A97E]">
+            <span className="text-[var(--color-gold)]">
               {filteredMovements.length} registro{filteredMovements.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -268,7 +268,7 @@ export const Inventory = () => {
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
                             m.tipo === 'ENTRADA'
-                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#C8A97E]/10 dark:text-[#C8A97E]'
+                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[var(--color-gold)]/10 dark:text-[var(--color-gold)]'
                               : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
                           }`}>
                             {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
@@ -276,7 +276,7 @@ export const Inventory = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
-                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[#C8A97E]' : 'text-red-500'}>
+                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[var(--color-gold)]' : 'text-red-500'}>
                             {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
                           </span>
                         </td>
@@ -312,7 +312,7 @@ export const Inventory = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6">
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
-              className="bg-white dark:bg-[#1A1A1A] w-full max-w-lg p-10 space-y-6 relative">
+              className="bg-white dark:bg-[var(--bg-surface)] w-full max-w-lg p-10 space-y-6 relative">
               <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white">
                 <X size={20} />
               </button>
@@ -369,7 +369,7 @@ export const Inventory = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-[#1A1A1A] w-full max-w-md p-10 space-y-6 relative">
+              className="bg-white dark:bg-[var(--bg-surface)] w-full max-w-md p-10 space-y-6 relative">
               <button onClick={() => setShowArchiveModal(false)} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white">
                 <X size={20} />
               </button>

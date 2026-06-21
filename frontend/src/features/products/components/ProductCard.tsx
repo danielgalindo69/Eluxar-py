@@ -74,7 +74,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
             <button
               onClick={handleAddToCart}
-              className="w-full bg-white dark:bg-[#161616] text-[#111111] dark:text-white py-3 text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#111111] hover:text-white transition-colors duration-300 border border-[#111111]"
+              className="w-full bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white py-3 text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#111111] hover:text-white transition-colors duration-300 border border-[#111111]"
             >
               <Plus size={14} />
               Añadir a la Bolsa
@@ -95,8 +95,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </div>
 
           {product.id === "1" && (
-            <div className="absolute top-4 left-4 bg-white dark:bg-[#161616] px-3 py-1">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#3A4A3F] dark:text-[#C8A97E]">Nuevo</span>
+            <div className="absolute top-4 left-4 bg-white dark:bg-[var(--bg-surface)] px-3 py-1">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#3A4A3F] dark:text-[var(--color-gold)]">Nuevo</span>
             </div>
           )}
         </div>

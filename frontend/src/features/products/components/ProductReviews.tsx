@@ -90,7 +90,7 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                       <Star 
                         size={28} 
                         strokeWidth={1.5}
-                        className={`transition-colors ${star <= rating ? 'fill-[#C8A97E] text-[#C8A97E]' : 'text-[#EDEDED] dark:text-white/20 group-hover:text-[#C8A97E]'}`} 
+                        className={`transition-colors ${star <= rating ? 'fill-[var(--color-gold)] text-[var(--color-gold)]' : 'text-[#EDEDED] dark:text-white/20 group-hover:text-[var(--color-gold)]'}`} 
                       />
                     </button>
                   ))}
@@ -103,7 +103,7 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Describe qué te pareció esta fragancia..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[#1A1A1A] border rounded-sm px-4 py-4 text-sm font-light text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[#C8A97E] dark:focus:border-[#C8A97E] min-h-[140px] resize-none"
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-4 text-sm font-light text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] min-h-[140px] resize-none"
                 />
               </div>
 
@@ -111,16 +111,16 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                 whileTap={{ scale: 0.98 }}
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-[#C8A97E] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#b8946a] transition-colors rounded-sm disabled:opacity-50 flex justify-center items-center gap-2"
+                className="w-full bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#b8946a] transition-colors rounded-sm disabled:opacity-50 flex justify-center items-center gap-2"
               >
                 {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : 'Publicar Valoración'}
               </motion.button>
             </form>
           ) : (
-            <div className="bg-[#F5F5F5] dark:bg-[#1A1A1A] p-8 text-center border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm">
+            <div className="bg-[#F5F5F5] dark:bg-[var(--bg-surface)] p-8 text-center border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm">
               <User className="mx-auto text-[#2B2B2B]/30 dark:text-white/30 mb-4" size={32} strokeWidth={1} />
               <p className="text-[11px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-6 leading-relaxed">Inicia sesión para compartir tu experiencia con la comunidad Eluxar.</p>
-              <a href="/auth" className="inline-block border border-[#C8A97E] text-[#C8A97E] px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#C8A97E] hover:text-[#111111] transition-colors rounded-sm">
+              <a href="/auth" className="inline-block border border-[var(--color-gold)] text-[var(--color-gold)] px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[var(--color-gold)] hover:text-[#111111] transition-colors rounded-sm">
                 Iniciar Sesión
               </a>
             </div>
@@ -133,7 +133,7 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
           
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="animate-spin text-[#C8A97E]" size={24} />
+              <Loader2 className="animate-spin text-[var(--color-gold)]" size={24} />
             </div>
           ) : reviews.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -148,11 +148,11 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                   key={review.id} 
-                  className="bg-[#F5F5F5] dark:bg-[#1A1A1A] border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm py-5 px-6 flex flex-col space-y-4"
+                  className="bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm py-5 px-6 flex flex-col space-y-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-[#C8A97E]/20 rounded-full flex items-center justify-center text-[10px] font-bold text-[#C8A97E] tracking-widest shrink-0">
+                      <div className="w-10 h-10 bg-[var(--color-gold)]/20 rounded-full flex items-center justify-center text-[10px] font-bold text-[var(--color-gold)] tracking-widest shrink-0">
                         {review.usuarioIniciales}
                       </div>
                       <div className="flex flex-col">
@@ -166,7 +166,7 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                           key={index} 
                           size={14} 
                           strokeWidth={1.5}
-                          className={index < review.calificacion ? 'fill-[#C8A97E] text-[#C8A97E]' : 'text-[#EDEDED] dark:text-white/20'} 
+                          className={index < review.calificacion ? 'fill-[var(--color-gold)] text-[var(--color-gold)]' : 'text-[#EDEDED] dark:text-white/20'} 
                         />
                       ))}
                     </div>

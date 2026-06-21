@@ -9,8 +9,8 @@ import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
 
 const PAGE_SIZE = 15;
 
-const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
-const tableWrapClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
+const cardClass = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6";
+const tableWrapClass = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8";
 const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3";
 const tdClass = "px-4 py-2 text-sm text-[#2B2B2B] dark:text-white/80";
 const tdMutedClass = "px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40";
@@ -110,16 +110,16 @@ export const Orders = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+      <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[#C8A97E] transition-colors" size={18} strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 dark:text-white/40 group-focus-within:text-[#3A4A3F] dark:group-focus-within:text-[var(--color-gold)] transition-colors" size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Buscar por ID o nombre de cliente..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             />
             {searchQuery && (
               <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/40 hover:text-[#111111] dark:text-white/40 dark:hover:text-white transition-colors">
@@ -132,7 +132,7 @@ export const Orders = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilter(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
             >
               {STATUS_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -185,12 +185,12 @@ export const Orders = () => {
                             "text-[#2B2B2B]/60 dark:text-white/60"
                           }`}
                         >
-                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="PENDIENTE">Pendiente</option>
-                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CONFIRMADO">Confirmado</option>
-                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="EN_PROCESO">En Proceso</option>
-                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENVIADO">Enviado</option>
-                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="ENTREGADO">Entregado</option>
-                          <option className="bg-white dark:bg-[#161616] text-[#111111] dark:text-white" value="CANCELADO">Cancelado</option>
+                          <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="PENDIENTE">Pendiente</option>
+                          <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="CONFIRMADO">Confirmado</option>
+                          <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="EN_PROCESO">En Proceso</option>
+                          <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="ENVIADO">Enviado</option>
+                          <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="ENTREGADO">Entregado</option>
+                          <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="CANCELADO">Cancelado</option>
                         </select>
                       </div>
                     </td>

@@ -115,7 +115,7 @@ export const SearchBar = () => {
           onChange={(e) => { setQuery(e.target.value); setSelectedIndex(-1); }}
           onKeyDown={handleKeyDown}
           placeholder="Buscar perfume, marca, familia olfativa..."
-          className="w-full pl-9 pr-8 py-2.5 bg-[#F5F5F5] dark:bg-white/5 border border-transparent focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] focus:bg-white dark:focus:bg-[#1A1A1A] focus:shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-sm outline-none text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20 transition-all duration-300"
+          className="w-full pl-9 pr-8 py-2.5 bg-[#F5F5F5] dark:bg-white/5 border border-transparent focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] focus:bg-white dark:focus:bg-[var(--bg-surface)] focus:shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-sm outline-none text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/20 transition-all duration-300"
         />
         {query && (
           <button
@@ -135,11 +135,11 @@ export const SearchBar = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1A1A1A] border border-[#EDEDED] dark:border-white/10 shadow-2xl rounded-sm z-50 overflow-hidden"
+            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 shadow-2xl rounded-sm z-50 overflow-hidden"
           >
             {isLoading ? (
               <div className="flex flex-col items-center justify-center gap-3 px-4 py-10 text-[#2B2B2B]/40 dark:text-white/30">
-                <Loader2 size={24} className="animate-spin text-[#3A4A3F] dark:text-[#C8A97E]" />
+                <Loader2 size={24} className="animate-spin text-[#3A4A3F] dark:text-[var(--color-gold)]" />
                 <span className="text-[10px] uppercase tracking-widest font-bold">Buscando fragancias...</span>
               </div>
             ) : results.length === 0 && query.trim().length >= 2 ? (
@@ -176,7 +176,7 @@ export const SearchBar = () => {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-[#111111] dark:text-white truncate tracking-wide">{product.name}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-[#3A4A3F] dark:text-[#C8A97E] truncate mt-1">
+                      <p className="text-[10px] uppercase tracking-widest text-[#3A4A3F] dark:text-[var(--color-gold)] truncate mt-1">
                         {product.brand} <span className="text-[#2B2B2B]/30 dark:text-white/30 mx-1">|</span> {product.olfactoryFamily}
                       </p>
                     </div>

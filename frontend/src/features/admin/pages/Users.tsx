@@ -16,8 +16,8 @@ import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
 
 const PAGE_SIZE = 15;
 
-const cardClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-6";
-const tableWrapClass = "bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8";
+const cardClass = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6";
+const tableWrapClass = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8";
 const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-6 py-4";
 
 export const Users = () => {
@@ -88,7 +88,7 @@ export const Users = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-4">
+      <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
         <SearchBar
           placeholder="Buscar por nombre, email o rol..."
           value={searchQuery}
@@ -136,7 +136,7 @@ export const Users = () => {
                     <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40">{user.email}</td>
                     <td className="px-6 py-4">
                       <span className={`text-[10px] uppercase tracking-widest font-bold ${
-                        user.role === "ADMIN" ? "text-[#3A4A3F] dark:text-[#C8A97E]" : "text-[#2B2B2B]/60 dark:text-white/40"
+                        user.role === "ADMIN" ? "text-[#3A4A3F] dark:text-[var(--color-gold)]" : "text-[#2B2B2B]/60 dark:text-white/40"
                       }`}>
                         {user.role}
                       </span>
@@ -151,18 +151,18 @@ export const Users = () => {
                               <Edit2 size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-[#161616] text-[#111111] dark:text-white border-[#EDEDED] dark:border-white/10">
+                          <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white border-[#EDEDED] dark:border-white/10">
                             <DropdownMenuLabel>Asignar Rol</DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-[#EDEDED] dark:bg-white/10" />
                             <DropdownMenuItem onClick={() => handleRoleChange(user.id, "USUARIO")} className="flex items-center gap-2 cursor-pointer focus:bg-[#EDEDED] dark:focus:bg-white/5">
                               <User size={14} />
                               <span>USUARIO</span>
-                              {user.role === "USUARIO" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[#C8A97E]" />}
+                              {user.role === "USUARIO" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[var(--color-gold)]" />}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleRoleChange(user.id, "ADMIN")} className="flex items-center gap-2 cursor-pointer focus:bg-[#EDEDED] dark:focus:bg-white/5">
                               <Shield size={14} />
                               <span>ADMIN</span>
-                              {user.role === "ADMIN" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[#C8A97E]" />}
+                              {user.role === "ADMIN" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[var(--color-gold)]" />}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

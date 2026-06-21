@@ -114,7 +114,7 @@ export const Catalog = () => {
 
   return (
     <>
-      <main className="pt-32 pb-24 bg-white dark:bg-[#161616] min-h-screen px-6">
+      <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col mb-16 space-y-6">
@@ -125,8 +125,8 @@ export const Catalog = () => {
           </p>
           {/* AI Search Button */}
           <button
-            onClick={() => navigate('/fragrance-test')}
-            className="w-fit bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors flex items-center gap-3"
+            onClick={() => navigate('/chat')}
+            className="w-fit bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#1B5E20 ] transition-all duration-300 cursor-pointer flex items-center gap-3 shadow-sm hover:shadow-lg"
           >
             <Sparkles size={16} />
             Buscar con IA
@@ -326,7 +326,7 @@ export const Catalog = () => {
                     <ChevronDown size={14} className={`transition-transform ${showSortMenu ? 'rotate-180' : ''}`} />
                   </button>
                   {showSortMenu && (
-                    <div className="absolute right-0 top-full mt-2 bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 shadow-lg z-10 min-w-[200px]">
+                    <div className="absolute right-0 top-full mt-2 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 shadow-lg z-10 min-w-[200px]">
                       {(Object.entries(sortLabels) as [SortOption, string][]).map(([value, label]) => (
                         <button
                           key={value}
@@ -431,7 +431,7 @@ export const Catalog = () => {
       {/* Mobile Filters Modal */}
       {showMobileFilters && (
         <div className="fixed inset-0 z-50 flex bg-black/50 backdrop-blur-sm lg:hidden">
-          <div className="w-full max-w-sm bg-white dark:bg-[#161616] h-full flex flex-col shadow-2xl ml-auto animate-in slide-in-from-right duration-300">
+          <div className="w-full max-w-sm bg-white dark:bg-[var(--bg-surface)] h-full flex flex-col shadow-2xl ml-auto animate-in slide-in-from-right duration-300">
             <div className="flex items-center justify-between p-6 border-b border-[#EDEDED] dark:border-white/10">
               <span className="text-[10px] uppercase tracking-widest font-bold dark:text-white">Filtros</span>
               <button onClick={() => setShowMobileFilters(false)} className="text-[#2B2B2B] dark:text-white">

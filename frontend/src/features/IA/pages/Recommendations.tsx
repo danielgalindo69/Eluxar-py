@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { aiAPI } from "../../../core/api/api";
 import { PRODUCTS } from "../../products/types/products";
 import { ProductCard } from "../../products/components/ProductCard";
@@ -22,7 +22,7 @@ export const Recommendations = () => {
   }, []);
 
   if (isLoading) return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6 flex items-center justify-center">
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
       <div className="text-center space-y-4">
         <Sparkles className="mx-auto text-[#3A4A3F] animate-pulse" size={32} />
         <p className="text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/30 text-sm font-light uppercase tracking-widest">Personalizando tus recomendaciones...</p>
@@ -31,7 +31,7 @@ export const Recommendations = () => {
   );
 
   return (
-    <main className="pt-32 pb-24 bg-white dark:bg-[#161616] dark:bg-[#0F0F0F] min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
@@ -56,7 +56,7 @@ export const Recommendations = () => {
               {/* Why Recommended Tooltip */}
               {reasons[product.id] && (
                 <div className="mt-4 relative">
-                  <div className="flex items-start gap-2 bg-[#EDEDED] dark:bg-white/5 dark:bg-[#1A1A1A] p-4">
+                  <div className="flex items-start gap-2 bg-[#EDEDED] dark:bg-white/5 dark:bg-[var(--bg-surface)] p-4">
                     <Info size={14} className="text-[#3A4A3F] shrink-0 mt-0.5" />
                     <p className="text-[11px] text-[#2B2B2B] dark:text-[#EDEDED]/60 dark:text-white/50 font-light leading-relaxed">{reasons[product.id]}</p>
                   </div>

@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 export const NotFound = () => {
   return (
-    <main className="min-h-screen bg-white dark:bg-[#161616] flex items-center justify-center px-6">
+    <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6">
       <div className="max-w-lg w-full text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

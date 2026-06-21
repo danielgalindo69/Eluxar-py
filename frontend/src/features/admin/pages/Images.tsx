@@ -275,7 +275,7 @@ export const Images = () => {
             )}
             {productsState === "ok" &&
               products.map((p) => (
-                <option key={p.id} value={p.id} className="bg-white dark:bg-[#161616]">
+                <option key={p.id} value={p.id} className="bg-white dark:bg-[var(--bg-surface)]">
                   {p.nombre} — {p.marca}
                 </option>
               ))}
@@ -348,7 +348,7 @@ export const Images = () => {
       <div>
         <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#111111] dark:text-white mb-6">
           Imágenes de{" "}
-          <span className="text-[#3A4A3F] dark:text-emerald-400">
+          <span className="text-[#3A4A3F] dark:text-[#A5BAA8]">
             {selectedProduct?.nombre ?? "—"}
           </span>
           {imagesState === "ok" && (
@@ -374,7 +374,7 @@ export const Images = () => {
 
         {/* Empty */}
         {imagesState === "ok" && productImages.length === 0 && (
-          <div className="bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/8 p-16 text-center">
+          <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-16 text-center">
             <ImageIcon size={48} className="mx-auto text-[#2B2B2B]/20 mb-4" />
             <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">
               Este producto no tiene imágenes aún
@@ -424,7 +424,7 @@ export const Images = () => {
                                 prev.map((i) => ({ ...i, principal: i.url === img.url }))
                               );
                             }}
-                            className="p-2.5 text-white/50 hover:text-emerald-400 hover:bg-emerald-500/20 backdrop-blur-md border border-transparent hover:border-emerald-500/30 transition-all duration-300"
+                            className="p-2.5 text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 backdrop-blur-md border border-transparent hover:border-[#3A4A3F]/30 transition-all duration-300"
                             title="Establecer como principal"
                           >
                             <Star size={16} strokeWidth={1.5} />
@@ -447,7 +447,7 @@ export const Images = () => {
                     </div>
 
                     {/* Caption (hides on hover) */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-[#161616]/90 px-3 py-2 backdrop-blur-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
+                    <div className="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-[var(--bg-surface)]/90 px-3 py-2 backdrop-blur-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
                       <p className="text-[9px] text-[#2B2B2B] dark:text-white/80 uppercase tracking-widest truncate">
                         imagen_{img.urlIndex + 1}.jpg
                       </p>
@@ -513,14 +513,14 @@ export const Images = () => {
                       placeholder="Estilo (Ej: elegante, oscuro, minimalista)"
                       value={aiPanels[selectedAiImage.urlIndex]?.style || ""}
                       onChange={(e) => updatePanel(selectedAiImage.urlIndex, { style: e.target.value })}
-                      className="w-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
+                      className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
                     />
                     <input
                       type="text"
                       placeholder="Prompt adicional (Ej: luces de neón, fondo de mármol)"
                       value={aiPanels[selectedAiImage.urlIndex]?.prompt || ""}
                       onChange={(e) => updatePanel(selectedAiImage.urlIndex, { prompt: e.target.value })}
-                      className="w-full bg-white dark:bg-[#161616] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[#C8A97E] transition-colors"
+                      className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
                     />
                     <button
                       onClick={() => handleGenerate(selectedAiImage)}

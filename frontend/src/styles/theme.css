@@ -1,6 +1,10 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --bg-base: #FFFFFF;
+  --bg-surface: #F5F5F5;
+  --bg-elevated: #FFFFFF;
+  --color-gold: #C8A97E;
   --font-size: 16px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -42,6 +46,10 @@
 }
 
 .dark {
+  --bg-base: #0F0F0F;
+  --bg-surface: #161616;
+  --bg-elevated: #222222;
+  --color-gold: #C8A97E;
   --background: #0f0f13;
   --foreground: #e8e8f0;
   --card: #1a1a24;
@@ -123,7 +131,13 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50 transition-colors duration-300 ease-in-out;
+    @apply border-border outline-ring/50;
+  }
+  
+  body, main, section, header, footer, nav, article, aside,
+  a, button, input, textarea, select, [role="button"],
+  .bg-white, .bg-\[\#111111\], .dark\:bg-\[var\(--bg-base\)\], .dark\:bg-\[var\(--bg-surface\)\], .dark\:bg-\[var\(--bg-elevated\)\] {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
   }
 
   body {

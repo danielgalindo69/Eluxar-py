@@ -31,7 +31,7 @@ export const UserLayout = () => {
   ];
 
   return (
-    <main className="pt-32 pb-24 bg-[#FCFCFC] dark:bg-[#0F0F0F] min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-[#FCFCFC] dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12">
         
         {/* Sidebar */}

@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
  */
 export const CheckoutPending = () => {
   return (
-    <main className="min-h-screen bg-white dark:bg-[#0F0F0F] flex items-center justify-center px-6">
+    <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
