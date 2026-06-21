@@ -1,5 +1,5 @@
-﻿import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useState, useEffect } from "react";
 import { Mail, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
@@ -10,8 +10,16 @@ export const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const { login, loginWithGoogle, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Validate on change after first submit attempt
+  useEffect(() => {
+    if (hasSubmitted) {
+      validate();
+    }
+  }, [email, password, hasSubmitted]);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -24,6 +32,7 @@ export const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setHasSubmitted(true);
     if (!validate()) return;
     try {
       await login(email, password);
@@ -54,7 +63,7 @@ export const Auth = () => {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight uppercase tracking-[0.3em]">Bienvenido</h1>
-          <p className="text-[#2B2B2B]/40 dark:text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">
+          <p className="text-[#2B2B2B]/60 dark:text-white/60 text-[10px] uppercase tracking-[0.2em] font-bold">
             Accede a tu perfil exclusivo de Eluxar
           </p>
         </div>
@@ -62,10 +71,10 @@ export const Auth = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="flex flex-col space-y-2">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Correo Electrónico</label>
+            <label htmlFor="email" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Correo Electrónico</label>
             <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
               <Mail className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 group-focus-within:text-[#111111] dark:text-white" size={16} />
-              <input type="email" value={email} onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => { const n = { ...p }; delete n.email; return n; }); }}
+              <input id="email" name="email" type="email" value={email} onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => { const n = { ...p }; delete n.email; return n; }); }}
                 className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
             </div>
             {errors.email && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.email}</span>}
@@ -73,14 +82,14 @@ export const Auth = () => {
 
           <div className="flex flex-col space-y-2">
             <div className="flex justify-between">
-              <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Contraseña</label>
-              <Link to="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white">¿Olvidaste tu contraseña?</Link>
+              <label htmlFor="password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Contraseña</label>
+              <Link to="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:text-white">¿Olvidaste tu contraseña?</Link>
             </div>
             <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-              <input type={showPassword ? "text" : "password"} value={password} onChange={e => { setPassword(e.target.value); if (errors.password) setErrors(p => { const n = { ...p }; delete n.password; return n; }); }}
+              <input id="password" name="password" type={showPassword ? "text" : "password"} value={password} onChange={e => { setPassword(e.target.value); if (errors.password) setErrors(p => { const n = { ...p }; delete n.password; return n; }); }}
                 className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
             </div>
             {errors.password && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.password}</span>}
@@ -95,7 +104,7 @@ export const Auth = () => {
 
         {/* Footer */}
         <div className="text-center pt-8 border-t border-[#EDEDED] dark:border-white/8 space-y-6">
-          <Link to="/register" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white transition-colors">
+          <Link to="/register" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:text-white transition-colors">
             ¿No tienes cuenta? Regístrate
           </Link>
 

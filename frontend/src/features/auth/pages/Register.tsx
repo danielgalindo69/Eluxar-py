@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -11,6 +11,15 @@ export const Register = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { register, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  const getPasswordStrength = (password: string) => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
+  };
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -97,7 +106,7 @@ export const Register = () => {
             {errors.password && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.password}</span>}
             <div className="flex gap-1 mt-1">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className={`h-0.5 flex-1 transition-colors ${formData.password.length >= i * 3 ? 'bg-[#3A4A3F]' : 'bg-[#EDEDED] dark:bg-white/5'}`} />
+                <div key={i} className={`h-0.5 flex-1 transition-colors ${i <= getPasswordStrength(formData.password) ? 'bg-[#3A4A3F]' : 'bg-[#EDEDED] dark:bg-white/5'}`} />
               ))}
             </div>
           </div>
