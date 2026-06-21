@@ -1,4 +1,5 @@
 import json
+from functools import lru_cache
 from mirascope import llm
 from mcp import ClientSession
 from mcp.client.stdio import stdio_client
@@ -7,6 +8,39 @@ from .tools import (
     get_all_perfumes, get_perfume_by_id, search_perfumes_by_family,
     safe_print, get_server_params, run_with_retry,
 )
+
+# ── Groq schema compatibility patch ──────────────────────────────────────────
+# Mirascope 2.4.0 bug: always serializes required=[] even for no-arg tools.
+# Groq rejects schemas with 'required' present but 'properties' empty.
+# This patch strips 'required' when it's an empty list.
+def _patch_mirascope_groq_schema():
+    try:
+        from mirascope.llm.providers.openai.completions._utils.encode import (
+            _convert_tool_to_tool_param as _original,
+        )
+        import mirascope.llm.providers.openai.completions._utils.encode as _enc_mod
+
+        @lru_cache(maxsize=128)
+        def _patched_convert_tool_to_tool_param(tool):
+            result = _original(tool)
+            # result is a dictionary-like TypedDict
+            params = dict(result["function"]["parameters"])
+            # Strip 'required' if it's an empty list — Groq rejects this
+            if params.get("required") == []:
+                params.pop("required")
+            
+            # Reconstruct as a pure dictionary to avoid TypedDict instantiation issues
+            patched_result = dict(result)
+            patched_result["function"] = dict(result["function"])
+            patched_result["function"]["parameters"] = params
+            return patched_result
+
+        _enc_mod._convert_tool_to_tool_param = _patched_convert_tool_to_tool_param
+        safe_print("[Agent] Groq schema compatibility patch applied.")
+    except Exception as e:
+        safe_print(f"[Agent] WARNING: Could not apply schema patch: {e}")
+
+_patch_mirascope_groq_schema()
 
 
 # ── Chat Agent ────────────────────────────────────────────────────────────────
