@@ -22,12 +22,8 @@ def safe_print(text: str):
 # The actual execution happens in the MCP server (server.py).
 
 @llm.tool
-def get_all_perfumes(dummy: str = "") -> str:
-    """Obtiene el catálogo completo de perfumes disponibles en Eluxar.
-    
-    Args:
-        dummy: Parámetro ignorado (requerido por Groq).
-    """
+def get_all_perfumes() -> str:
+    """Obtiene el catálogo completo de perfumes disponibles en Eluxar."""
     pass
 
 @llm.tool
@@ -49,12 +45,8 @@ def search_perfumes_by_family(family: str) -> str:
     pass
 
 @llm.tool
-def get_perfumes_for_test(dummy: str = "") -> str:
-    """Obtiene el catálogo completo de perfumes para el test olfativo.
-    
-    Args:
-        dummy: Parámetro ignorado (requerido por Groq).
-    """
+def get_perfumes_for_test() -> str:
+    """Obtiene el catálogo completo de perfumes para el test olfativo."""
     pass
 
 
