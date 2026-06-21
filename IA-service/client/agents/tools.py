@@ -22,8 +22,12 @@ def safe_print(text: str):
 # The actual execution happens in the MCP server (server.py).
 
 @llm.tool
-def get_all_perfumes() -> str:
-    """Obtiene el catálogo completo de perfumes disponibles en Eluxar."""
+def get_all_perfumes(limit: str = "50") -> str:
+    """Obtiene el catálogo completo de perfumes disponibles en Eluxar.
+    
+    Args:
+        limit: Límite opcional de resultados.
+    """
     pass
 
 @llm.tool
@@ -45,8 +49,12 @@ def search_perfumes_by_family(family: str) -> str:
     pass
 
 @llm.tool
-def get_perfumes_for_test() -> str:
-    """Obtiene el catálogo completo de perfumes para el test olfativo."""
+def get_perfumes_for_test(limit: str = "50") -> str:
+    """Obtiene el catálogo completo de perfumes para el test olfativo.
+    
+    Args:
+        limit: Límite opcional de resultados.
+    """
     pass
 
 
