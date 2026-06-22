@@ -11,6 +11,7 @@ import { ProductReviews } from "../components/ProductReviews";
 import { useWishlist } from "../../user/context/WishlistContext";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const ProductDetail = () => {
   const { id } = useParams();
@@ -124,6 +125,43 @@ export const ProductDetail = () => {
 
   return (
     <main className="pt-24 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen">
+      <SEOHead
+        title={`${product.name} — ${product.type}`}
+        description={`${product.description?.slice(0, 150) ?? `Fragancia ${product.type} de alta concentración.`} Notas: ${product.notes?.top ?? ''}. Disponible en ${product.specs?.volume ?? ''}.`}
+        canonical={`https://eluxar.com/product/${product.id}`}
+        image={product.image}
+        ogType="product"
+        keywords={`${product.name}, ${product.type}, ${product.brand ?? 'Eluxar'}, fragancia lujo, ${product.olfactoryFamily ?? ''}`}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": product.name,
+          "description": product.description,
+          "image": [product.image, product.hoverImage].filter(Boolean),
+          "brand": {
+            "@type": "Brand",
+            "name": product.brand ?? "Eluxar"
+          },
+          "sku": String(product.id),
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": "COP",
+            "price": currentPrice,
+            "availability": "https://schema.org/InStock",
+            "url": `https://eluxar.com/product/${product.id}`,
+            "seller": { "@type": "Organization", "name": "Eluxar" }
+          },
+          ...(product.rating && product.rating > 0 ? {
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": product.rating.toFixed(1),
+              "reviewCount": product.reviewCount ?? 0,
+              "bestRating": "5",
+              "worstRating": "1"
+            }
+          } : {})
+        }}
+      />
       <div className="max-w-7xl mx-auto px-6">
         {/* Breadcrumbs & Back */}
         <div className="flex items-center justify-between py-8">

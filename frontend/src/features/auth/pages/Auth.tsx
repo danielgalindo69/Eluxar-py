@@ -4,6 +4,7 @@ import { Mail, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -59,6 +60,11 @@ export const Auth = () => {
 
   return (
     <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6 pt-32 pb-24">
+      <SEOHead
+        title="Iniciar Sesión"
+        description="Accede a tu cuenta exclusiva de Eluxar. Gestiona tus pedidos, favoritos y recomendaciones personalizadas de fragancias."
+        noIndex={true}
+      />
       <div className="max-w-md w-full space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">

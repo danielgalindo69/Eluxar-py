@@ -3,8 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" />
-    <title>Eluxar</title>
+
+    <!-- Preconnect para recursos externos críticos -->
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Meta SEO base (react-helmet-async los sobreescribe por ruta) -->
+    <title>Eluxar — Fragancias de Alta Concentración</title>
+    <meta
+      name="description"
+      content="Descubre Eluxar: fragancias de lujo con alta concentración, composiciones atemporales y neutrales. Envío express gratuito en toda la colección."
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph base -->
+    <meta property="og:site_name" content="Eluxar" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:type" content="website" />
+
+    <!-- Theme color (barra de navegador en móvil) -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F0F0F" media="(prefers-color-scheme: dark)" />
+
+    <!-- JSON-LD: Organización -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Eluxar",
+        "url": "https://eluxar.com",
+        "logo": "https://eluxar.com/favicon.ico",
+        "description": "Fragancias de lujo con alta concentración y composiciones atemporales."
+      }
+    </script>
   </head>
 
   <body>
