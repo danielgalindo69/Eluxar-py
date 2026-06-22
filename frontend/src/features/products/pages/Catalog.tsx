@@ -2,9 +2,10 @@ import { ProductCard } from "../components/ProductCard";
 import { Product } from "../types/products";
 import { productsAPI, categoriesAPI, brandsAPI, Category } from "../../../core/api/api";
 import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles, X } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router";
+import { useState, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -14,14 +15,63 @@ type GridSize = 2 | 3;
 
 export const Catalog = () => {
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState("Todos");
-  const [activeGenderFilter, setActiveGenderFilter] = useState<Product['gender'] | 'all'>('all');
-  const [activePriceRange, setActivePriceRange] = useState<PriceRange>('all');
-  const [sortOption, setSortOption] = useState<SortOption>('default');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Filtros sincronizados con la URL para que sean indexables y compartibles
+  const activeFilter = searchParams.get("category") ?? "Todos";
+  const activeGenderFilter = (searchParams.get("gender") ?? "all") as Product['gender'] | 'all';
+  const activePriceRange = (searchParams.get("price") ?? "all") as PriceRange;
+  const sortOption = (searchParams.get("sort") ?? "default") as SortOption;
+
+  const setActiveFilter = (value: string) => {
+    setSearchParams(prev => {
+      if (value === "Todos") prev.delete("category");
+      else prev.set("category", value);
+      prev.delete("page");
+      return prev;
+    });
+  };
+
+  const setActiveGenderFilter = (value: Product['gender'] | 'all') => {
+    setSearchParams(prev => {
+      if (value === "all") prev.delete("gender");
+      else prev.set("gender", value);
+      prev.delete("page");
+      return prev;
+    });
+  };
+
+  const setActivePriceRange = (value: PriceRange) => {
+    setSearchParams(prev => {
+      if (value === "all") prev.delete("price");
+      else prev.set("price", value);
+      prev.delete("page");
+      return prev;
+    });
+  };
+
+  const setSortOption = (value: SortOption) => {
+    setSearchParams(prev => {
+      if (value === "default") prev.delete("sort");
+      else prev.set("sort", value);
+      return prev;
+    });
+  };
+
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [gridSize, setGridSize] = useState<GridSize>(3);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  // Paginacion desde URL
+  const currentPage = parseInt(searchParams.get("page") ?? "1", 10);
+  const setCurrentPage = (page: number | ((p: number) => number)) => {
+    const nextPage = typeof page === "function" ? page(currentPage) : page;
+    setSearchParams(prev => {
+      if (nextPage === 1) prev.delete("page");
+      else prev.set("page", String(nextPage));
+      return prev;
+    });
+  };
 
   const {
     data: products = [],
@@ -57,8 +107,8 @@ export const Catalog = () => {
   const isLoading = isLoadingProducts || isLoadingCategories || isLoadingBrands;
   const error = productsError ? "No se pudo cargar la colección. Por favor, intenta de nuevo." : null;
 
-  // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [activeFilter, activeGenderFilter, activePriceRange, sortOption]);
+  // Cuando cambian los filtros principales (NO page), no hay que hacer nada extra
+  // porque setActiveFilter/etc ya eliminan "page" del URL.
 
   const parsePrice = (priceStr: string) => {
     // Convierte "150.000 COP" a 150000
@@ -118,6 +168,18 @@ export const Catalog = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col mb-16 space-y-6">
+          <SEOHead
+            title={
+              activeFilter !== 'Todos'
+                ? `Colección ${activeFilter} — Fragancias de Lujo`
+                : activeGenderFilter !== 'all'
+                ? `Fragancias ${activeGenderFilter} — Eluxar Colección`
+                : 'Colección Completa — Fragancias de Alta Concentración'
+            }
+            description={`Explora la colección Eluxar de fragancias de lujo con alta concentración. ${activeFilter !== 'Todos' ? `Categoría: ${activeFilter}. ` : ''}Composiciones atemporales y neutrales. Envío express gratuito.`}
+            canonical={`https://eluxar.com/catalog${activeFilter !== 'Todos' ? `?category=${encodeURIComponent(activeFilter)}` : ''}`}
+            keywords={`colección fragancias, ${activeFilter !== 'Todos' ? activeFilter + ', ' : ''}perfumes lujo Colombia, extrait de parfum, Eluxar`}
+          />
           <h1 className="text-4xl md:text-5xl font-light text-[#111111] dark:text-white tracking-tight">Colección Eluxar</h1>
           <p className="text-[#2B2B2B]/50 dark:text-white/50 text-base font-light max-w-xl">
             Explora una cuidada selección de fragancias de alta concentración.

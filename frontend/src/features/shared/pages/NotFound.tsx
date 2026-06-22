@@ -1,10 +1,16 @@
-﻿import { Link } from "react-router";
+import { Link } from "react-router";
 import { motion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const NotFound = () => {
   return (
     <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6">
+      <SEOHead
+        title="Página no encontrada"
+        description="La página que buscas no existe o ha sido movida. Vuelve al inicio de Eluxar para explorar nuestra colección de fragancias."
+        noIndex={true}
+      />
       <div className="max-w-lg w-full text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

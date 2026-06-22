@@ -7,6 +7,7 @@ import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
 import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const Home = () => {
 
@@ -34,8 +35,32 @@ export const Home = () => {
   // AI Recommended Products (primeros 2 productos)
   const aiRecommended = products.slice(0, 2);
 
+  const homeStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Eluxar",
+    "url": "https://eluxar.com",
+    "description": "Tienda de fragancias de lujo con alta concentración y composiciones atemporales.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://eluxar.com/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <main className="bg-white dark:bg-[var(--bg-base)]">
+      <SEOHead
+        title="Fragancias de Alta Concentración"
+        description="Descubre Eluxar: fragancias de lujo con alta concentración, composiciones atemporales y neutrales. Test olfativo con IA incluido. Envío express gratuito."
+        canonical="https://eluxar.com/"
+        ogType="website"
+        keywords="fragancias de lujo, perfumes alta concentración, perfumes unisex, colección Eluxar, extrait de parfum"
+        structuredData={homeStructuredData}
+      />
       <Hero />
       
       {/* AI Recommendation Section */}
