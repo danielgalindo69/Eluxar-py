@@ -310,18 +310,18 @@ public class ProductoService {
         }
     }
 
-    private void reconcileImagenes(Producto producto, List<String> imagenesUrls) {
-        if (imagenesUrls == null) return;
+    private void reconcileImagenes(Producto producto, List<ProductoDTO.ImagenDTO> imagenesDto) {
+        if (imagenesDto == null) return;
         
         // Para imágenes, como no tienen dependencias externas críticas, 
         // podemos seguir usando el enfoque de limpiar y agregar si no queremos complicar la lógica de IDs.
         // Pero lo hacemos sobre la lista existente para mantener la relación de JPA.
         producto.getImagenes().clear();
         
-        for (int i = 0; i < imagenesUrls.size(); i++) {
+        for (int i = 0; i < imagenesDto.size(); i++) {
             producto.getImagenes().add(ProductoImagen.builder()
                     .producto(producto)
-                    .url(imagenesUrls.get(i))
+                    .url(imagenesDto.get(i).getUrl())
                     .principal(i == 0)
                     .orden(i)
                     .altText(producto.getNombre())
