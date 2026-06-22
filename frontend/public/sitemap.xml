@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Eluxar — sitemap.xml
+  Actualiza las fechas lastmod cuando hagas deployments significativos.
+  Las URLs de productos (/product/:id) deben generarse dinámicamente
+  desde tu backend o un script de build si el catálogo crece.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Página de inicio -->
+  <url>
+    <loc>https://eluxar-py-7jov.vercel.app</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Catálogo completo -->
+  <url>
+    <loc>https://eluxar.com/catalog</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Buscador -->
+  <url>
+    <loc>https://eluxar.com/search</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Test Olfativo con IA -->
+  <url>
+    <loc>https://eluxar.com/fragrance-test</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Chat IA -->
+  <url>
+    <loc>https://eluxar.com/chat</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!--
+    NOTA: Las URLs de productos individuales (/product/:id) deben
+    generarse dinámicamente. Opciones recomendadas:
+    1. Script de build que consulte el API y genere este archivo.
+    2. Endpoint del backend que devuelva el sitemap como XML.
+    3. Herramienta como "next-sitemap" si migras a SSR/SSG.
+
+    Ejemplo de entrada por producto:
+    <url>
+      <loc>https://eluxar.com/product/1</loc>
+      <lastmod>2026-06-21</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>
+  -->
+
+</urlset>

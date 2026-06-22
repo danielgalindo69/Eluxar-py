@@ -4,6 +4,7 @@ import { Product } from "../types/products";
 import { productsAPI } from "../../../core/api/api";
 import { ProductCard } from "../components/ProductCard";
 import { useQuery } from "@tanstack/react-query";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const Search = () => {
   const [query, setQuery] = useState('');
@@ -48,6 +49,11 @@ export const Search = () => {
 
   return (
     <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
+      <SEOHead
+        title={debouncedQuery ? `"${debouncedQuery}" — Resultados de búsqueda` : 'Buscar Fragancias'}
+        description="Busca entre la colección completa de Eluxar por nombre, marca, familia olfativa o ingrediente. Fragancias de lujo con entrega express."
+        noIndex={true}
+      />
       <div className="max-w-7xl mx-auto">
         {/* Search Input */}
         <div className="max-w-2xl mx-auto mb-10">
