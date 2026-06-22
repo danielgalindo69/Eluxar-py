@@ -30,8 +30,19 @@ public class ProductoDTO {
     private String familiaOlfativa;
     private List<VarianteDTO> variantes;
 
-    /** Lista de URLs de Cloudinary de las imágenes del producto */
-    private List<String> imagenes;
+    /** Lista de URLs y detalles de las imágenes del producto */
+    private List<ImagenDTO> imagenes;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ImagenDTO {
+        private Long id;
+        private String url;
+        private boolean principal;
+        private int orden;
+    }
     
     // Reseñas
     private Double promedioCalificacion;

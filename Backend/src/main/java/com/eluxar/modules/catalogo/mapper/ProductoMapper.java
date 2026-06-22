@@ -25,9 +25,15 @@ public interface ProductoMapper {
     ProductoDTO toDTO(Producto producto);
 
     @Named("toImageUrls")
-    default List<String> toImageUrls(List<ProductoImagen> imagenes) {
+    default List<ProductoDTO.ImagenDTO> toImageUrls(List<ProductoImagen> imagenes) {
         if (imagenes == null) return List.of();
-        return imagenes.stream().map(ProductoImagen::getUrl).toList();
+        return imagenes.stream().map(i -> ProductoDTO.ImagenDTO.builder()
+                .id(i.getId())
+                .url(i.getUrl())
+                .principal(i.isPrincipal())
+                .orden(i.getOrden())
+                .build()
+        ).toList();
     }
 
     @Mapping(target = "precioVenta", source = "precios", qualifiedByName = "getPrecioVenta")

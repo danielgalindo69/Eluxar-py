@@ -15,6 +15,7 @@ interface ProductOption {
 }
 
 interface ProductImage {
+  id: number;
   urlIndex: number; // 0-based index used to build DELETE path
   url: string;
   principal: boolean;
@@ -40,7 +41,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
     ...options.headers,
   };
 
-  
+
 
   const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   if (!res.ok) {
@@ -100,9 +101,9 @@ export const Images = () => {
     setAiPanels({});
     apiFetch(`/productos/${id}`)
       .then((dto: any) => {
-        const urls: string[] = dto.imagenes || [];
+        const imgs: any[] = dto.imagenes || [];
         setProductImages(
-          urls.map((url, idx) => ({ urlIndex: idx, url, principal: idx === 0 }))
+          imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
         );
         setImagesState("ok");
       })
@@ -136,9 +137,9 @@ export const Images = () => {
         method: "POST",
         body: fd,
       });
-      const urls: string[] = dto.imagenes || [];
+      const imgs: any[] = dto.imagenes || [];
       setProductImages(
-        urls.map((url, idx) => ({ urlIndex: idx, url, principal: idx === 0 }))
+        imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
       );
       toast.success("Imagen subida exitosamente", { id: tid });
     } catch (e: any) {
@@ -155,7 +156,7 @@ export const Images = () => {
     const tid = toast.loading("Eliminando imagen...");
     try {
       await apiFetch(
-        `/productos/${selectedId}/imagenes/${deleteTarget.urlIndex + 1}`,
+        `/productos/${selectedId}/imagenes/${deleteTarget.id}`,
         { method: "DELETE" }
       );
       setProductImages((prev) =>
@@ -197,7 +198,7 @@ export const Images = () => {
     updatePanel(img.urlIndex, { isGenerating: true, resultUrl: null });
     const tid = toast.loading("Generando imagen con IA...");
     try {
-      const result = await aiAPI.improveImage(selectedId, img.urlIndex + 1, panel.style, panel.prompt);
+      const result = await aiAPI.improveImage(selectedId, img.id, panel.style, panel.prompt);
 
       if (result?.edited_image_base64) {
         const dataUri = `data:image/jpeg;base64,${result.edited_image_base64}`;
@@ -227,9 +228,9 @@ export const Images = () => {
         method: "POST",
         body: fd,
       });
-      const urls: string[] = dto.imagenes || [];
+      const imgs: any[] = dto.imagenes || [];
       setProductImages(
-        urls.map((url, idx) => ({ urlIndex: idx, url, principal: idx === 0 }))
+        imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
       );
       setSelectedAiImage(null);
       updatePanel(img.urlIndex, { resultUrl: null, style: "", prompt: "" });
@@ -294,13 +295,12 @@ export const Images = () => {
           Subir Nueva Imagen
         </label>
         <div
-          className={`border-2 border-dashed transition-colors ${
-            !selectedId
+          className={`border-2 border-dashed transition-colors ${!selectedId
               ? "opacity-40 pointer-events-none border-[#EDEDED] dark:border-white/10"
               : dragOver
-              ? "border-[#3A4A3F] bg-green-50/20 dark:bg-[#3A4A3F]/10"
-              : "border-[#EDEDED] dark:border-white/15 hover:border-[#3A4A3F]/40"
-          } p-10 text-center`}
+                ? "border-[#3A4A3F] bg-green-50/20 dark:bg-[#3A4A3F]/10"
+                : "border-[#EDEDED] dark:border-white/15 hover:border-[#3A4A3F]/40"
+            } p-10 text-center`}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
@@ -405,7 +405,7 @@ export const Images = () => {
 
                     {/* Hover Overlay Actions */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/80 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-4 z-20 backdrop-blur-[2px]">
-                      
+
                       {/* Top Action Row (Delete & Star) */}
                       <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
                         <button
@@ -481,101 +481,101 @@ export const Images = () => {
           `}</style>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-modal-backdrop">
             <div className="bg-white dark:bg-[#111111] border border-[#EDEDED] dark:border-purple-500/30 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-modal-content">
-              <button 
+              <button
                 onClick={() => setSelectedAiImage(null)}
-              className="absolute top-4 right-4 text-[#111111]/50 hover:text-[#111111] dark:text-white/50 dark:hover:text-white transition-colors"
-            >
-              <X size={20} />
-            </button>
-            
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-500/20 text-purple-600 dark:text-purple-400">
-                  <Sparkles size={24} />
-                </div>
-                <div>
-                  <h2 className="text-lg uppercase tracking-widest font-bold text-[#111111] dark:text-white">Mejorar con IA</h2>
-                  <p className="text-[10px] text-[#2B2B2B]/60 dark:text-white/60 uppercase tracking-widest mt-1">Configura tu escena premium</p>
-                </div>
-              </div>
+                className="absolute top-4 right-4 text-[#111111]/50 hover:text-[#111111] dark:text-white/50 dark:hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Col: Original Image & Config */}
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60 font-bold">Imagen Seleccionada</p>
-                    <img src={selectedAiImage.url} alt="Original" className="w-full aspect-square object-cover bg-[#EDEDED]/30 dark:bg-white/5 border border-[#EDEDED] dark:border-white/10" />
+              <div className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-purple-500/20 text-purple-600 dark:text-purple-400">
+                    <Sparkles size={24} />
                   </div>
-
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      placeholder="Estilo (Ej: elegante, oscuro, minimalista)"
-                      value={aiPanels[selectedAiImage.urlIndex]?.style || ""}
-                      onChange={(e) => updatePanel(selectedAiImage.urlIndex, { style: e.target.value })}
-                      className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Prompt adicional (Ej: luces de neón, fondo de mármol)"
-                      value={aiPanels[selectedAiImage.urlIndex]?.prompt || ""}
-                      onChange={(e) => updatePanel(selectedAiImage.urlIndex, { prompt: e.target.value })}
-                      className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
-                    />
-                    <button
-                      onClick={() => handleGenerate(selectedAiImage)}
-                      disabled={aiPanels[selectedAiImage.urlIndex]?.isGenerating}
-                      className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-purple-700 disabled:opacity-50 transition-colors"
-                    >
-                      {aiPanels[selectedAiImage.urlIndex]?.isGenerating
-                        ? <><Loader2 size={16} className="animate-spin" /> Generando...</>
-                        : <><Sparkles size={16} /> Generar</>}
-                    </button>
+                  <div>
+                    <h2 className="text-lg uppercase tracking-widest font-bold text-[#111111] dark:text-white">Mejorar con IA</h2>
+                    <p className="text-[10px] text-[#2B2B2B]/60 dark:text-white/60 uppercase tracking-widest mt-1">Configura tu escena premium</p>
                   </div>
                 </div>
 
-                {/* Right Col: AI Result */}
-                <div className="space-y-2 flex flex-col h-full">
-                  <p className="text-[10px] uppercase tracking-widest text-purple-600 dark:text-purple-400 font-bold">Resultado IA</p>
-                  
-                  {aiPanels[selectedAiImage.urlIndex]?.resultUrl ? (
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div className="mb-6">
-                         <img
-                          src={aiPanels[selectedAiImage.urlIndex].resultUrl as string}
-                          alt="Resultado IA"
-                          className="w-full aspect-square object-cover border-2 border-purple-500/50 shadow-lg shadow-purple-500/10"
-                        />
-                      </div>
-                      
-                      <div className="flex flex-col gap-3">
-                        <button
-                          onClick={() => handleUseAiResult(selectedAiImage)}
-                          className="w-full flex items-center justify-center gap-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-gray-200 transition-colors"
-                        >
-                          <CheckCircle2 size={14} /> Usar como imagen del producto
-                        </button>
-                        <button
-                          onClick={() => updatePanel(selectedAiImage.urlIndex, { resultUrl: null })}
-                          className="w-full flex items-center justify-center gap-2 border border-[#EDEDED] dark:border-white/20 text-[#111111] dark:text-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <X size={14} /> Descartar
-                        </button>
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left Col: Original Image & Config */}
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60 font-bold">Imagen Seleccionada</p>
+                      <img src={selectedAiImage.url} alt="Original" className="w-full aspect-square object-cover bg-[#EDEDED]/30 dark:bg-white/5 border border-[#EDEDED] dark:border-white/10" />
                     </div>
-                  ) : (
-                    <div className="flex-1 border-2 border-dashed border-[#EDEDED] dark:border-white/10 flex flex-col items-center justify-center text-center p-8 aspect-square md:aspect-auto h-full">
-                      <Sparkles size={32} className="text-[#2B2B2B]/20 dark:text-white/20 mb-4" />
-                      <p className="text-sm text-[#2B2B2B]/40 dark:text-white/40 font-light">
-                        El resultado generado aparecerá aquí
-                      </p>
+
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="Estilo (Ej: elegante, oscuro, minimalista)"
+                        value={aiPanels[selectedAiImage.urlIndex]?.style || ""}
+                        onChange={(e) => updatePanel(selectedAiImage.urlIndex, { style: e.target.value })}
+                        className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Prompt adicional (Ej: luces de neón, fondo de mármol)"
+                        value={aiPanels[selectedAiImage.urlIndex]?.prompt || ""}
+                        onChange={(e) => updatePanel(selectedAiImage.urlIndex, { prompt: e.target.value })}
+                        className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
+                      />
+                      <button
+                        onClick={() => handleGenerate(selectedAiImage)}
+                        disabled={aiPanels[selectedAiImage.urlIndex]?.isGenerating}
+                        className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                      >
+                        {aiPanels[selectedAiImage.urlIndex]?.isGenerating
+                          ? <><Loader2 size={16} className="animate-spin" /> Generando...</>
+                          : <><Sparkles size={16} /> Generar</>}
+                      </button>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Right Col: AI Result */}
+                  <div className="space-y-2 flex flex-col h-full">
+                    <p className="text-[10px] uppercase tracking-widest text-purple-600 dark:text-purple-400 font-bold">Resultado IA</p>
+
+                    {aiPanels[selectedAiImage.urlIndex]?.resultUrl ? (
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div className="mb-6">
+                          <img
+                            src={aiPanels[selectedAiImage.urlIndex].resultUrl as string}
+                            alt="Resultado IA"
+                            className="w-full aspect-square object-cover border-2 border-purple-500/50 shadow-lg shadow-purple-500/10"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                          <button
+                            onClick={() => handleUseAiResult(selectedAiImage)}
+                            className="w-full flex items-center justify-center gap-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-gray-200 transition-colors"
+                          >
+                            <CheckCircle2 size={14} /> Usar como imagen del producto
+                          </button>
+                          <button
+                            onClick={() => updatePanel(selectedAiImage.urlIndex, { resultUrl: null })}
+                            className="w-full flex items-center justify-center gap-2 border border-[#EDEDED] dark:border-white/20 text-[#111111] dark:text-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                          >
+                            <X size={14} /> Descartar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 border-2 border-dashed border-[#EDEDED] dark:border-white/10 flex flex-col items-center justify-center text-center p-8 aspect-square md:aspect-auto h-full">
+                        <Sparkles size={32} className="text-[#2B2B2B]/20 dark:text-white/20 mb-4" />
+                        <p className="text-sm text-[#2B2B2B]/40 dark:text-white/40 font-light">
+                          El resultado generado aparecerá aquí
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         </>
       )}
 
