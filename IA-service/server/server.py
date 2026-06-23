@@ -32,14 +32,14 @@ def get_all_perfumes() -> str:
         resp.raise_for_status()
         data = resp.json()
         perfumes = data.get("data", []) if isinstance(data, dict) else data
-        
+
         if not perfumes:
-            print("\n[MCP] Backend vacío, usando datos quemados del proyecto.\n")
+            print("[MCP] Backend vacío, usando datos quemados del proyecto.")
             return json.dumps(MOCK_PERFUMES, ensure_ascii=False)
-            
+
         return json.dumps(perfumes, ensure_ascii=False)
-    except Exception as e:
-        print(f"\n[MCP] Error al conectar con backend ({e}), usando datos quemados.\n")
+    except Exception as exc:
+        print(f"[MCP] Error al conectar con backend ({exc}), usando datos quemados.")
         return json.dumps(MOCK_PERFUMES, ensure_ascii=False)
 
 
@@ -51,13 +51,14 @@ def get_perfume_by_id(id: str) -> str:
         perfume = next((p for p in MOCK_PERFUMES if str(p["id"]) == str(id)), None)
         if perfume:
             return json.dumps(perfume, ensure_ascii=False)
-            
+
         # Si no está, intentamos el backend
         resp = requests.get(f"{BACKEND_BASE}/productos/{id}", timeout=5)
         resp.raise_for_status()
         data = resp.json()
         return json.dumps(data.get("data", data), ensure_ascii=False)
-    except Exception as e:
+    except Exception as exc:
+        print(f"[MCP] get_perfume_by_id({id}) error: {exc}")
         return json.dumps({"error": f"No se encontró el perfume {id}"})
 
 
@@ -77,7 +78,8 @@ def search_perfumes_by_family(family: str) -> str:
         resp.raise_for_status()
         data = resp.json()
         return json.dumps(data.get("data", []), ensure_ascii=False)
-    except:
+    except Exception as exc:
+        print(f"[MCP] search_perfumes_by_family({family!r}) backend error: {exc}")
         return json.dumps([])
 
 
@@ -91,12 +93,12 @@ def get_perfumes_for_test() -> str:
         perfumes = data.get("data", []) if isinstance(data, dict) else data
 
         if not perfumes:
-            print("\n[MCP] Backend vacío para test olfativo, usando datos quemados.\n")
+            print("[MCP] Backend vacío para test olfativo, usando datos quemados.")
             return json.dumps(MOCK_PERFUMES, ensure_ascii=False)
 
         return json.dumps(perfumes, ensure_ascii=False)
-    except Exception as e:
-        print(f"\n[MCP] Error backend para test olfativo ({e}), usando datos quemados.\n")
+    except Exception as exc:
+        print(f"[MCP] Error backend para test olfativo ({exc}), usando datos quemados.")
         return json.dumps(MOCK_PERFUMES, ensure_ascii=False)
 
 
