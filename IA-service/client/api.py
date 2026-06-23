@@ -1,23 +1,3 @@
-"""
-Flask application entry point for the Eluxar IA-service.
-
-Security hardening applied:
-  - MAX_CONTENT_LENGTH: rejects oversized payloads before Flask even reads them.
-  - require_internal_key: all endpoints require X-Internal-Key header.
-  - request.get_json(silent=True): safe JSON parsing, never raises AttributeError.
-  - asyncio.wait_for: prevents LLM calls from blocking workers indefinitely.
-
-Observability:
-  - Structured logging via utils/logger.py (replaces all print() calls).
-  - Per-request correlation ID injected into Flask g and logged on every endpoint.
-  - Request duration logged on every response.
-
-Compatibility:
-  - HTTP contract (paths, JSON field names) is UNCHANGED.
-  - Spring Boot integration is preserved; only the X-Internal-Key header
-    must be added to AiImageService.java (see comment below).
-"""
-
 import sys
 import io
 import os
@@ -41,8 +21,6 @@ except AttributeError:
 load_dotenv()
 
 # ── Mirascope provider registration ───────────────────────────────────────────
-# Must happen before any agent import.  GROQ_API_KEY is validated inside
-# config/ai_config.py and will raise RuntimeError at startup if missing.
 from mirascope import llm  # noqa: E402
 
 llm.register_provider(
@@ -63,41 +41,21 @@ log = get_logger(__name__)
 # ── Application ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 
-# Reject any request body larger than 20 MB before Flask reads it.
-# This prevents DoS via oversized base64 payloads (C-06).
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
 _raw_origins = os.environ.get(
     "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://localhost:3000,https://eluxar-py.onrender.com",
+    "http://localhost:5173,http://localhost:3000",
 )
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 # ── Internal API Key ──────────────────────────────────────────────────────────
-# All endpoints require the header:  X-Internal-Key: <value of INTERNAL_API_KEY>
-#
-# SPRING BOOT INTEGRATION NOTE:
-# In AiImageService.java (and ChatService, FragranceTestService) add:
-#
-#   HttpHeaders headers = new HttpHeaders();
-#   headers.setContentType(MediaType.APPLICATION_JSON);
-#   headers.set("X-Internal-Key", System.getenv("INTERNAL_API_KEY"));
-#   HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
-#
-# And set the env var INTERNAL_API_KEY in both Render services.
-# Keep it empty ("") in development if you want to skip auth locally.
 _INTERNAL_API_KEY: str = os.environ.get("INTERNAL_API_KEY", "")
 
 
 def require_internal_key(fn):
-    """
-    Decorator that enforces X-Internal-Key authentication.
-
-    When INTERNAL_API_KEY is empty the check is skipped to allow frictionless
-    local development without configuration.
-    """
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
         if _INTERNAL_API_KEY:
@@ -169,7 +127,6 @@ def _parse_json_body() -> tuple[dict | None, object]:
 
 # ── Chat endpoint ─────────────────────────────────────────────────────────────
 @app.route("/chat", methods=["POST"])
-@app.route("/ia/chat", methods=["POST"])
 @require_internal_key
 def chat_endpoint():
     data, err = _parse_json_body()
@@ -202,7 +159,6 @@ def chat_endpoint():
 
 # ── Fragrance Test endpoint ───────────────────────────────────────────────────
 @app.route("/fragrance-test", methods=["POST"])
-@app.route("/ia/fragrance-test", methods=["POST"])
 @require_internal_key
 def fragrance_test_endpoint():
     data, err = _parse_json_body()
