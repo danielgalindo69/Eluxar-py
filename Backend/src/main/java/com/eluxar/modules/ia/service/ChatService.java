@@ -23,6 +23,9 @@ public class ChatService {
     @org.springframework.beans.factory.annotation.Value("${ia.service.url:http://localhost:5000}")
     private String iaServiceUrl;
 
+    @org.springframework.beans.factory.annotation.Value("${ia.internal.api.key:}")
+    private String internalApiKey;
+
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -40,12 +43,18 @@ public class ChatService {
                     "history", request.getHistory() != null ? request.getHistory() : List.of()
             ));
 
-            HttpRequest httpRequest = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(iaServiceUrl + "/chat"))
                     .header("Content-Type", "application/json")
+                    .header("User-Agent", "Eluxar-Backend/1.0")
                     .timeout(Duration.ofSeconds(120)) // AI calls can be slow
-                    .POST(HttpRequest.BodyPublishers.ofString(payload))
-                    .build();
+                    .POST(HttpRequest.BodyPublishers.ofString(payload));
+                    
+            if (internalApiKey != null && !internalApiKey.isBlank()) {
+                requestBuilder.header("X-Internal-Key", internalApiKey);
+            }
+            
+            HttpRequest httpRequest = requestBuilder.build();
 
             HttpResponse<String> httpResponse = httpClient.send(
                     httpRequest,

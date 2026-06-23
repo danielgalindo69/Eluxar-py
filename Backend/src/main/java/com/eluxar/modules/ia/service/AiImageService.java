@@ -27,6 +27,9 @@ public class AiImageService {
     @Value("${ia.service.url:http://localhost:5000}")
     private String iaServiceUrl;
 
+    @Value("${ia.internal.api.key:}")
+    private String internalApiKey;
+
     private final ProductoRepository productoRepository;
     private final RestTemplate restTemplate;
 
@@ -70,6 +73,10 @@ public class AiImageService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("User-Agent", "Eluxar-Backend/1.0");
+            if (internalApiKey != null && !internalApiKey.isBlank()) {
+                headers.set("X-Internal-Key", internalApiKey);
+            }
             HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
 
             ResponseEntity<Map> response = restTemplate.postForEntity(pythonApiUrl, request, Map.class);
