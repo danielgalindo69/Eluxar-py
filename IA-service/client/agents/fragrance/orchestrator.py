@@ -1,18 +1,3 @@
-"""
-Fragrance test orchestrator.
-
-Public API: process_fragrance_test()
-
-This module is the ONLY entry point for the fragrance test flow. It is
-responsible for:
-  - Deciding whether to generate a question or produce a recommendation.
-  - Delegating question generation to the LLM prompts.
-  - Delegating recommendation to the recommendation service.
-  - Providing fallback responses when the LLM is unavailable.
-  - Building the response dict that matches the HTTP contract consumed
-    by Spring Boot / React frontend (do NOT change field names).
-"""
-
 import json
 from utils.logger import get_logger
 from utils.retry import run_with_retry
@@ -25,11 +10,12 @@ log = get_logger(__name__)
 
 async def _generate_question(history: list, step: int, total_steps: int) -> dict:
     """
-    Call the LLM to generate question `step` and parse the JSON response.
+    Genera la siguiente pregunta usando el LLM y parsea la respuesta JSON.
 
-    Returns a dict with keys ``question`` and ``options``.
-    Falls back to a hardcoded question on parse failure.
+    Devuelve un diccionario con las claves ``question`` y ``options``.
+    En caso de error en el parseo, devuelve una pregunta predeterminada.
     """
+    
     history_summary = "\n".join(
         [
             f"Pregunta {i+1}: {item['question']}\nRespuesta: {item['answer']}"
@@ -40,7 +26,7 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
     response = fragrance_question_generator(history_summary, step, total_steps)
     content: str = response.text()
 
-    # Strip markdown code fences if the LLM wrapped the JSON.
+    # Elimina los saltos de línea y los bloques de código si el LLM los envuelve.
     if "```json" in content:
         content = content.split("```json")[1].split("```")[0].strip()
     elif "```" in content:
@@ -53,30 +39,30 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
             "options": data.get("options", ["Opción 1", "Opción 2", "Opción 3", "Opción 4"])[:4],
         }
     except json.JSONDecodeError as exc:
-        log.warning("Could not parse LLM question JSON (step=%d): %s", step, exc)
+        log.warning("No se pudo analizar el JSON de la pregunta del LLM (step=%d): %s", step, exc)
         fallback_idx = min(step - 1, len(MOCK_QUESTIONS) - 1)
         return MOCK_QUESTIONS[fallback_idx]
 
 
 async def process_fragrance_test(message: str, history: list, step: int) -> dict:
     """
-    Process one step of the fragrance test.
+    Procesa un paso del test de fragancias.
 
-    Steps 0 … TOTAL_QUESTIONS-1  → generate next question.
+    Pasos 0 … TOTAL_QUESTIONS-1  → genera la siguiente pregunta.
     Step  TOTAL_QUESTIONS         → produce recommendation.
 
-    HTTP contract (fields consumed by React):
+    Contrato HTTP (campos consumidos por React):
       response, question, options, history, step, finished, totalSteps
 
     Args:
-        message: The user's answer to the previous question (may be empty on step 0).
-        history: Accumulated [{question, answer}, …] pairs sent by the frontend.
-        step:    0-based current step index.
+        message: La respuesta del usuario a la pregunta anterior (puede estar vacía en el paso 0).
+        history: Pares acumulados [{question, answer}, …] enviados por el frontend.
+        step:    Índice de paso actual basado en 0.
 
     Returns:
-        A dict matching the HTTP response contract.
+        Un diccionario que coincide con el contrato de respuesta HTTP.
     """
-    # ── Question phase ────────────────────────────────────────────────────────
+    # ── Fase de generación de preguntas ────────────────────────────────────────
     if step < TOTAL_QUESTIONS:
         try:
             q_data = await run_with_retry(
@@ -84,7 +70,7 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
                 retries=3, delay=5.0,
             )
         except BaseException as exc:
-            log.error("LLM question generation failed (step=%d): %s", step, exc)
+            log.error("No se pudo generar la pregunta del LLM (step=%d): %s", step, exc)
             q_data = MOCK_QUESTIONS[min(step, len(MOCK_QUESTIONS) - 1)]
 
         return {
@@ -97,7 +83,7 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             "totalSteps": TOTAL_QUESTIONS,
         }
 
-    # ── Recommendation phase ──────────────────────────────────────────────────
+    # ── Fase de generación de recomendaciones ─────────────────────────────────
     if step == TOTAL_QUESTIONS:
         answers_summary = "\n".join(
             [
@@ -106,12 +92,12 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             ]
         )
 
-        log.info("Generating recommendation for %d answers.", len(history))
+        log.info("Generando recomendación para %d respuestas.", len(history))
 
         try:
             final_content = await get_recommendation(answers_summary)
         except BaseException as exc:
-            log.error("LLM recommendation failed: %s", exc)
+            log.error("La recomendación del LLM falló: %s", exc)
             final_content = FALLBACK_RECOMMENDATION
 
         return {
@@ -122,8 +108,8 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             "totalSteps": TOTAL_QUESTIONS,
         }
 
-    # ── Guard: beyond expected range ──────────────────────────────────────────
-    log.warning("process_fragrance_test called with out-of-range step=%d.", step)
+    # ── Guard: paso fuera del rango esperado ──────────────────────────────────
+    log.warning("Se llamó a process_fragrance_test con step fuera de rango=%d.", step)
     return {
         "response": "Test completado.",
         "history":  history,
