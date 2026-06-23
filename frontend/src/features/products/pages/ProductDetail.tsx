@@ -126,8 +126,9 @@ export const ProductDetail = () => {
   return (
     <main className="pt-24 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen">
       <SEOHead
-        title={`${product.name} — ${product.type}`}
-        description={`${product.description?.slice(0, 150) ?? `Fragancia ${product.type} de alta concentración.`} Notas: ${product.notes?.top ?? ''}. Disponible en ${product.specs?.volume ?? ''}.`}
+        title={product ? `${product.name} | Eluxar` : "Eluxar"}
+        exactTitle
+        description={`${product?.description?.slice(0, 150) ?? `Fragancia de alta concentración.`} Notas: ${product?.notes?.top ?? ''}. Disponible en ${product?.specs?.volume ?? ''}.`}
         canonical={`https://eluxar.com/product/${product.id}`}
         image={product.image}
         ogType="product"

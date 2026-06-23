@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { MercadoPagoBrick } from "../components/MercadoPagoBrick";
 import { useQueryClient } from "@tanstack/react-query";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 type Step = 1 | 2 | 3;
 
@@ -134,23 +135,34 @@ export const Checkout = () => {
 
   if (!isAuthenticated) return null;
 
+  const getCheckoutTitle = () => {
+    if (step === 1) return "Eluxar | Información de Envío";
+    if (step === 2) return "Eluxar | Dirección de Envío";
+    if (step === 3) return "Eluxar | Pago Seguro";
+    return "Eluxar | Checkout";
+  };
+
   return (
-    <main className="pt-24 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
+      <SEOHead title={getCheckoutTitle()} exactTitle />
+
+      {/* Breadcrumb moved to top for consistency across all steps */}
+      <div className="max-w-7xl mx-auto mb-10">
+        <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">
+          <Link to="/cart" className="hover:text-[#111111] dark:hover:text-white transition-colors">Bolsa</Link>
+          <ChevronRight size={10} strokeWidth={3} />
+          <span className={step >= 1 ? "text-[#111111] dark:text-white" : ""}>Información</span>
+          <ChevronRight size={10} strokeWidth={3} />
+          <span className={step >= 2 ? "text-[#111111] dark:text-white" : ""}>Dirección</span>
+          <ChevronRight size={10} strokeWidth={3} />
+          <span className={step >= 3 ? "text-[#111111] dark:text-white" : ""}>Pago</span>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16">
 
         {/* ── Left: Form ── */}
         <div className="flex-1 space-y-14">
-
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">
-            <Link to="/cart" className="hover:text-[#111111] dark:hover:text-white transition-colors">Bolsa</Link>
-            <ChevronRight size={10} strokeWidth={3} />
-            <span className={step >= 1 ? "text-[#111111] dark:text-white" : ""}>Información</span>
-            <ChevronRight size={10} strokeWidth={3} />
-            <span className={step >= 2 ? "text-[#111111] dark:text-white" : ""}>Dirección</span>
-            <ChevronRight size={10} strokeWidth={3} />
-            <span className={step >= 3 ? "text-[#111111] dark:text-white" : ""}>Pago</span>
-          </div>
 
           {/* ── Step 1: Personal Info ── */}
           <AnimatePresence mode="wait">
@@ -205,10 +217,7 @@ export const Checkout = () => {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-[#EDEDED] dark:border-white/8">
-                  <Link to="/cart" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
-                    ← Volver al Carrito
-                  </Link>
+                <div className="flex items-center justify-end pt-6 border-t border-[#EDEDED] dark:border-white/8">
                   <button onClick={() => {
                     if (!formData.firstName || !formData.lastName || !formData.email) { toast.error('Completa tu nombre, apellido y correo'); return; }
                     setStep(2);

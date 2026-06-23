@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Send, Sparkles, Bot, User } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 interface Message {
   id: string;
@@ -54,6 +55,7 @@ export const Chat = () => {
 
   return (
     <main className="pt-24 bg-white dark:bg-[var(--bg-base)] min-h-screen flex flex-col font-sans">
+      <SEOHead title="Eluxar | Asistente de Fragancias" exactTitle />
       <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col px-4 sm:px-6 relative">
         {/* Header */}
         <div className="py-6 border-b border-[#EDEDED] dark:border-white/10 flex items-center justify-between -mx-4 px-4 sm:-mx-6 sm:px-6">

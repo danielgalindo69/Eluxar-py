@@ -5,6 +5,7 @@ import { User, Mail, Lock, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import ProfileImageUpload from "../components/ProfileImageUpload";
 import { Addresses } from "./Addresses";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 type ProfileTab = "info" | "addresses";
 
@@ -95,6 +96,7 @@ export const Profile = () => {
 
   return (
     <div>
+      <SEOHead title="Eluxar | Mi Cuenta" exactTitle />
       <div className="w-full">
         <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4 text-center sm:text-left">Mi Perfil</h1>
         <p className="text-sm text-[#2B2B2B]/50 dark:text-white/40 font-light mb-8 text-center sm:text-left">Gestiona tus datos personales y preferencias de cuenta</p>

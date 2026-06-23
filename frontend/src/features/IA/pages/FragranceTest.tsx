@@ -5,6 +5,7 @@ import { FragranceTestIdle } from "../components/fragrance-test/FragranceTestIdl
 import { FragranceTestLoading } from "../components/fragrance-test/FragranceTestLoading";
 import { FragranceTestQuestion } from "../components/fragrance-test/FragranceTestQuestion";
 import { FragranceTestResult } from "../components/fragrance-test/FragranceTestResult";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const FragranceTest = () => {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -85,17 +86,14 @@ export const FragranceTest = () => {
       : 0;
 
   /* ── ORCHESTRATION ─────────────────────────────────────────────────────── */
+  let content = null;
   if (phase === "idle") {
-    return <FragranceTestIdle onStart={handleStart} errorMsg={errorMsg} />;
-  }
-
-  if (phase === "loading") {
+    content = <FragranceTestIdle onStart={handleStart} errorMsg={errorMsg} />;
+  } else if (phase === "loading") {
     const isAnalyzing = state && state.step > state.totalSteps;
-    return <FragranceTestLoading isAnalyzing={!!isAnalyzing} />;
-  }
-
-  if (phase === "question" && state) {
-    return (
+    content = <FragranceTestLoading isAnalyzing={!!isAnalyzing} />;
+  } else if (phase === "question" && state) {
+    content = (
       <FragranceTestQuestion
         state={state}
         selectedOption={selectedOption}
@@ -105,11 +103,14 @@ export const FragranceTest = () => {
         onOptionClick={handleOptionClick}
       />
     );
+  } else if (phase === "result" && state) {
+    content = <FragranceTestResult state={state} onReset={handleReset} />;
   }
 
-  if (phase === "result" && state) {
-    return <FragranceTestResult state={state} onReset={handleReset} />;
-  }
-
-  return null;
+  return (
+    <>
+      <SEOHead title="Eluxar | Test Olfativo" exactTitle />
+      {content}
+    </>
+  );
 };

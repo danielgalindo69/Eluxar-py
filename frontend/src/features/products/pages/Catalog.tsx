@@ -6,6 +6,7 @@ import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
+import { AuthAwareLink } from "../../auth/components/AuthAwareLink";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -169,13 +170,8 @@ export const Catalog = () => {
         {/* Header Section */}
         <div className="flex flex-col mb-16 space-y-6">
           <SEOHead
-            title={
-              activeFilter !== 'Todos'
-                ? `Colección ${activeFilter} — Fragancias de Lujo`
-                : activeGenderFilter !== 'all'
-                ? `Fragancias ${activeGenderFilter} — Eluxar Colección`
-                : 'Colección Completa — Fragancias de Alta Concentración'
-            }
+            title="Colección de Perfumes | Eluxar"
+            exactTitle
             description={`Explora la colección Eluxar de fragancias de lujo con alta concentración. ${activeFilter !== 'Todos' ? `Categoría: ${activeFilter}. ` : ''}Composiciones atemporales y neutrales. Envío express gratuito.`}
             canonical={`https://eluxar.com/catalog${activeFilter !== 'Todos' ? `?category=${encodeURIComponent(activeFilter)}` : ''}`}
             keywords={`colección fragancias, ${activeFilter !== 'Todos' ? activeFilter + ', ' : ''}perfumes lujo Colombia, extrait de parfum, Eluxar`}
@@ -186,13 +182,14 @@ export const Catalog = () => {
             Composiciones equilibradas diseñadas para trascender el género y la temporada.
           </p>
           {/* AI Search Button */}
-          <button
-            onClick={() => navigate('/chat')}
+          <AuthAwareLink
+            to="/chat"
+            customMessage="Inicia sesión para chatear con nuestro experto en fragancias y buscar con IA."
             className="w-fit bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#1B5E20 ] transition-all duration-300 cursor-pointer flex items-center gap-3 shadow-sm hover:shadow-lg"
           >
             <Sparkles size={16} />
             Buscar con IA
-          </button>
+          </AuthAwareLink>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">

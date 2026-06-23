@@ -1,7 +1,8 @@
-﻿
+
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
+import { AuthAwareLink } from "../../../features/auth/components/AuthAwareLink";
 
 export const Hero = () => {
   return (
@@ -29,9 +30,9 @@ export const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Link to="/fragrance-test" className="inline-flex items-center justify-center bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#2B2B2B] dark:hover:bg-[#E5E5E5] transition-all duration-300">
+            <AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="inline-flex items-center justify-center bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#2B2B2B] dark:hover:bg-[#E5E5E5] transition-all duration-300">
               Descubre tu aroma con IA
-            </Link>
+            </AuthAwareLink>
             <Link to="/catalog" className="inline-flex items-center justify-center border border-[#111111]/20 dark:border-white/20 text-[#111111] dark:text-white px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:border-[#111111] dark:hover:border-white transition-all duration-300 group">
               Ver Colección
               <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />

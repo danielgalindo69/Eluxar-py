@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Instagram, Twitter, Youtube, Facebook, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AuthAwareLink } from "../../../features/auth/components/AuthAwareLink";
 
 export const Footer = () => {
   const [email, setEmail] = useState('');
@@ -37,9 +38,9 @@ export const Footer = () => {
             <ul className="space-y-3 text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light">
               <li><Link to="/catalog" className="hover:text-[#111111] dark:hover:text-white transition-colors">Catálogo</Link></li>
               <li><Link to="/search" className="hover:text-[#111111] dark:hover:text-white transition-colors">Buscador</Link></li>
-              <li><Link to="/fragrance-test" className="hover:text-[#111111] dark:hover:text-white transition-colors">Test Olfativo IA</Link></li>
+              <li><AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="hover:text-[#111111] dark:hover:text-white transition-colors">Test Olfativo IA</AuthAwareLink></li>
               <li><Link to="/recommendations" className="hover:text-[#111111] dark:hover:text-white transition-colors">Recomendaciones</Link></li>
-              <li><Link to="/chat" className="hover:text-[#111111] dark:hover:text-white transition-colors">Asistente Virtual</Link></li>
+              <li><AuthAwareLink to="/chat" customMessage="Inicia sesión para chatear con nuestro experto en fragancias." className="hover:text-[#111111] dark:hover:text-white transition-colors">Asistente Virtual</AuthAwareLink></li>
             </ul>
           </div>
 
