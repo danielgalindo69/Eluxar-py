@@ -1,10 +1,12 @@
 import { Helmet } from "react-helmet-async";
 
 interface SEOHeadProps {
-  /** Título de la página. Se concatena con "| Eluxar" automáticamente. */
+  /** Título de la página. Se concatena con "| Eluxar" automáticamente si no se usa exactTitle. */
   title: string;
+  /** Usa exactamente el título provisto sin concatenar el SITE_NAME */
+  exactTitle?: boolean;
   /** Meta description. Máximo recomendado: 160 caracteres. */
-  description: string;
+  description?: string;
   /** URL canónica absoluta de la página. */
   canonical?: string;
   /** URL de imagen para Open Graph / Twitter Cards. */
@@ -25,7 +27,8 @@ const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 
 export const SEOHead = ({
   title,
-  description,
+  exactTitle = false,
+  description = "Descubre Eluxar: fragancias de lujo con alta concentración.",
   canonical,
   image = DEFAULT_IMAGE,
   ogType = "website",
@@ -33,7 +36,7 @@ export const SEOHead = ({
   structuredData,
   keywords,
 }: SEOHeadProps) => {
-  const fullTitle = `${title} | ${SITE_NAME}`;
+  const fullTitle = exactTitle ? title : `${title} | ${SITE_NAME}`;
   const canonicalUrl = canonical ?? (typeof window !== "undefined" ? window.location.href : BASE_URL);
 
   return (

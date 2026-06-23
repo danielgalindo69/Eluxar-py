@@ -5,6 +5,7 @@ import { ProductCard } from "../../products/components/ProductCard";
 import { Sparkles, Info } from "lucide-react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const Recommendations = () => {
   const [recommendedProducts, setRecommendedProducts] = useState<typeof PRODUCTS>([]);
@@ -23,6 +24,7 @@ export const Recommendations = () => {
 
   if (isLoading) return (
     <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
+      <SEOHead title="Eluxar | Mis Recomendaciones" exactTitle />
       <div className="text-center space-y-4">
         <Sparkles className="mx-auto text-[#3A4A3F] animate-pulse" size={32} />
         <p className="text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/30 text-sm font-light uppercase tracking-widest">Personalizando tus recomendaciones...</p>
@@ -32,6 +34,7 @@ export const Recommendations = () => {
 
   return (
     <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
+      <SEOHead title="Eluxar | Mis Recomendaciones" exactTitle />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">

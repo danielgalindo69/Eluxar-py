@@ -3,12 +3,14 @@ import { formatPrice } from "../../../core/api/api";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Trash2, Plus, Minus, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 export const Cart = () => {
    const { items, removeItem, updateQuantity, subtotal } = useCart();
 
    return (
       <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
+         <SEOHead title="Eluxar | Tu Bolsa" exactTitle />
          <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-16">Tu Bolsa de Compra</h1>
 

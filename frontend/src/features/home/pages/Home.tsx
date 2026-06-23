@@ -54,7 +54,8 @@ export const Home = () => {
   return (
     <main className="bg-white dark:bg-[var(--bg-base)]">
       <SEOHead
-        title="Fragancias de Alta Concentración"
+        title="Eluxar | Fragancias de Lujo"
+        exactTitle
         description="Descubre Eluxar: fragancias de lujo con alta concentración, composiciones atemporales y neutrales. Test olfativo con IA incluido. Envío express gratuito."
         canonical="https://eluxar.com/"
         ogType="website"

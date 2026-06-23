@@ -39,6 +39,7 @@ const Coupons = lazy(() => import("../../features/admin/pages/Coupons").then(m =
 import { AdminLayout } from "../../features/admin/pages/AdminLayout";
 import { AdminAuth } from "../../features/admin/pages/AdminAuth";
 import { ProtectedRoute } from "../../features/auth/components/ProtectedRoute";
+import { FeatureProtectedRoute } from "../../features/auth/components/FeatureProtectedRoute";
 import { NotFound } from "../../features/shared/pages/NotFound";
 import { ScrollToTop } from "../../shared/components/ScrollToTop";
 
@@ -70,7 +71,7 @@ const PageTransition = () => {
 
 const Layout = () => {
   const location = useLocation();
-  const hideFooterRoutes = ['/chat', '/fragrance-test'];
+  const hideFooterRoutes = ['/chat', '/fragrance-test', '/auth', '/register', '/forgot-password', '/checkout'];
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
 
   return (
@@ -110,9 +111,19 @@ export const router = createBrowserRouter([
       { path: "register", Component: Register },
       { path: "forgot-password", Component: ForgotPassword },
       { path: "search", Component: Search },
-      { path: "fragrance-test", Component: FragranceTest },
       { path: "recommendations", Component: Recommendations },
-      { path: "chat", Component: Chat },
+      {
+        element: <FeatureProtectedRoute featureName="el Test Olfativo" />,
+        children: [
+          { path: "fragrance-test", Component: FragranceTest },
+        ]
+      },
+      {
+        element: <FeatureProtectedRoute featureName="el Chat de IA" />,
+        children: [
+          { path: "chat", Component: Chat },
+        ]
+      },
 
       // ─── Protected routes (require login) ────────────────────
       {
