@@ -1,10 +1,6 @@
 """
-LLM prompt definitions for the Fragrance Test feature.
-
-Each function decorated with @llm.call is a prompt template only —
-no orchestration logic lives here.
+Definición de Prompts (Instrucciones) para el Agente LLM en el Test Olfativo.
 """
-
 import json
 from mirascope import llm
 from config.ai_config import AI_MODEL
@@ -14,7 +10,7 @@ from agents.fragrance.mock_data import TOTAL_QUESTIONS
 
 @llm.call(AI_MODEL)
 def fragrance_question_generator(history_summary: str, current_step: int, total_steps: int):
-    """Generate the next multiple-choice question for the fragrance test."""
+    """Genera la siguiente pregunta de opción múltiple para el test de fragancias."""
     return f"""
     SYSTEM: Eres ELUXAR, un experto en perfumería de lujo. Estás guiando a un usuario a través de un test 
     olfativo de {total_steps} preguntas para descubrir su fragancia ideal.
@@ -47,7 +43,7 @@ def fragrance_question_generator(history_summary: str, current_step: int, total_
 
 @llm.call(AI_MODEL, tools=[get_perfumes_for_test])
 def fragrance_test_agent(answers_summary: str, history: list):
-    """Analyse test answers and recommend the best perfume from the catalogue."""
+    """Genera un resumen de las respuestas del test y recomienda el mejor perfume del catálogo."""
     return f"""
     SYSTEM: Eres ELUXAR, un experto en perfumería de lujo. Tu tarea es analizar las respuestas 
     de un test olfativo y recomendar EL MEJOR perfume del catálogo para el usuario.

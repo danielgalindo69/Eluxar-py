@@ -1,11 +1,6 @@
 """
-Fallback questions used when the LLM is unavailable (quota, timeout, etc.).
-
-These are the only hardcoded strings in the fragrance test flow.
-Keeping them isolated makes them easy to update without touching
-any business logic.
+Datos de Respaldo (Fallback) para el Test Olfativo.
 """
-
 MOCK_QUESTIONS: list[dict] = [
     {
         "question": "¿Cuál de estos aromas te atrae más?",

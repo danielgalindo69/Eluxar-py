@@ -1,14 +1,6 @@
 """
-Mirascope tool stubs for the MCP client.
-
-These definitions are required so that Mirascope can register the tool
-names in @llm.call decorators.  The actual execution happens inside the
-MCP server (server/server.py) over the stdio transport.
-
-Nothing else should live in this file — orchestration, utilities and
-server-params resolution have been moved to dedicated modules.
+Definición de las Herramientas (Tools) del lado del Cliente (Mirascope).
 """
-
 from mirascope import llm
 
 

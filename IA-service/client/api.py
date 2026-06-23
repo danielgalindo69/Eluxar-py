@@ -8,7 +8,7 @@ import functools
 
 from dotenv import load_dotenv
 
-# ── Encoding fix (Windows dev — must happen before any output) ────────────────
+# ── Solución de codificación (Desarrollo en Windows — debe ocurrir antes de cualquier salida) ────────────────
 os.environ["PYTHONIOENCODING"] = "utf-8"
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
@@ -17,10 +17,10 @@ except AttributeError:
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-# ── Load .env (dev only; Render injects env vars in production) ───────────────
+# ── Cargar .env (solo desarrollo; Render inyecta variables de entorno en producción) ───────────────
 load_dotenv()
 
-# ── Mirascope provider registration ───────────────────────────────────────────
+# ── Registro de proveedor de Mirascope ───────────────────────────────────────────
 from mirascope import llm  # noqa: E402
 
 llm.register_provider(
@@ -38,12 +38,12 @@ from utils.logger import get_logger  # noqa: E402
 
 log = get_logger(__name__)
 
-# ── Application ───────────────────────────────────────────────────────────────
+# ── Aplicación principal Flask ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
 
-# ── CORS ──────────────────────────────────────────────────────────────────────
+# ── Configuración de CORS ──────────────────────────────────────────────────────────────────────
 _raw_origins = os.environ.get(
     "ALLOWED_ORIGINS",
     "http://localhost:5173,http://localhost:3000",
@@ -51,7 +51,7 @@ _raw_origins = os.environ.get(
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
-# ── Internal API Key ──────────────────────────────────────────────────────────
+# ── Autenticación con Llave Interna API ──────────────────────────────────────────────────────────
 _INTERNAL_API_KEY: str = os.environ.get("INTERNAL_API_KEY", "")
 
 
@@ -71,9 +71,13 @@ def require_internal_key(fn):
     return wrapper
 
 
-# ── Correlation ID + Request timing ──────────────────────────────────────────
+# ── ID de Correlación + Tiempo de Petición ──────────────────────────────────────────
 @app.before_request
 def _before():
+    # Asignar un identificador único (UUID) a cada petición entrante para trazabilidad en logs.
+    g.request_id = str(uuid.uuid4())[:8]
+    # Guardar el momento exacto en el que inicia la petición.
+    g.start_time = time.monotonic()
     g.request_id = str(uuid.uuid4())[:8]
     g.start_time = time.monotonic()
     log.info("[%s] → %s %s", g.request_id, request.method, request.path)
@@ -81,6 +85,7 @@ def _before():
 
 @app.after_request
 def _after(response):
+    # Calcular el tiempo total transcurrido (en milisegundos) desde que inició la petición.
     duration_ms = int((time.monotonic() - g.start_time) * 1000)
     log.info(
         "[%s] ← %s %s %dms",
@@ -92,19 +97,19 @@ def _after(response):
     return response
 
 
-# ── Error handlers ────────────────────────────────────────────────────────────
+# ── Manejadores de Errores (Error handlers) ────────────────────────────────────────────────────────────
 @app.errorhandler(413)
 def _payload_too_large(e):
     log.warning("[%s] Payload too large: %s", getattr(g, "request_id", "?"), e)
     return jsonify({"error": "Payload demasiado grande. Máximo 20 MB por solicitud."}), 413
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ── Funciones Auxiliares (Helpers) ───────────────────────────────────────────────────────────────────
 LLM_TIMEOUT_SECONDS = int(os.environ.get("LLM_TIMEOUT_SECONDS", "45"))
 
 
 def _extract_real_exception(exc: BaseException) -> BaseException:
-    """Unwrap ExceptionGroup (Python 3.11+) to the root cause."""
+    """Extraer la causa principal del error desentrañando el ExceptionGroup (Python 3.11+)."""
     if isinstance(exc, BaseExceptionGroup):
         return _extract_real_exception(exc.exceptions[0])
     return exc
@@ -112,10 +117,10 @@ def _extract_real_exception(exc: BaseException) -> BaseException:
 
 def _parse_json_body() -> tuple[dict | None, object]:
     """
-    Safely parse the request JSON body.
+    Analizar de forma segura el cuerpo JSON de la petición entrante.
 
-    Returns (data, error_response) where error_response is None on success,
-    or a Flask response object with HTTP 400 on failure.
+    Devuelve (datos, respuesta_de_error) donde respuesta_de_error es None en caso de éxito,
+    o un objeto de respuesta de Flask con HTTP 400 en caso de fallo (ej. payload inválido).
     """
     data = request.get_json(silent=True)
     if data is None:
@@ -125,10 +130,11 @@ def _parse_json_body() -> tuple[dict | None, object]:
     return data, None
 
 
-# ── Chat endpoint ─────────────────────────────────────────────────────────────
+# ── Endpoint de Chat (Asesor de Perfumes) ─────────────────────────────────────────────────────────────
 @app.route("/chat", methods=["POST"])
 @require_internal_key
 def chat_endpoint():
+    # 1. Analizar cuerpo de la petición.
     data, err = _parse_json_body()
     if err:
         return err
@@ -142,9 +148,11 @@ def chat_endpoint():
     log.info("[%s] /chat message=%r history_len=%d", g.request_id, message[:60], len(history))
 
     try:
+        # 2. Ejecutar de forma asíncrona el proceso del chat, aplicando un límite de tiempo (timeout).
         response_text, updated_history = asyncio.run(
             asyncio.wait_for(process_chat(message, history), timeout=LLM_TIMEOUT_SECONDS)
         )
+        # 3. Retornar el texto generado y el historial actualizado.
         return jsonify({"response": response_text, "history": updated_history})
 
     except asyncio.TimeoutError:
@@ -157,10 +165,11 @@ def chat_endpoint():
         return jsonify({"error": str(real)}), 500
 
 
-# ── Fragrance Test endpoint ───────────────────────────────────────────────────
+# ── Endpoint de Test Olfativo ───────────────────────────────────────────────────
 @app.route("/fragrance-test", methods=["POST"])
 @require_internal_key
 def fragrance_test_endpoint():
+    # 1. Parsear los datos de entrada del test.
     data, err = _parse_json_body()
     if err:
         return err
@@ -175,6 +184,8 @@ def fragrance_test_endpoint():
     )
 
     try:
+        # 2. Llamar al orquestador del test olfativo asincrónicamente con un límite de tiempo.
+        # Este proceso decidirá si generar una pregunta o dar la recomendación final según el paso actual (step).
         result = asyncio.run(
             asyncio.wait_for(
                 process_fragrance_test(message, history, step),
@@ -193,10 +204,11 @@ def fragrance_test_endpoint():
         return jsonify({"error": str(real)}), 500
 
 
-# ── Image Editing endpoint ────────────────────────────────────────────────────
+# ── Endpoint de Edición de Imágenes ────────────────────────────────────────────────────
 @app.route("/edit-image", methods=["POST"])
 @require_internal_key
 def edit_image_endpoint():
+    # 1. Obtener los parámetros de entrada.
     data, err = _parse_json_body()
     if err:
         return err
@@ -211,6 +223,7 @@ def edit_image_endpoint():
     log.info("[%s] /edit-image style=%r prompt=%r", g.request_id, style[:40], additional_prompt[:40])
 
     try:
+        # 2. Enviar a Clipdrop para cambiar el fondo utilizando el estilo y el prompt descriptivo.
         result = process_image_edit(image_base64, style, additional_prompt)
         return jsonify(result)
 
@@ -223,7 +236,7 @@ def edit_image_endpoint():
         return jsonify({"error": str(exc)}), 500
 
 
-# ── Dev server ────────────────────────────────────────────────────────────────
+# ── Servidor de Desarrollo ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
