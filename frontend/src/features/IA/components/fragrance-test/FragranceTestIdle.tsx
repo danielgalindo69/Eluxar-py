@@ -44,13 +44,13 @@ export const FragranceTestIdle = ({ onStart, errorMsg }: FragranceTestIdleProps)
         {/* Dimension pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
           {[
-            "🎯 Ocasión de uso",
-            "🌸 Familia olfativa",
-            "💨 Intensidad",
-            "👤 Género",
-            "💰 Presupuesto",
-            "🌡️ Clima",
-            "✨ Personalidad",
+            " Ocasión de uso",
+            " Familia olfativa",
+            " Intensidad",
+            " Género",
+            " Presupuesto",
+            " Clima",
+            " Personalidad",
           ].map((tag) => (
             <span
               key={tag}

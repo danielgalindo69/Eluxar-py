@@ -69,13 +69,17 @@ const PageTransition = () => {
 };
 
 const Layout = () => {
+  const location = useLocation();
+  const hideFooterRoutes = ['/chat', '/fragrance-test'];
+  const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
+
   return (
     <div className="min-h-screen bg-white dark:bg-[var(--bg-base)] font-sans text-[#2B2B2B] dark:text-[#EDEDED] antialiased selection:bg-[#3A4A3F] selection:text-white flex flex-col">
       <ScrollToTop />
       <Navbar />
       <CartDrawer />
       <PageTransition />
-      <Footer />
+      {!shouldHideFooter && <Footer />}
     </div>
   );
 };

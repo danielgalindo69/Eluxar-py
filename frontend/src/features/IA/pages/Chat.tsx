@@ -94,15 +94,7 @@ export const Chat = () => {
                       )}
                     </div>
                   </div>
-                  <span className={`text-[10px] mt-2 font-medium tracking-wider ${msg.role === 'user' ? 'text-[#2B2B2B]/40 dark:text-white/30 dark:text-[#2B2B2B]/50 dark:text-white/40' : 'text-[#2B2B2B]/40 dark:text-white/30 dark:text-[#2B2B2B]/50 dark:text-white/40'}`}>
-                    {msg.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
                 </div>
-                {msg.role === 'user' && (
-                  <div className="w-10 h-10 rounded-full bg-[#111111] dark:bg-gray-800 flex items-center justify-center shrink-0 shadow-md">
-                    <User size={18} className="text-white" />
-                  </div>
-                )}
               </motion.div>
             ))}
           </AnimatePresence>
@@ -123,7 +115,7 @@ export const Chat = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="pb-8 pt-4 bg-transparent sticky bottom-0 z-10">
+        <div className="pb-8 pt-4 bg-white dark:bg-[var(--bg-base)] sticky bottom-0 z-10">
           {/* Quick Actions */}
           {messages.length <= 1 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-wrap gap-3 mb-6 justify-center">
