@@ -209,11 +209,11 @@ public class ChatService {
      * Si falla o da timeout, duerme lo restante del intervalo y vuelve a intentar.
      */
     private boolean waitForServiceAwake(String requestId, int maxWaitSeconds) {
-        log.info("[{}] HEALTH_CHECK_START", requestId);
+        String healthUrl = iaServiceUrl + "/health";
+        log.info("[{}] HEALTH_CHECK_START url={}", requestId, healthUrl);
         
         long startWait = System.currentTimeMillis();
         long maxWaitMs = maxWaitSeconds * 1000L;
-        String healthUrl = iaServiceUrl + "/health";
         
         HttpRequest healthRequest = HttpRequest.newBuilder()
                 .uri(URI.create(healthUrl))
@@ -223,14 +223,22 @@ public class ChatService {
 
         while (System.currentTimeMillis() - startWait < maxWaitMs) {
             long checkStart = System.currentTimeMillis();
+            long elapsedMs = checkStart - startWait;
+            log.info("[{}] HEALTH_CHECK_ATTEMPT elapsedMs={}", requestId, elapsedMs);
+            
             try {
                 HttpResponse<Void> response = httpClient.send(healthRequest, HttpResponse.BodyHandlers.discarding());
+                long durationMs = System.currentTimeMillis() - checkStart;
+                log.info("[{}] HEALTH_CHECK_RESPONSE status={} durationMs={}", 
+                        requestId, response.statusCode(), durationMs);
+                        
                 if (response.statusCode() == 200) {
                     log.info("[{}] HEALTH_CHECK_SUCCESS", requestId);
                     return true;
                 }
             } catch (Exception e) {
-                // Se ignora el error de forma silenciosa mientras despierta (SocketTimeoutException, ConnectException, etc)
+                log.warn("[{}] HEALTH_CHECK_FAILED type={} message={}", 
+                        requestId, e.getClass().getSimpleName(), e.getMessage());
             }
             
             // Calcular cuánto falta para el próximo tick
@@ -250,6 +258,8 @@ public class ChatService {
                 }
             }
         }
+        
+        log.info("[{}] HEALTH_CHECK_TIMEOUT maxWaitSeconds={}", requestId, maxWaitSeconds);
         return false;
     }
 
