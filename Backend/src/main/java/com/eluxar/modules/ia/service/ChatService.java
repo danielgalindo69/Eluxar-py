@@ -34,9 +34,9 @@ public class ChatService {
             .build();
 
     // ── Constantes de reintentos ──────────────────────────────────────────────
-    private static final int MAX_ATTEMPTS = 5; // 1 intento original + 4 reintentos
-    // Segundos de espera máxima en cada reintento (backoff progresivo)
-    private static final int[] RETRY_DELAYS_SECONDS = {5, 10, 15, 15};
+    private static final int MAX_ATTEMPTS = 6;
+    // Segundos de espera máxima en cada reintento (backoff progresivo) para ~65s total
+    private static final int[] RETRY_DELAYS_SECONDS = {5, 10, 15, 15, 20};
     private static final String HIBERNATE_HEADER = "x-render-routing";
     private static final String HIBERNATE_HEADER_VALUE = "hibernate-rate-limited";
     private static final int HEALTH_POLL_INTERVAL_MS = 2000;
@@ -112,8 +112,6 @@ public class ChatService {
             }
 
         } catch (HibernateRetryExhaustedException e) {
-            log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={} — sin respuesta del servicio",
-                    requestId, MAX_ATTEMPTS);
             return new ChatResponse(
                     "Lo siento, el servicio de IA no está disponible en este momento. Por favor, intenta de nuevo más tarde.",
                     request.getHistory() != null ? request.getHistory() : new ArrayList<>()
@@ -147,28 +145,28 @@ public class ChatService {
             long startTime = System.currentTimeMillis();
             
             if (attempt > 1) {
-                log.info("[{}] RETRY intento={}/{} url={}", requestId, attempt, MAX_ATTEMPTS, targetUrl);
+                log.info("[{}] RETRY intento={}/{}", requestId, attempt, MAX_ATTEMPTS);
             } else {
-                log.info("[{}] CALL intento={}/{} url={} method=POST", requestId, attempt, MAX_ATTEMPTS, targetUrl);
+                log.info("[{}] CALL intento={}/{}", requestId, attempt, MAX_ATTEMPTS);
             }
             
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             long durationMs = System.currentTimeMillis() - startTime;
 
-            log.info("[{}] RESPONSE status={} durationMs={} intento={}/{}",
-                    requestId, response.statusCode(), durationMs, attempt, MAX_ATTEMPTS);
-
-            Optional<String> retryAfter = response.headers().firstValue("Retry-After");
-            retryAfter.ifPresent(v -> log.warn("[{}] Retry-After={}", requestId, v));
-
             if (response.statusCode() != 429) {
+                log.info("[{}] RESPONSE status={}", requestId, response.statusCode());
                 if (wasHibernated && response.statusCode() >= 200 && response.statusCode() < 300) {
                     long recoveryTimeMs = System.currentTimeMillis() - globalStartTime;
-                    log.info("[{}] RETRY_SUCCESS intento={}/{} RECOVERY_TIME_MS={}", 
-                            requestId, attempt, MAX_ATTEMPTS, recoveryTimeMs);
+                    log.info("[{}] RETRY_SUCCESS intento={}/{}", requestId, attempt, MAX_ATTEMPTS);
+                    log.info("[{}] RECOVERY_TIME_MS={}", requestId, recoveryTimeMs);
                 }
                 return response;
             }
+
+            log.info("[{}] RESPONSE status=429", requestId);
+
+            Optional<String> retryAfter = response.headers().firstValue("Retry-After");
+            retryAfter.ifPresent(v -> log.warn("[{}] Retry-After={}", requestId, v));
 
             String renderRouting = response.headers().firstValue(HIBERNATE_HEADER).orElse("");
             boolean isHibernation = renderRouting.contains(HIBERNATE_HEADER_VALUE);
@@ -179,22 +177,26 @@ public class ChatService {
                 return response;
             }
 
-            wasHibernated = true;
+            log.warn("[{}] HIBERNATE_DETECTED intento={}/{}", requestId, attempt, MAX_ATTEMPTS);
+
+            if (!wasHibernated) {
+                log.info("[{}] WAKEUP_TRIGGER_SENT", requestId);
+                checkHealth(); // Trigger wake-up immediately on first detection
+                wasHibernated = true;
+            }
 
             if (attempt == MAX_ATTEMPTS) {
-                log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={}/{} URL={}",
-                        requestId, attempt, MAX_ATTEMPTS, targetUrl);
+                long totalWaitMs = System.currentTimeMillis() - globalStartTime;
+                log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={}", requestId, MAX_ATTEMPTS);
+                log.error("[{}] TOTAL_WAIT_MS={}", requestId, totalWaitMs);
                 throw new HibernateRetryExhaustedException();
             }
 
             int waitSeconds = RETRY_DELAYS_SECONDS[attempt - 1];
-            log.warn("[{}] HIBERNATE_DETECTED intento={}/{} — iniciando espera de hasta {}s",
-                    requestId, attempt, MAX_ATTEMPTS, waitSeconds);
-
             boolean awake = waitForServiceAwake(requestId, waitSeconds);
             
             if (awake) {
-                log.info("[{}] SERVICE_AWAKE — reintentando inmediatamente", requestId);
+                log.info("[{}] SERVICE_AWAKE", requestId);
             }
         }
 
@@ -207,8 +209,7 @@ public class ChatService {
      * Si falla o da timeout, duerme lo restante del intervalo y vuelve a intentar.
      */
     private boolean waitForServiceAwake(String requestId, int maxWaitSeconds) {
-        log.info("[{}] HEALTH_CHECK_START iniciando polling cada {}ms por máximo {}s", 
-                requestId, HEALTH_POLL_INTERVAL_MS, maxWaitSeconds);
+        log.info("[{}] HEALTH_CHECK_START", requestId);
         
         long startWait = System.currentTimeMillis();
         long maxWaitMs = maxWaitSeconds * 1000L;
@@ -225,7 +226,7 @@ public class ChatService {
             try {
                 HttpResponse<Void> response = httpClient.send(healthRequest, HttpResponse.BodyHandlers.discarding());
                 if (response.statusCode() == 200) {
-                    log.info("[{}] HEALTH_CHECK_SUCCESS servicio responde a /health", requestId);
+                    log.info("[{}] HEALTH_CHECK_SUCCESS", requestId);
                     return true;
                 }
             } catch (Exception e) {
