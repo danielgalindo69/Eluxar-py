@@ -30,4 +30,15 @@ public class ChatController {
         ChatResponse response = chatService.sendMessage(request);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * GET /api/ia/health
+     * Realiza un ping silencioso al IA-service para despertarlo de la hibernación.
+     */
+    @GetMapping("/health")
+    @Operation(summary = "Verificar estado y despertar el servicio de IA de forma silenciosa")
+    public ResponseEntity<Void> healthCheck() {
+        chatService.checkHealth();
+        return ResponseEntity.ok().build();
+    }
 }

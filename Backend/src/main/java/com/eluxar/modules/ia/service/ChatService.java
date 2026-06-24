@@ -33,6 +33,33 @@ public class ChatService {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
+    // ── Constantes de reintentos ──────────────────────────────────────────────
+    private static final int MAX_RETRIES = 3;
+    // Segundos de espera antes de cada reintento (backoff progresivo: intento 1 -> 3s, 2 -> 6s, 3 -> 10s)
+    private static final int[] RETRY_DELAYS_SECONDS = {3, 6, 10};
+    private static final String HIBERNATE_HEADER = "x-render-routing";
+    private static final String HIBERNATE_HEADER_VALUE = "hibernate-rate-limited";
+
+    /**
+     * Hace un "ping" ligero al endpoint de health del IA-service
+     * para despertarlo de la hibernación silenciosamente.
+     */
+    public void checkHealth() {
+        String targetUrl = iaServiceUrl + "/health";
+        try {
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(targetUrl))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+            
+            // Fire and forget - si falla o da timeout (ej. está durmiendo), está bien, la petición inicial ya empezó a despertarlo.
+            httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.discarding());
+        } catch (Exception e) {
+            log.warn("Error en health check silencioso al IA-service: {}", e.getMessage());
+        }
+    }
+
     /**
      * Delegates the chat message to the Flask/Python AI service and returns its response.
      * The Flask service handles the MCP agent loop internally.
@@ -63,30 +90,7 @@ public class ChatService {
             log.info("[{}] CALL url={} method=POST timestamp={}",
                     requestId, targetUrl, System.currentTimeMillis());
 
-            long startTime = System.currentTimeMillis();
-            HttpResponse<String> httpResponse = httpClient.send(
-                    httpRequest,
-                    HttpResponse.BodyHandlers.ofString()
-            );
-            long durationMs = System.currentTimeMillis() - startTime;
-
-            log.info("[{}] RESPONSE status={} durationMs={}",
-                    requestId, httpResponse.statusCode(), durationMs);
-
-            // Registrar Retry-After si existe
-            Optional<String> retryAfter = httpResponse.headers().firstValue("Retry-After");
-            retryAfter.ifPresent(v -> log.warn("[{}] Retry-After={}", requestId, v));
-
-            if (httpResponse.statusCode() == 429) {
-                log.error("[{}] FLASK_SERVICE_RETURNED_429 STATUS=429 URL={} HEADERS={} BODY={}",
-                        requestId, targetUrl,
-                        httpResponse.headers().map(),
-                        httpResponse.body());
-                return new ChatResponse(
-                        "Lo siento, el servicio de IA no está disponible en este momento. Por favor, intenta de nuevo más tarde.",
-                        request.getHistory() != null ? request.getHistory() : new ArrayList<>()
-                );
-            }
+            HttpResponse<String> httpResponse = executeWithHibernateRetry(httpRequest, requestId, targetUrl);
 
             if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
                 // Parse Flask response: { "response": "...", "history": [...] }
@@ -109,6 +113,13 @@ public class ChatService {
                 );
             }
 
+        } catch (HibernateRetryExhaustedException e) {
+            log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={} — sin respuesta del servicio",
+                    requestId, MAX_RETRIES);
+            return new ChatResponse(
+                    "Lo siento, el servicio de IA no está disponible en este momento. Por favor, intenta de nuevo más tarde.",
+                    request.getHistory() != null ? request.getHistory() : new ArrayList<>()
+            );
         } catch (java.net.ConnectException e) {
             log.error("[{}] Cannot connect to Flask AI service at {}: {}", requestId, targetUrl, e.getMessage());
             return new ChatResponse(
@@ -121,6 +132,77 @@ public class ChatService {
                     "Ocurrió un error al procesar tu mensaje. Por favor, intenta de nuevo.",
                     request.getHistory() != null ? request.getHistory() : new ArrayList<>()
             );
+        }
+    }
+
+    /**
+     * Ejecuta la petición HTTP al IA-service con reintentos automáticos ante hibernación de Render Free.
+     *
+     * <p>Cuando Render Free está durmiendo devuelve HTTP 429 con el header
+     * {@code x-render-routing: hibernate-rate-limited}. En ese caso se reintenta hasta
+     * {@value MAX_RETRIES} veces con un backoff progresivo (3 s → 6 s → 10 s).
+     * Si el 429 no corresponde a hibernación, falla inmediatamente.
+     *
+     * <p>Nota de arquitectura: el proyecto usa spring-boot-starter-web (Tomcat, blocking I/O)
+     * sin WebFlux. Thread.sleep es la solución adecuada y consistente con el HttpClient
+     * bloqueante ya en uso; introducir un stack reactivo supondría una refactorización
+     * desproporcionada para este caso de uso.
+     *
+     * @throws HibernateRetryExhaustedException si todos los intentos son respondidos con hibernación.
+     */
+    private HttpResponse<String> executeWithHibernateRetry(
+            HttpRequest httpRequest, String requestId, String targetUrl) throws Exception {
+
+        for (int attempt = 1; attempt <= MAX_RETRIES + 1; attempt++) {
+            long startTime = System.currentTimeMillis();
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            long durationMs = System.currentTimeMillis() - startTime;
+
+            log.info("[{}] RESPONSE status={} durationMs={} intento={}/{}",
+                    requestId, response.statusCode(), durationMs, attempt, MAX_RETRIES + 1);
+
+            // Registrar Retry-After si existe
+            Optional<String> retryAfter = response.headers().firstValue("Retry-After");
+            retryAfter.ifPresent(v -> log.warn("[{}] Retry-After={}", requestId, v));
+
+            if (response.statusCode() != 429) {
+                // Respuesta exitosa o error no relacionado con hibernación → devolver tal cual
+                return response;
+            }
+
+            String renderRouting = response.headers().firstValue(HIBERNATE_HEADER).orElse("");
+            boolean isHibernation = renderRouting.contains(HIBERNATE_HEADER_VALUE);
+
+            if (!isHibernation) {
+                // 429 por rate-limit real, no reintentar
+                log.warn("[{}] FLASK_SERVICE_RETURNED_429 (rate-limit, no hibernación) STATUS=429 URL={} HEADERS={} BODY={}",
+                        requestId, targetUrl, response.headers().map(), response.body());
+                return response;
+            }
+
+            if (attempt > MAX_RETRIES) {
+                // Se agotaron todos los reintentos (attempt llegó a 4)
+                log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={} URL={}",
+                        requestId, MAX_RETRIES, targetUrl);
+                throw new HibernateRetryExhaustedException();
+            }
+
+            int waitSeconds = RETRY_DELAYS_SECONDS[attempt - 1];
+            log.warn("[{}] HIBERNATE_DETECTED intento={}/{} x-render-routing={} — esperando {}s antes del siguiente intento",
+                    requestId, attempt, MAX_RETRIES, renderRouting, waitSeconds);
+
+            Thread.sleep(waitSeconds * 1000L);
+
+            log.info("[{}] RETRY intento={}/{} url={}", requestId, attempt + 1, MAX_RETRIES + 1, targetUrl);
+        }
+
+        throw new HibernateRetryExhaustedException();
+    }
+
+    /** Excepción interna que indica que todos los reintentos por hibernación se agotaron. */
+    private static final class HibernateRetryExhaustedException extends RuntimeException {
+        HibernateRetryExhaustedException() {
+            super("Hibernate retry exhausted after " + MAX_RETRIES + " attempts");
         }
     }
 }

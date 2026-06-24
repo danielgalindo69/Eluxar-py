@@ -269,6 +269,17 @@ def edit_image_endpoint():
         return jsonify({"error": str(exc)}), 500
 
 
+# ── Endpoint de Health Check ─────────────────────────────────────────────────────────────
+@app.route("/health", methods=["GET"])
+def health_check():
+    """
+    Endpoint ligero para comprobar que el servicio está vivo y 
+    despertarlo de la hibernación (Render Free) de forma silenciosa.
+    No requiere llave interna porque se accede desde el frontend.
+    """
+    return jsonify({"status": "ok"}), 200
+
+
 # ── Servidor de Desarrollo ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

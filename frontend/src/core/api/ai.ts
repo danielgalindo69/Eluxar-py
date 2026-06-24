@@ -34,8 +34,15 @@ export const aiAPI = {
   },
   async improveImage(productId: string | number, imagenId: number, style?: string, prompt?: string) {
     return apiClient<any>(`/productos/${productId}/imagenes/${imagenId}/mejorar-ia`, {
-      method: 'POST',
-      body: JSON.stringify({ style: style || '', additional_prompt: prompt || '' }),
+        method: 'POST',
+        body: JSON.stringify({ style: style || '', additional_prompt: prompt || '' }),
     });
+  },
+  async healthCheck() {
+    try {
+      await apiClient('/ia/health', { method: 'GET' });
+    } catch (e) {
+      // Ignorar errores silenciosamente como fue solicitado
+    }
   },
 };

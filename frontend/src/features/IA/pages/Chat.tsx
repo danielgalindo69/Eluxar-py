@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Send, Sparkles, Bot, User } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Send, Sparkles, Bot } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
@@ -22,9 +22,15 @@ export const Chat = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isWakingUp, setIsWakingUp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   // Conversation history for the AI agent (persisted across turns, not in state to avoid re-renders)
   const conversationHistory = useRef<object[]>([]);
+
+  // Silent warm-up on mount
+  useEffect(() => {
+    aiAPI.healthCheck();
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -33,6 +39,10 @@ export const Chat = () => {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsTyping(true);
+
+    const wakeUpTimeout = setTimeout(() => {
+      setIsWakingUp(true);
+    }, 3000);
 
     try {
       const { reply, history } = await aiAPI.chatMessage(userMsg.text, conversationHistory.current);
@@ -43,6 +53,8 @@ export const Chat = () => {
     } catch {
       setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'bot', text: 'Lo siento, hubo un error al procesar tu solicitud. Por favor intenta de nuevo.', timestamp: new Date() }]);
     } finally {
+      clearTimeout(wakeUpTimeout);
+      setIsWakingUp(false);
       setIsTyping(false);
     }
   };
@@ -107,10 +119,17 @@ export const Chat = () => {
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3A4A3F] to-[#2C3830] flex items-center justify-center shrink-0 shadow-md">
                 <Bot size={18} className="text-white" />
               </div>
-              <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED]/50 dark:border-white/5 dark:border-white/5 rounded-2xl rounded-tl-sm p-5 flex items-center gap-2 shadow-sm h-[60px]">
-                <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="flex flex-col gap-2">
+                <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED]/50 dark:border-white/5 dark:border-white/5 rounded-2xl rounded-tl-sm p-5 flex items-center gap-2 shadow-sm h-[60px] w-fit">
+                  <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-[#3A4A3F] dark:bg-[#A3B5AA] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                {isWakingUp && (
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-[#3A4A3F] dark:text-[#A3B5AA] ml-1">
+                    Iniciando servicio de IA. Esto puede tardar unos segundos...
+                  </motion.p>
+                )}
               </div>
             </motion.div>
           )}
