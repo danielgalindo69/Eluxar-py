@@ -31,6 +31,7 @@ llm.register_provider(
     api_key=os.environ.get("GROQ_API_KEY", ""),
 )
 
+from werkzeug.exceptions import HTTPException  # noqa: E402
 from flask import Flask, request, jsonify, g  # noqa: E402
 from flask_cors import CORS  # noqa: E402
 
@@ -205,6 +206,14 @@ def fragrance_test_endpoint():
         return jsonify({"error": str(real)}), 500
 
 
+# ── Handlers de excepciones ──────────────────────────────────────────────────
+@app.errorhandler(HTTPException)
+def handle_http_exception(e):
+    # Evitar que excepciones HTTP (404, 405) sean capturadas como un 500
+    return jsonify({
+        "error": e.description
+    }), e.code
+
 # ── Handler global de excepciones no capturadas ──────────────────────────────
 @app.errorhandler(Exception)
 def handle_unhandled_exception(exc: Exception):
@@ -267,6 +276,19 @@ def edit_image_endpoint():
             exc_info=True,
         )
         return jsonify({"error": str(exc)}), 500
+
+
+# ── Endpoint Raíz ────────────────────────────────────────────────────────────
+@app.route("/", methods=["GET", "HEAD"])
+def root():
+    """
+    Ruta raíz para que los chequeos automáticos (p.ej. Render) validen
+    la disponibilidad del servicio sin generar errores 404/500 en logs.
+    """
+    return {
+        "service": "eluxar-ai",
+        "status": "running"
+    }, 200
 
 
 # ── Endpoint de Health Check ─────────────────────────────────────────────────────────────
