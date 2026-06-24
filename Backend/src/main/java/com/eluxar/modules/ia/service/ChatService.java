@@ -34,11 +34,12 @@ public class ChatService {
             .build();
 
     // ── Constantes de reintentos ──────────────────────────────────────────────
-    private static final int MAX_RETRIES = 3;
-    // Segundos de espera antes de cada reintento (backoff progresivo: intento 1 -> 3s, 2 -> 6s, 3 -> 10s)
-    private static final int[] RETRY_DELAYS_SECONDS = {3, 6, 10};
+    private static final int MAX_ATTEMPTS = 5; // 1 intento original + 4 reintentos
+    // Segundos de espera máxima en cada reintento (backoff progresivo)
+    private static final int[] RETRY_DELAYS_SECONDS = {5, 10, 15, 15};
     private static final String HIBERNATE_HEADER = "x-render-routing";
     private static final String HIBERNATE_HEADER_VALUE = "hibernate-rate-limited";
+    private static final int HEALTH_POLL_INTERVAL_MS = 2000;
 
     /**
      * Hace un "ping" ligero al endpoint de health del IA-service
@@ -87,9 +88,6 @@ public class ChatService {
 
             HttpRequest httpRequest = requestBuilder.build();
 
-            log.info("[{}] CALL url={} method=POST timestamp={}",
-                    requestId, targetUrl, System.currentTimeMillis());
-
             HttpResponse<String> httpResponse = executeWithHibernateRetry(httpRequest, requestId, targetUrl);
 
             if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
@@ -115,7 +113,7 @@ public class ChatService {
 
         } catch (HibernateRetryExhaustedException e) {
             log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={} — sin respuesta del servicio",
-                    requestId, MAX_RETRIES);
+                    requestId, MAX_ATTEMPTS);
             return new ChatResponse(
                     "Lo siento, el servicio de IA no está disponible en este momento. Por favor, intenta de nuevo más tarde.",
                     request.getHistory() != null ? request.getHistory() : new ArrayList<>()
@@ -137,36 +135,38 @@ public class ChatService {
 
     /**
      * Ejecuta la petición HTTP al IA-service con reintentos automáticos ante hibernación de Render Free.
-     *
-     * <p>Cuando Render Free está durmiendo devuelve HTTP 429 con el header
-     * {@code x-render-routing: hibernate-rate-limited}. En ese caso se reintenta hasta
-     * {@value MAX_RETRIES} veces con un backoff progresivo (3 s → 6 s → 10 s).
-     * Si el 429 no corresponde a hibernación, falla inmediatamente.
-     *
-     * <p>Nota de arquitectura: el proyecto usa spring-boot-starter-web (Tomcat, blocking I/O)
-     * sin WebFlux. Thread.sleep es la solución adecuada y consistente con el HttpClient
-     * bloqueante ya en uso; introducir un stack reactivo supondría una refactorización
-     * desproporcionada para este caso de uso.
-     *
-     * @throws HibernateRetryExhaustedException si todos los intentos son respondidos con hibernación.
+     * Incorpora polling activo a /health para minimizar el tiempo de espera.
      */
     private HttpResponse<String> executeWithHibernateRetry(
             HttpRequest httpRequest, String requestId, String targetUrl) throws Exception {
 
-        for (int attempt = 1; attempt <= MAX_RETRIES + 1; attempt++) {
+        long globalStartTime = System.currentTimeMillis();
+        boolean wasHibernated = false;
+
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             long startTime = System.currentTimeMillis();
+            
+            if (attempt > 1) {
+                log.info("[{}] RETRY intento={}/{} url={}", requestId, attempt, MAX_ATTEMPTS, targetUrl);
+            } else {
+                log.info("[{}] CALL intento={}/{} url={} method=POST", requestId, attempt, MAX_ATTEMPTS, targetUrl);
+            }
+            
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             long durationMs = System.currentTimeMillis() - startTime;
 
             log.info("[{}] RESPONSE status={} durationMs={} intento={}/{}",
-                    requestId, response.statusCode(), durationMs, attempt, MAX_RETRIES + 1);
+                    requestId, response.statusCode(), durationMs, attempt, MAX_ATTEMPTS);
 
-            // Registrar Retry-After si existe
             Optional<String> retryAfter = response.headers().firstValue("Retry-After");
             retryAfter.ifPresent(v -> log.warn("[{}] Retry-After={}", requestId, v));
 
             if (response.statusCode() != 429) {
-                // Respuesta exitosa o error no relacionado con hibernación → devolver tal cual
+                if (wasHibernated && response.statusCode() >= 200 && response.statusCode() < 300) {
+                    long recoveryTimeMs = System.currentTimeMillis() - globalStartTime;
+                    log.info("[{}] RETRY_SUCCESS intento={}/{} RECOVERY_TIME_MS={}", 
+                            requestId, attempt, MAX_ATTEMPTS, recoveryTimeMs);
+                }
                 return response;
             }
 
@@ -174,35 +174,87 @@ public class ChatService {
             boolean isHibernation = renderRouting.contains(HIBERNATE_HEADER_VALUE);
 
             if (!isHibernation) {
-                // 429 por rate-limit real, no reintentar
-                log.warn("[{}] FLASK_SERVICE_RETURNED_429 (rate-limit, no hibernación) STATUS=429 URL={} HEADERS={} BODY={}",
+                log.warn("[{}] FLASK_SERVICE_RETURNED_429 (rate-limit real) URL={} HEADERS={} BODY={}",
                         requestId, targetUrl, response.headers().map(), response.body());
                 return response;
             }
 
-            if (attempt > MAX_RETRIES) {
-                // Se agotaron todos los reintentos (attempt llegó a 4)
-                log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={} URL={}",
-                        requestId, MAX_RETRIES, targetUrl);
+            wasHibernated = true;
+
+            if (attempt == MAX_ATTEMPTS) {
+                log.error("[{}] HIBERNATE_RETRY_EXHAUSTED intentos={}/{} URL={}",
+                        requestId, attempt, MAX_ATTEMPTS, targetUrl);
                 throw new HibernateRetryExhaustedException();
             }
 
             int waitSeconds = RETRY_DELAYS_SECONDS[attempt - 1];
-            log.warn("[{}] HIBERNATE_DETECTED intento={}/{} x-render-routing={} — esperando {}s antes del siguiente intento",
-                    requestId, attempt, MAX_RETRIES, renderRouting, waitSeconds);
+            log.warn("[{}] HIBERNATE_DETECTED intento={}/{} — iniciando espera de hasta {}s",
+                    requestId, attempt, MAX_ATTEMPTS, waitSeconds);
 
-            Thread.sleep(waitSeconds * 1000L);
-
-            log.info("[{}] RETRY intento={}/{} url={}", requestId, attempt + 1, MAX_RETRIES + 1, targetUrl);
+            boolean awake = waitForServiceAwake(requestId, waitSeconds);
+            
+            if (awake) {
+                log.info("[{}] SERVICE_AWAKE — reintentando inmediatamente", requestId);
+            }
         }
 
         throw new HibernateRetryExhaustedException();
     }
 
-    /** Excepción interna que indica que todos los reintentos por hibernación se agotaron. */
+    /**
+     * Realiza polling a /health cada HEALTH_POLL_INTERVAL_MS.
+     * Si responde exitosamente, asume que el servicio despertó.
+     * Si falla o da timeout, duerme lo restante del intervalo y vuelve a intentar.
+     */
+    private boolean waitForServiceAwake(String requestId, int maxWaitSeconds) {
+        log.info("[{}] HEALTH_CHECK_START iniciando polling cada {}ms por máximo {}s", 
+                requestId, HEALTH_POLL_INTERVAL_MS, maxWaitSeconds);
+        
+        long startWait = System.currentTimeMillis();
+        long maxWaitMs = maxWaitSeconds * 1000L;
+        String healthUrl = iaServiceUrl + "/health";
+        
+        HttpRequest healthRequest = HttpRequest.newBuilder()
+                .uri(URI.create(healthUrl))
+                .timeout(Duration.ofSeconds(1)) // Timeout corto de 1 segundo
+                .GET()
+                .build();
+
+        while (System.currentTimeMillis() - startWait < maxWaitMs) {
+            long checkStart = System.currentTimeMillis();
+            try {
+                HttpResponse<Void> response = httpClient.send(healthRequest, HttpResponse.BodyHandlers.discarding());
+                if (response.statusCode() == 200) {
+                    log.info("[{}] HEALTH_CHECK_SUCCESS servicio responde a /health", requestId);
+                    return true;
+                }
+            } catch (Exception e) {
+                // Se ignora el error de forma silenciosa mientras despierta (SocketTimeoutException, ConnectException, etc)
+            }
+            
+            // Calcular cuánto falta para el próximo tick
+            long timeElapsedInTick = System.currentTimeMillis() - checkStart;
+            long timeToSleep = HEALTH_POLL_INTERVAL_MS - timeElapsedInTick;
+            
+            if (timeToSleep > 0) {
+                long totalTimeElapsed = System.currentTimeMillis() - startWait;
+                long timeLeft = maxWaitMs - totalTimeElapsed;
+                if (timeLeft <= 0) break;
+                
+                try {
+                    Thread.sleep(Math.min(timeToSleep, timeLeft));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
     private static final class HibernateRetryExhaustedException extends RuntimeException {
         HibernateRetryExhaustedException() {
-            super("Hibernate retry exhausted after " + MAX_RETRIES + " attempts");
+            super("Hibernate retry exhausted after " + MAX_ATTEMPTS + " attempts");
         }
     }
 }
