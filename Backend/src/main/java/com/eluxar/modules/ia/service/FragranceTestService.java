@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -38,6 +40,8 @@ public class FragranceTestService {
      * Steps 0-6 return questions with options; the final step returns an AI recommendation.
      */
     public FragranceTestResponse processTest(FragranceTestRequest request) {
+        String requestId = UUID.randomUUID().toString().substring(0, 8);
+        String targetUrl = iaServiceUrl + "/fragrance-test";
         try {
             Map<String, Object> payload = new HashMap<>();
             payload.put("message", request.getMessage() != null ? request.getMessage() : "");
@@ -47,35 +51,57 @@ public class FragranceTestService {
             String jsonPayload = objectMapper.writeValueAsString(payload);
 
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(iaServiceUrl + "/fragrance-test"))
+                    .uri(URI.create(targetUrl))
                     .header("Content-Type", "application/json")
                     .header("User-Agent", "Eluxar-Backend/1.0")
                     .timeout(Duration.ofSeconds(120))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload));
-            
+
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 requestBuilder.header("X-Internal-Key", internalApiKey);
             }
-            
+
             HttpRequest httpRequest = requestBuilder.build();
 
+            log.info("[{}] CALL url={} method=POST step={} timestamp={}",
+                    requestId, targetUrl, request.getStep(), System.currentTimeMillis());
+
+            long startTime = System.currentTimeMillis();
             HttpResponse<String> httpResponse = httpClient.send(
                     httpRequest,
                     HttpResponse.BodyHandlers.ofString()
             );
+            long durationMs = System.currentTimeMillis() - startTime;
+
+            log.info("[{}] RESPONSE status={} durationMs={}",
+                    requestId, httpResponse.statusCode(), durationMs);
+
+            // Registrar Retry-After si existe
+            Optional<String> retryAfter = httpResponse.headers().firstValue("Retry-After");
+            retryAfter.ifPresent(v -> log.warn("[{}] Retry-After={}", requestId, v));
+
+            if (httpResponse.statusCode() == 429) {
+                log.error("[{}] FLASK_SERVICE_RETURNED_429 STATUS=429 URL={} HEADERS={} BODY={}",
+                        requestId, targetUrl,
+                        httpResponse.headers().map(),
+                        httpResponse.body());
+                return buildErrorResponse(request, "El servicio de IA no está disponible. Intenta de nuevo más tarde.");
+            }
 
             if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
                 return objectMapper.readValue(httpResponse.body(), FragranceTestResponse.class);
             } else {
-                log.error("Flask fragrance-test returned HTTP {}: {}", httpResponse.statusCode(), httpResponse.body());
+                log.error("[{}] Flask fragrance-test STATUS={} URL={} HEADERS={} BODY={}",
+                        requestId, httpResponse.statusCode(), targetUrl,
+                        httpResponse.headers().map(), httpResponse.body());
                 return buildErrorResponse(request, "El servicio de IA no está disponible. Intenta de nuevo más tarde.");
             }
 
         } catch (java.net.ConnectException e) {
-            log.error("Cannot connect to Flask fragrance-test at {}: {}", iaServiceUrl + "/fragrance-test", e.getMessage());
+            log.error("[{}] Cannot connect to Flask fragrance-test at {}: {}", requestId, targetUrl, e.getMessage());
             return buildErrorResponse(request, "El servicio de test olfativo no está disponible. Asegúrate de que el servicio Python esté en ejecución.");
         } catch (Exception e) {
-            log.error("Error communicating with Flask fragrance-test: {}", e.getMessage(), e);
+            log.error("[{}] Error communicating with Flask fragrance-test url={}: {}", requestId, targetUrl, e.getMessage(), e);
             return buildErrorResponse(request, "Ocurrió un error al procesar el test. Intenta de nuevo.");
         }
     }

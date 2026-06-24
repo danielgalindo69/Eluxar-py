@@ -3,6 +3,7 @@ import io
 import os
 import asyncio
 import time
+import traceback
 import uuid
 import functools
 
@@ -204,10 +205,33 @@ def fragrance_test_endpoint():
         return jsonify({"error": str(real)}), 500
 
 
+# ── Handler global de excepciones no capturadas ──────────────────────────────
+@app.errorhandler(Exception)
+def handle_unhandled_exception(exc: Exception):
+    rid = getattr(g, "request_id", "???")
+    log.error(
+        "[%s] UNHANDLED_EXCEPTION type=%s message=%s\n%s",
+        rid,
+        type(exc).__name__,
+        str(exc),
+        traceback.format_exc(),
+    )
+    return jsonify({"error": str(exc)}), 500
+
+
 # ── Endpoint de Edición de Imágenes ────────────────────────────────────────────────────
 @app.route("/edit-image", methods=["POST"])
 @require_internal_key
 def edit_image_endpoint():
+    rid = g.request_id
+    start_ts = time.monotonic()
+
+    # ── Diagnóstico: logging de entrada ──────────────────────────────────────
+    log.info("[%s] ENTER /edit-image", rid)
+    log.info("[%s] remote_addr=%s", rid, request.remote_addr)
+    log.info("[%s] user_agent=%s", rid, request.headers.get("User-Agent", "<none>"))
+    log.info("[%s] content_length=%s", rid, request.content_length)
+
     # 1. Obtener los parámetros de entrada.
     data, err = _parse_json_body()
     if err:
@@ -217,22 +241,31 @@ def edit_image_endpoint():
     style: str = data.get("style", "")
     additional_prompt: str = data.get("additional_prompt", "")
 
+    log.info("[%s] image_size=%d chars", rid, len(image_base64))
+    log.info("[%s] style=%r prompt=%r", rid, style[:40], additional_prompt[:40])
+
     if not image_base64:
         return jsonify({"error": "El campo 'image_base64' es requerido."}), 400
 
-    log.info("[%s] /edit-image style=%r prompt=%r", g.request_id, style[:40], additional_prompt[:40])
-
     try:
         # 2. Enviar a Clipdrop para cambiar el fondo utilizando el estilo y el prompt descriptivo.
+        log.info("[%s] Calling process_image_edit", rid)
         result = process_image_edit(image_base64, style, additional_prompt)
+        duration_ms = int((time.monotonic() - start_ts) * 1000)
+        log.info("[%s] process_image_edit completed successfully durationMs=%d", rid, duration_ms)
         return jsonify(result)
 
     except ValueError as exc:
-        log.warning("[%s] /edit-image validation error: %s", g.request_id, exc)
+        log.warning("[%s] /edit-image validation error: %s", rid, exc)
         return jsonify({"error": str(exc)}), 400
 
     except Exception as exc:
-        log.error("[%s] /edit-image error: %s", g.request_id, exc, exc_info=True)
+        duration_ms = int((time.monotonic() - start_ts) * 1000)
+        log.error(
+            "[%s] /edit-image EXCEPTION type=%s message=%s durationMs=%d",
+            rid, type(exc).__name__, exc, duration_ms,
+            exc_info=True,
+        )
         return jsonify({"error": str(exc)}), 500
 
 
