@@ -33,7 +33,7 @@ public class IaServiceClient {
     private static final int[] RETRY_DELAYS_SECONDS = {5, 10, 15, 15, 20};
     private static final String HIBERNATE_HEADER = "x-render-routing";
     private static final String HIBERNATE_HEADER_VALUE = "hibernate-rate-limited";
-    private static final int HEALTH_POLL_INTERVAL_MS = 2000;
+    private static final int HEALTH_POLL_INTERVAL_MS = 10000;
 
     /**
      * Hace un "ping" ligero al endpoint de health del IA-service
