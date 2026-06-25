@@ -38,6 +38,8 @@ public class SecurityConfig {
                     "/api-docs", "/api-docs/**",
                     "/v3/api-docs/**"
                 ).permitAll()
+                // Health check (para evitar hibernación)
+                .requestMatchers("/health").permitAll()
                 // Auth público
                 .requestMatchers("/api/auth/**").permitAll()
                 // Catálogo público (solo GET)
