@@ -9,6 +9,7 @@ build/
 # Variables de entorno
 .env
 .env.local
+.env.bak
 .env.development.local
 .env.test.local
 .env.production.local

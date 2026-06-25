@@ -32,18 +32,16 @@ export const mapProductoDTOToProduct = (dto: any): Product => ({
     stock: v.stockActual
   })),
   stock: (dto.variantes || []).reduce((acc: number, v: any) => acc + (v.stockActual || 0), 0),
+  concentracion: dto.concentracion || undefined,
+  notasSalida: dto.notasSalida || undefined,
+  notasCorazon: dto.notasCorazon || undefined,
+  notasFondo: dto.notasFondo || undefined,
+  estaciones: dto.estaciones || undefined,
+  longevidad: dto.longevidad || undefined,
+  guiaUso: dto.guiaUso || undefined,
+  intensidad: dto.intensidad || undefined,
   rating: dto.promedioCalificacion || 0,
   reviewCount: dto.totalResenas || 0,
-  notes: {
-    top: 'Notas de salida',
-    heart: 'Notas de corazón',
-    base: 'Notas de fondo'
-  },
-  specs: {
-    volume: dto.variantes?.[0] ? `${dto.variantes[0].tamanoMl}ml` : 'N/A',
-    longevity: '8-10 horas',
-    sillage: 'Moderado'
-  }
 });
 
 // ─── Products ────────────────────────────────────────────────

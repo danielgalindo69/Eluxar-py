@@ -42,10 +42,41 @@ public class Producto {
      * Valores: CABALLERO, DAMA, NINO, NINA.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "categoria", length = 20)
+    @Column(name = "categoria", length = 20, columnDefinition = "varchar(20)")
     private CategoriaEnum categoria;
 
+    @Column(length = 100)
+    private String concentracion;
+
+    @Column(columnDefinition = "TEXT")
+    private String notasSalida;
+
+    @Column(columnDefinition = "TEXT")
+    private String notasCorazon;
+
+    @Column(columnDefinition = "TEXT")
+    private String notasFondo;
+
+    @Column(length = 255)
+    private String ocasion;
+
+    @Column(length = 255)
+    private String estaciones;
+
+    @Column(columnDefinition = "TEXT")
+    private String guiaUso;
+
+    @Column(length = 100)
+    private String paisOrigen;
+
+    @Column(length = 50)
+    private String intensidad;
+
+    @Column(length = 50)
+    private String longevidad;
+
     @ManyToOne(fetch = FetchType.LAZY)
+
     @JoinColumn(name = "familia_olfativa_id")
     private FamiliaOlfativa familiaOlfativa;
 

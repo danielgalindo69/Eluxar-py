@@ -227,7 +227,7 @@ public class ProductoService {
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(
                     "Categoría inválida: '" + dto.getCategoria() + "'. " +
-                    "Valores válidos: CABALLERO, DAMA, NINO, NINA"
+                    "Valores válidos: CABALLERO, DAMA, NINO, NINA, UNISEX"
                 );
             }
         }
@@ -239,6 +239,18 @@ public class ProductoService {
         producto.setMarca(marca);
         producto.setCategoria(categoriaEnum);
         producto.setFamiliaOlfativa(familia);
+        
+        // Nuevos campos
+        producto.setConcentracion(dto.getConcentracion());
+        producto.setNotasSalida(dto.getNotasSalida());
+        producto.setNotasCorazon(dto.getNotasCorazon());
+        producto.setNotasFondo(dto.getNotasFondo());
+        producto.setOcasion(dto.getOcasion());
+        producto.setEstaciones(dto.getEstaciones());
+        producto.setGuiaUso(dto.getGuiaUso());
+        producto.setPaisOrigen(dto.getPaisOrigen());
+        producto.setIntensidad(dto.getIntensidad());
+        producto.setLongevidad(dto.getLongevidad());
         
         if (producto.getVariantes() == null) producto.setVariantes(new java.util.ArrayList<>());
         if (producto.getImagenes() == null) producto.setImagenes(new java.util.ArrayList<>());
@@ -311,11 +323,10 @@ public class ProductoService {
     }
 
     private void reconcileImagenes(Producto producto, List<ProductoDTO.ImagenDTO> imagenesDto) {
-        if (imagenesDto == null) return;
+        if (imagenesDto == null || imagenesDto.isEmpty()) return;
         
-        // Para imágenes, como no tienen dependencias externas críticas, 
-        // podemos seguir usando el enfoque de limpiar y agregar si no queremos complicar la lógica de IDs.
-        // Pero lo hacemos sobre la lista existente para mantener la relación de JPA.
+        // Solo actualizamos imágenes si se enviaron explícitamente en el DTO.
+        // Para evitar duplicados o pérdida de relación JPA, limpiamos y regeneramos.
         producto.getImagenes().clear();
         
         for (int i = 0; i < imagenesDto.size(); i++) {
