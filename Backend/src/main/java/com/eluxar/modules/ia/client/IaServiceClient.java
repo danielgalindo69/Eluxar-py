@@ -194,15 +194,16 @@ public class IaServiceClient {
             try {
                 HttpResponse<Void> response = httpClient.send(healthRequest, HttpResponse.BodyHandlers.discarding());
                 long durationMs = System.currentTimeMillis() - checkStart;
-                log.info("[{}] HEALTH_CHECK_RESPONSE status={} durationMs={}", 
+                log.info("[{}] HEALTH_CHECK_STATUS status={} durationMs={}",
                         requestId, response.statusCode(), durationMs);
-                        
+
                 if (response.statusCode() == 200) {
-                    log.info("[{}] HEALTH_CHECK_SUCCESS", requestId);
+                    log.info("[{}] HEALTH_CHECK_SUCCESS servicio responde a /health", requestId);
                     return true;
                 }
+                log.warn("[{}] HEALTH_CHECK_NON_200 status={}", requestId, response.statusCode());
             } catch (Exception e) {
-                log.warn("[{}] HEALTH_CHECK_FAILED type={} message={}", 
+                log.info("[{}] HEALTH_CHECK_EXCEPTION type={} message={}",
                         requestId, e.getClass().getSimpleName(), e.getMessage());
             }
             
