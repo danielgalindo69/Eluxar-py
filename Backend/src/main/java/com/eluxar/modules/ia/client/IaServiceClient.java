@@ -45,6 +45,9 @@ public class IaServiceClient {
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(targetUrl))
                     .timeout(Duration.ofSeconds(10))
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36")
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    .header("Accept-Language", "en-US,en;q=0.9")
                     .GET()
                     .build();
             
@@ -182,14 +185,16 @@ public class IaServiceClient {
 
         HttpRequest healthRequest = HttpRequest.newBuilder()
                 .uri(URI.create(healthUrl))
-                .timeout(Duration.ofSeconds(1))
+                .timeout(Duration.ofSeconds(30))
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36")
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("Accept-Language", "en-US,en;q=0.9")
                 .GET()
                 .build();
 
         log.info("[{}] HEALTH_CHECK_REQUEST url={}", requestId, healthUrl);
         log.info("[{}] HEALTH_CHECK_METHOD GET", requestId);
-        log.info("[{}] HEALTH_CHECK_HEADERS timeout={}s headers={}",
-                requestId, Duration.ofSeconds(1).toSeconds(), healthRequest.headers().map());
+        log.info("[{}] HEALTH_CHECK_HEADERS {}", requestId, healthRequest.headers().map());
 
         while (System.currentTimeMillis() - startWait < maxWaitMs) {
             long checkStart = System.currentTimeMillis();
