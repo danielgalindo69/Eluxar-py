@@ -3,7 +3,7 @@ from mirascope import llm
 from mcp import ClientSession
 from mcp.client.stdio import stdio_client
 
-from config.ai_config import AI_MODEL
+from config.ai_config import CHAT_MODEL
 from agents.tools import get_all_perfumes, get_perfume_by_id, search_perfumes_by_family
 from utils.logger import get_logger
 from utils.mcp_client import get_server_params
@@ -12,7 +12,7 @@ from utils.retry import run_with_retry
 log = get_logger(__name__)
 
 
-@llm.call(AI_MODEL, tools=[get_all_perfumes, get_perfume_by_id, search_perfumes_by_family])
+@llm.call(CHAT_MODEL, tools=[get_all_perfumes, get_perfume_by_id, search_perfumes_by_family])
 def perfume_advisor(query: str, history: list):
     """Llamada principal al LLM para el asesor de chat."""
     return f"""
