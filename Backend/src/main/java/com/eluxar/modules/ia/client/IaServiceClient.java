@@ -176,21 +176,26 @@ public class IaServiceClient {
     private boolean waitForServiceAwake(String requestId, int maxWaitSeconds) {
         String healthUrl = iaServiceUrl + "/health";
         log.info("[{}] HEALTH_CHECK_START url={}", requestId, healthUrl);
-        
+
         long startWait = System.currentTimeMillis();
         long maxWaitMs = maxWaitSeconds * 1000L;
-        
+
         HttpRequest healthRequest = HttpRequest.newBuilder()
                 .uri(URI.create(healthUrl))
-                .timeout(Duration.ofSeconds(1)) // Timeout corto de 1 segundo
+                .timeout(Duration.ofSeconds(1))
                 .GET()
                 .build();
+
+        log.info("[{}] HEALTH_CHECK_REQUEST url={}", requestId, healthUrl);
+        log.info("[{}] HEALTH_CHECK_METHOD GET", requestId);
+        log.info("[{}] HEALTH_CHECK_HEADERS timeout={}s headers={}",
+                requestId, Duration.ofSeconds(1).toSeconds(), healthRequest.headers().map());
 
         while (System.currentTimeMillis() - startWait < maxWaitMs) {
             long checkStart = System.currentTimeMillis();
             long elapsedMs = checkStart - startWait;
             log.info("[{}] HEALTH_CHECK_ATTEMPT elapsedMs={}", requestId, elapsedMs);
-            
+
             try {
                 HttpResponse<Void> response = httpClient.send(healthRequest, HttpResponse.BodyHandlers.discarding());
                 long durationMs = System.currentTimeMillis() - checkStart;
@@ -201,7 +206,21 @@ public class IaServiceClient {
                     log.info("[{}] HEALTH_CHECK_SUCCESS servicio responde a /health", requestId);
                     return true;
                 }
+
                 log.warn("[{}] HEALTH_CHECK_NON_200 status={}", requestId, response.statusCode());
+
+                if (response.statusCode() == 429) {
+                    log.warn("[{}] HEALTH_CHECK_429 all_headers={}",
+                            requestId, response.headers().map());
+                    response.headers().firstValue("x-render-routing").ifPresent(
+                            v -> log.warn("[{}] HEALTH_CHECK_429_HEADER x-render-routing={}", requestId, v));
+                    response.headers().firstValue("retry-after").ifPresent(
+                            v -> log.warn("[{}] HEALTH_CHECK_429_HEADER retry-after={}", requestId, v));
+                    response.headers().firstValue("server").ifPresent(
+                            v -> log.warn("[{}] HEALTH_CHECK_429_HEADER server={}", requestId, v));
+                    response.headers().firstValue("cf-ray").ifPresent(
+                            v -> log.warn("[{}] HEALTH_CHECK_429_HEADER cf-ray={}", requestId, v));
+                }
             } catch (Exception e) {
                 log.info("[{}] HEALTH_CHECK_EXCEPTION type={} message={}",
                         requestId, e.getClass().getSimpleName(), e.getMessage());
