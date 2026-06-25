@@ -3,12 +3,12 @@ Definición de Prompts (Instrucciones) para el Agente LLM en el Test Olfativo.
 """
 import json
 from mirascope import llm
-from config.ai_config import AI_MODEL
+from config.ai_config import TEST_MODEL
 from agents.tools import get_perfumes_for_test
 from agents.fragrance.mock_data import TOTAL_QUESTIONS
 
 
-@llm.call(AI_MODEL)
+@llm.call(TEST_MODEL)
 def fragrance_question_generator(history_summary: str, current_step: int, total_steps: int):
     """Genera la siguiente pregunta de opción múltiple para el test de fragancias."""
     return f"""
@@ -41,7 +41,7 @@ def fragrance_question_generator(history_summary: str, current_step: int, total_
     """
 
 
-@llm.call(AI_MODEL, tools=[get_perfumes_for_test])
+@llm.call(TEST_MODEL, tools=[get_perfumes_for_test])
 def fragrance_test_agent(answers_summary: str, history: list):
     """Genera un resumen de las respuestas del test y recomienda el mejor perfume del catálogo."""
     return f"""
