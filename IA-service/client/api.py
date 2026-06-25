@@ -23,12 +23,20 @@ load_dotenv()
 
 # ── Registro de proveedor de Mirascope ───────────────────────────────────────────
 from mirascope import llm  # noqa: E402
+from config.ai_config import GROQ_API_KEY_CHAT, GROQ_API_KEY_TEST
 
 llm.register_provider(
     "openai",
-    scope="groq/",
+    scope="groq-chat/",
     base_url="https://api.groq.com/openai/v1",
-    api_key=os.environ.get("GROQ_API_KEY", ""),
+    api_key=GROQ_API_KEY_CHAT,
+)
+
+llm.register_provider(
+    "openai",
+    scope="groq-test/",
+    base_url="https://api.groq.com/openai/v1",
+    api_key=GROQ_API_KEY_TEST,
 )
 
 from werkzeug.exceptions import HTTPException  # noqa: E402
