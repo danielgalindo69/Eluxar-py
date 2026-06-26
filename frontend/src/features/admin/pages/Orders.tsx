@@ -1,5 +1,6 @@
 import { Eye, Download, Search, X, ShoppingBag, Filter } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ordersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
@@ -26,16 +27,16 @@ const STATUS_OPTIONS = [
 ];
 
 export const Orders = () => {
-  const [orders, setOrders] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchOrders = async () => {
-    try {
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['admin-pedidos'],
+    queryFn: async () => {
       const data = await ordersAPI.getAll();
-      setOrders(data.map((o: any) => ({
+      return data.map((o: any) => ({
         id: `#${o.id}`,
         rawId: o.id,
         date: new Date(o.creadoEn).toLocaleDateString(),
@@ -43,21 +44,17 @@ export const Orders = () => {
         product: o.items ? `${o.items.length} item(s)` : 'N/A',
         total: `${o.total} COP`,
         status: o.estado
-      })));
-    } catch (error) {
-      toast.error("Error al cargar pedidos");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchOrders(); }, []);
+      }));
+    },
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       await ordersAPI.updateStatus(id, newStatus);
       toast.success("Estado actualizado");
-      fetchOrders();
+      queryClient.invalidateQueries({ queryKey: ['admin-pedidos'] });
     } catch (error) {
       toast.error("Error al actualizar estado");
     }

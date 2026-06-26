@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Plus, Edit2, Trash2, Search, Loader2, X, Package, ImageIcon, Sparkles, Upload, CheckCircle, Filter } from "lucide-react";
-import { productsAPI } from "../../../core/api/api";
+import { productsAPI } from "../../../core/api/products";
 import { Product } from "../../products/types/products";
 import { toast } from "sonner";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
@@ -13,10 +13,10 @@ const PAGE_SIZE = 15;
 // ─── Enum de categorías fijas ─────────────────────────────────
 const CATEGORIAS = [
   { value: "CABALLERO", label: "Caballero" },
-  { value: "DAMA",      label: "Dama" },
-  { value: "NINO",      label: "Niño" },
-  { value: "NINA",      label: "Niña" },
-  { value: "UNISEX",    label: "Unisex" },
+  { value: "DAMA", label: "Dama" },
+  { value: "NINO", label: "Niño" },
+  { value: "NINA", label: "Niña" },
+  { value: "UNISEX", label: "Unisex" },
 ] as const;
 
 
@@ -126,7 +126,7 @@ export const Products = () => {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
-            <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold">Cargando catálogo...</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40 font-bold dark:text-white/80">Cargando catálogo...</p>
           </div>
         ) : (
           <>
@@ -159,7 +159,7 @@ export const Products = () => {
                         <td className="px-4 py-2 text-sm text-[#2B2B2B]/60 dark:text-white/40">
                           {CATEGORIAS.find(c => c.value === product.category)?.label || product.category}
                         </td>
-                        <td className="px-4 py-2 text-sm text-[#2B2B2B] font-bold">{product.price}</td>
+                        <td className="px-4 py-2 text-sm text-[#2B2B2B] font-bold dark:text-white/70">{product.price}</td>
                         <td className="px-4 py-2">
                           <div className="flex items-center gap-2">
                             <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -313,24 +313,24 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
   };
 
   const [formData, setFormData] = useState({
-    nombre:          product?.name || "",
-    descripcion:     product?.description || "",
-    categoria:       product?.category || "",
-    marca:           product?.brand || "",
+    nombre: product?.name || "",
+    descripcion: product?.description || "",
+    categoria: product?.category || "",
+    marca: product?.brand || "",
     familiaOlfativa: product?.olfactoryFamily || "",
-    activo:          true,
-    destacado:       false,
-    precio:          product?.variants?.[0]?.price || "",
-    stock:           product?.variants?.[0]?.stock || "",
-    tamanoMl:        parseVolume(product?.variants?.[0]?.volume),
-    concentracion:   product?.concentracion || "",
-    notasSalida:     product?.notasSalida || "",
-    notasCorazon:    product?.notasCorazon || "",
-    notasFondo:      product?.notasFondo || "",
-    estaciones:      product?.estaciones || "",
-    longevidad:      product?.longevidad || "",
-    guiaUso:         product?.guiaUso || "",
-    intensidad:      product?.intensidad || "",
+    activo: true,
+    destacado: false,
+    precio: product?.variants?.[0]?.price || 0,
+    stock: product?.variants?.[0]?.stock || 0,
+    tamanoMl: parseVolume(product?.variants?.[0]?.volume),
+    concentracion: product?.concentracion || "",
+    notasSalida: product?.notasSalida || "",
+    notasCorazon: product?.notasCorazon || "",
+    notasFondo: product?.notasFondo || "",
+    estaciones: product?.estaciones || "",
+    longevidad: product?.longevidad || "",
+    guiaUso: product?.guiaUso || "",
+    intensidad: product?.intensidad || "",
   });
 
 
@@ -391,22 +391,22 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     try {
       // 1. Crear el producto primero (sin subir nuevas imágenes todavía)
       const payload = {
-        nombre:          formData.nombre,
-        descripcion:     formData.descripcion,
-        categoria:       formData.categoria,
-        marca:           formData.marca,
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        categoria: formData.categoria,
+        marca: formData.marca,
         familiaOlfativa: formData.familiaOlfativa,
-        activo:          formData.activo,
-        destacado:       formData.destacado,
+        activo: formData.activo,
+        destacado: formData.destacado,
         // Perfil olfativo y sensorial
-        concentracion:   formData.concentracion || null,
-        notasSalida:     formData.notasSalida    || null,
-        notasCorazon:    formData.notasCorazon   || null,
-        notasFondo:      formData.notasFondo     || null,
-        estaciones:      formData.estaciones     || null,
-        longevidad:      formData.longevidad     || null,
-        guiaUso:         formData.guiaUso        || null,
-        intensidad:      formData.intensidad     || null,
+        concentracion: formData.concentracion || null,
+        notasSalida: formData.notasSalida || null,
+        notasCorazon: formData.notasCorazon || null,
+        notasFondo: formData.notasFondo || null,
+        estaciones: formData.estaciones || null,
+        longevidad: formData.longevidad || null,
+        guiaUso: formData.guiaUso || null,
+        intensidad: formData.intensidad || null,
         variantes: [{
           id: product?.variants?.[0]?.id,
           tamanoMl: formData.tamanoMl,
@@ -510,10 +510,12 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                       required
                       min={0}
                       value={formData.precio}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFormData({ ...formData, precio: val === "" ? "" : Number(val) });
-                      }}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          precio: Number(e.target.value),
+                        })
+                      }
                       className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                     />
                   </div>
@@ -535,10 +537,12 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                       required
                       min={0}
                       value={formData.stock}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFormData({ ...formData, stock: val === "" ? "" : Number(val) });
-                      }}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          stock: Number(e.target.value),
+                        })
+                      }
                       className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                     />
                   </div>

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentsAPI, Payment, formatPrice } from "../../../core/api/api";
 import { toast } from "sonner";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
@@ -18,22 +19,24 @@ const tableWrap = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] 
 const thCls = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 px-6 py-4";
 
 export const Payments = () => {
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [confirmAction, setConfirmAction] = useState<{ id: string; status: Payment['status'] } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [filterStatus, setFilterStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    paymentsAPI.getAll().then(d => { setPayments(d); setIsLoading(false); });
-  }, []);
+  const { data: payments = [], isLoading } = useQuery({
+    queryKey: ['admin-pagos'],
+    queryFn: () => paymentsAPI.getAll(),
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleUpdateStatus = async () => {
     if (!confirmAction) return;
     await paymentsAPI.updateStatus(confirmAction.id, confirmAction.status);
-    setPayments(prev => prev.map(p => p.id === confirmAction.id ? { ...p, status: confirmAction.status } : p));
+    queryClient.invalidateQueries({ queryKey: ['admin-pagos'] });
     toast.success(`Pago actualizado a: ${confirmAction.status}`);
     setConfirmAction(null);
   };

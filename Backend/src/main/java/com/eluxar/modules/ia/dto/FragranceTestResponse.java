@@ -10,6 +10,8 @@ public class FragranceTestResponse {
     private int step;
     private boolean finished;
     private int totalSteps;
+    private String theme;
+    private Integer productId;
 
     public FragranceTestResponse() {}
 
@@ -33,4 +35,10 @@ public class FragranceTestResponse {
 
     public int getTotalSteps() { return totalSteps; }
     public void setTotalSteps(int totalSteps) { this.totalSteps = totalSteps; }
+
+    public String getTheme() { return theme; }
+    public void setTheme(String theme) { this.theme = theme; }
+
+    public Integer getProductId() { return productId; }
+    public void setProductId(Integer productId) { this.productId = productId; }
 }
