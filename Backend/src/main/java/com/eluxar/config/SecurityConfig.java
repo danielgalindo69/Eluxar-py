@@ -46,8 +46,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/marcas/**").permitAll()
-                // IA
-                .requestMatchers("/api/ia/**").permitAll()
+                // IA (health check público, el resto requiere autenticación)
+                .requestMatchers("/api/ia/health").permitAll()
+                .requestMatchers("/api/ia/**").authenticated()
                 // Cupones (validación es pública)
                 .requestMatchers(HttpMethod.GET, "/api/cupones/validar/**").permitAll()
                 // Archivos públicos

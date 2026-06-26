@@ -3,10 +3,12 @@ package com.eluxar.modules.ia.controller;
 import com.eluxar.modules.ia.dto.FragranceTestRequest;
 import com.eluxar.modules.ia.dto.FragranceTestResponse;
 import com.eluxar.modules.ia.service.FragranceTestService;
+import com.eluxar.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +29,9 @@ public class FragranceTestController {
      */
     @PostMapping("/fragrance-test")
     @Operation(summary = "Procesar un paso del test olfativo IA")
-    public ResponseEntity<FragranceTestResponse> fragranceTest(@RequestBody FragranceTestRequest request) {
+    public ResponseEntity<FragranceTestResponse> fragranceTest(
+            @RequestBody FragranceTestRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         FragranceTestResponse response = fragranceTestService.processTest(request);
         return ResponseEntity.ok(response);
     }
