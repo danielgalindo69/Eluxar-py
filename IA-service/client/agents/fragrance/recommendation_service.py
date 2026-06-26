@@ -60,6 +60,8 @@ async def _do_fragrance_recommendation(answers_summary: str) -> str:
                                 )
                                 result_data = extracted
 
+                        log.info("MCP tool result_data crudo: %s", result_data)
+
                         # 8. Guardar la acción en el historial para que el LLM sepa qué hizo.
                         agent_history.append(
                             {"role": "model", "parts": [{"text": f"Llamando a {tool_call.name}"}]}
@@ -71,7 +73,7 @@ async def _do_fragrance_recommendation(answers_summary: str) -> str:
                                 "parts": [
                                     {
                                         "text": (
-                                            f"System/ToolResult: {result_data}. "
+                                            f"System/ToolResult: {json.dumps(result_data)}. "
                                             "Con los datos del catálogo obtenidos, "
                                             "analiza las respuestas del test y recomienda el perfume ideal."
                                         )

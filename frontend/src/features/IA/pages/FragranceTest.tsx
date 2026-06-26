@@ -49,7 +49,7 @@ export const FragranceTest = () => {
 
     const updatedHistory = [
       ...state.history,
-      { question: state.question, answer: option }
+      { question: state.question, answer: option, theme: state.theme }
     ];
 
     try {

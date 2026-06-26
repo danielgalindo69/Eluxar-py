@@ -91,6 +91,7 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             "response": q_data["question"],
             "question": q_data["question"],
             "options":  q_data["options"],
+            "theme":    q_data["theme"],
             "history":  history,
             "step":     step + 1,
             "finished": False,
