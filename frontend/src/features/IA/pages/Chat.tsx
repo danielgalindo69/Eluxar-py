@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles, Bot } from "lucide-react";
+import { Send, Sparkles, Bot, Trash2 } from "lucide-react";
 import { aiAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
@@ -11,21 +11,62 @@ interface Message {
   timestamp: Date;
 }
 
+const INITIAL_MESSAGE: Message = {
+  id: '0',
+  role: 'bot',
+  text: '¡Hola! Soy el asistente virtual de Eluxar. Estoy aquí para ayudarte a descubrir tu fragancia ideal. ¿En qué puedo ayudarte hoy?',
+  timestamp: new Date(),
+};
+
+const loadInitialMessages = (): Message[] => {
+  try {
+    const saved = localStorage.getItem('eluxar_chat_messages');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp)
+        }));
+      }
+    }
+  } catch (e) {
+    console.error("Error loading chat messages from localStorage", e);
+  }
+  return [INITIAL_MESSAGE];
+};
+
+const loadInitialHistory = (): object[] => {
+  try {
+    const saved = localStorage.getItem('eluxar_chat_history');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error("Error loading chat history from localStorage", e);
+  }
+  return [];
+};
+
 export const Chat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '0',
-      role: 'bot',
-      text: '¡Hola! Soy el asistente virtual de Eluxar. Estoy aquí para ayudarte a descubrir tu fragancia ideal. ¿En qué puedo ayudarte hoy?',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(loadInitialMessages);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isWakingUp, setIsWakingUp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   // Conversation history for the AI agent (persisted across turns, not in state to avoid re-renders)
-  const conversationHistory = useRef<object[]>([]);
+  const conversationHistory = useRef<object[]>(loadInitialHistory());
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('eluxar_chat_messages', JSON.stringify(messages));
+    } catch (e) {
+      console.error("Error saving messages to localStorage", e);
+    }
+  }, [messages]);
 
   // Silent warm-up on mount
   useEffect(() => {
@@ -48,6 +89,11 @@ export const Chat = () => {
       const { reply, history } = await aiAPI.chatMessage(userMsg.text, conversationHistory.current);
       // Update persisted history for the next turn
       conversationHistory.current = history ?? [];
+      try {
+        localStorage.setItem('eluxar_chat_history', JSON.stringify(conversationHistory.current));
+      } catch (e) {
+        console.error("Error saving history to localStorage", e);
+      }
       const botMsg: Message = { id: crypto.randomUUID(), role: 'bot', text: reply, timestamp: new Date() };
       setMessages(prev => [...prev, botMsg]);
     } catch {
@@ -61,6 +107,18 @@ export const Chat = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  };
+
+  const handleClearChat = () => {
+    const resetMessages = [{ ...INITIAL_MESSAGE, id: crypto.randomUUID(), timestamp: new Date() }];
+    setMessages(resetMessages);
+    conversationHistory.current = [];
+    try {
+      localStorage.removeItem('eluxar_chat_messages');
+      localStorage.removeItem('eluxar_chat_history');
+    } catch (e) {
+      console.error("Error clearing localStorage", e);
+    }
   };
 
   const quickActions = ['Perfumes para hombre', 'Perfumes para mujer', 'Quiero un regalo', 'Larga duración'];
@@ -80,6 +138,13 @@ export const Chat = () => {
               <p className="text-xs uppercase tracking-widest text-[#3A4A3F] dark:text-[#A3B5AA] font-semibold mt-1">Asesoría de fragancias IA</p>
             </div>
           </div>
+          <button
+            onClick={handleClearChat}
+            className="p-2 text-[#2B2B2B]/40 hover:text-red-500 dark:text-white/40 dark:hover:text-red-400 transition-colors"
+            title="Nueva conversación"
+          >
+            <Trash2 size={20} />
+          </button>
         </div>
 
         {/* Messages */}
