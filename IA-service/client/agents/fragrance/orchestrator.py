@@ -21,12 +21,8 @@ QUESTION_THEMES = [
 
 async def _generate_question(history: list, step: int, total_steps: int) -> dict:
     """
-    Genera la siguiente pregunta usando el LLM y parsea la respuesta JSON.
-
-    Devuelve un diccionario con las claves ``question`` y ``options``.
-    En caso de error en el parseo, devuelve una pregunta predeterminada.
+    Genera la siguiente pregunta usando el LLM basándose en temas no cubiertos.
     """
-    
     history_summary = "\n".join(
         [
             f"Pregunta {i+1}: {item['question']}\nRespuesta: {item['answer']}"
@@ -34,13 +30,13 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
         ]
     )
 
-    shuffled_themes = QUESTION_THEMES.copy()
-    random.shuffle(shuffled_themes)
+    used_themes = [item.get("theme") for item in history if item.get("theme")]
+    available = [t for t in QUESTION_THEMES if t not in used_themes]
+    theme = available[0] if available else QUESTION_THEMES[0]
 
-    response = fragrance_question_generator(history_summary, step, total_steps, themes=shuffled_themes)
+    response = fragrance_question_generator(history_summary, step, total_steps, theme=theme)
     content: str = response.text()
 
-    # Elimina los saltos de línea y los bloques de código si el LLM los envuelve.
     if "```json" in content:
         content = content.split("```json")[1].split("```")[0].strip()
     elif "```" in content:
@@ -51,11 +47,15 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
         return {
             "question": data.get("question", "¿Continuamos con el test?"),
             "options": data.get("options", ["Opción 1", "Opción 2", "Opción 3", "Opción 4"])[:4],
+            "theme": theme
         }
     except json.JSONDecodeError as exc:
-        log.warning("No se pudo analizar el JSON de la pregunta del LLM (step=%d): %s", step, exc)
-        fallback_idx = min(step - 1, len(MOCK_QUESTIONS) - 1)
-        return MOCK_QUESTIONS[fallback_idx]
+        log.warning("No se pudo analizar el JSON de la pregunta (step=%d): %s", step, exc)
+        return {
+            "question": "¿Continuamos con el test?",
+            "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+            "theme": theme
+        }
 
 
 async def process_fragrance_test(message: str, history: list, step: int) -> dict:
