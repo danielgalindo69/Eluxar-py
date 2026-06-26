@@ -52,6 +52,8 @@ export const FragranceTest = () => {
       { question: state.question, answer: option, theme: state.theme }
     ];
 
+    console.log("History enviado al backend:", updatedHistory);
+
     try {
       const data = await aiAPI.fragranceTest(option, updatedHistory, state.step);
       setState(data as TestState);
