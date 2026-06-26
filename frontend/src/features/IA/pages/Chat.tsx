@@ -11,13 +11,6 @@ interface Message {
   timestamp: Date;
 }
 
-const INITIAL_MESSAGE: Message = {
-  id: '0',
-  role: 'bot',
-  text: '¡Hola! Soy el asistente virtual de Eluxar. Estoy aquí para ayudarte a descubrir tu fragancia ideal. ¿En qué puedo ayudarte hoy?',
-  timestamp: new Date(),
-};
-
 const loadInitialMessages = (): Message[] => {
   try {
     const saved = localStorage.getItem('eluxar_chat_messages');
@@ -33,7 +26,7 @@ const loadInitialMessages = (): Message[] => {
   } catch (e) {
     console.error("Error loading chat messages from localStorage", e);
   }
-  return [INITIAL_MESSAGE];
+  return [];
 };
 
 const loadInitialHistory = (): object[] => {
@@ -110,8 +103,7 @@ export const Chat = () => {
   };
 
   const handleClearChat = () => {
-    const resetMessages = [{ ...INITIAL_MESSAGE, id: crypto.randomUUID(), timestamp: new Date() }];
-    setMessages(resetMessages);
+    setMessages([]);
     conversationHistory.current = [];
     try {
       localStorage.removeItem('eluxar_chat_messages');
@@ -154,11 +146,7 @@ export const Chat = () => {
               <motion.div key={msg.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}
                 className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}
               >
-                {msg.role === 'bot' && (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3A4A3F] to-[#2C3830] flex items-center justify-center shrink-0 shadow-md">
-                    <Bot size={18} className="text-white" />
-                  </div>
-                )}
+                
                 <div className={`max-w-[80%] flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   <div className={`p-5 shadow-sm text-[15px] leading-relaxed ${
                     msg.role === 'user' 
@@ -198,7 +186,7 @@ export const Chat = () => {
         {/* Bottom Section */}
         <div className="pb-8 pt-4 bg-white dark:bg-[var(--bg-base)] sticky bottom-0 z-10">
           {/* Quick Actions */}
-          {messages.length <= 1 && (
+          {messages.length === 0 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-wrap gap-3 mb-6 justify-center">
               {quickActions.map(action => (
                 <button key={action} onClick={() => { setInput(action); inputRef.current?.focus(); }}
