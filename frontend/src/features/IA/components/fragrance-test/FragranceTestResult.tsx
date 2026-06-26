@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
-import { Sparkles, RotateCcw } from "lucide-react";
+import { Sparkles, RotateCcw, Eye, ShoppingBag } from "lucide-react";
 import { TestState } from "./types";
+import { useNavigate } from "react-router";
 
 interface FragranceTestResultProps {
   state: TestState;
@@ -28,6 +29,8 @@ function renderMarkdown(text: string) {
 }
 
 export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps) => {
+  const navigate = useNavigate();
+
   return (
     <main className="pt-28 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-2xl mx-auto">
@@ -71,6 +74,25 @@ export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps
               {renderMarkdown(state.response || "")}
             </div>
           </motion.div>
+
+          {/* Recommendation Actions */}
+          <div className="flex flex-col items-center gap-4 mb-8">
+            {state.productId ? (
+              <button
+                onClick={() => navigate(`/product/${state.productId}`)}
+                className="inline-flex items-center gap-2 bg-[#C8A97E] text-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#b09670] transition-all duration-300"
+              >
+                <Eye size={13} /> Ver Detalles del Producto
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/catalog")}
+                className="inline-flex items-center gap-2 bg-[#C8A97E] text-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#b09670] transition-all duration-300"
+              >
+                <ShoppingBag size={13} /> Explorar Colección
+              </button>
+            )}
+          </div>
 
           {/* Separator */}
           <div className="flex items-center gap-4 mb-6">

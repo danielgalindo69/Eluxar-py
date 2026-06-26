@@ -1,4 +1,5 @@
 import json
+import random
 from utils.logger import get_logger
 from utils.retry import run_with_retry
 from agents.fragrance.mock_data import MOCK_QUESTIONS, TOTAL_QUESTIONS, FALLBACK_RECOMMENDATION
@@ -6,6 +7,16 @@ from agents.fragrance.prompts import fragrance_question_generator
 from agents.fragrance.recommendation_service import get_recommendation
 
 log = get_logger(__name__)
+
+QUESTION_THEMES = [
+    "género o destinatario de la fragancia",
+    "ocasión de uso principal (diario, noche, evento especial)",
+    "familia olfativa preferida (fresco, amaderado, floral, oriental)",
+    "intensidad preferida (ligera, moderada, intensa)",
+    "clima o temporada de uso",
+    "personalidad o estilo de quien la usará",
+    "presupuesto aproximado",
+]
 
 
 async def _generate_question(history: list, step: int, total_steps: int) -> dict:
@@ -23,7 +34,10 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
         ]
     )
 
-    response = fragrance_question_generator(history_summary, step, total_steps)
+    shuffled_themes = QUESTION_THEMES.copy()
+    random.shuffle(shuffled_themes)
+
+    response = fragrance_question_generator(history_summary, step, total_steps, themes=shuffled_themes)
     content: str = response.text()
 
     # Elimina los saltos de línea y los bloques de código si el LLM los envuelve.
@@ -95,13 +109,15 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
         log.info("Generando recomendación para %d respuestas.", len(history))
 
         try:
-            final_content = await get_recommendation(answers_summary)
+            final_content, product_id = await get_recommendation(answers_summary)
         except BaseException as exc:
             log.error("La recomendación del LLM falló: %s", exc)
             final_content = FALLBACK_RECOMMENDATION
+            product_id = None
 
         return {
             "response": final_content,
+            "productId": product_id,
             "history":  history,
             "step":     step + 1,
             "finished": True,

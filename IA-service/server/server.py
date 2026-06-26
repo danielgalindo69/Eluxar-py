@@ -71,15 +71,32 @@ def search_perfumes_by_family(family: str) -> str:
 def get_perfumes_for_test() -> str:
     """Obtiene el catálogo completo de perfumes para la fase de test olfativo."""
     try:
-        # 1. Hacer petición HTTP GET al backend Java.
         resp = requests.get(f"{BACKEND_BASE}/productos", timeout=5)
         resp.raise_for_status()
         data = resp.json()
         
-        # 2. Extraer la lista de la respuesta JSON.
-        perfumes = data.get("data", []) if isinstance(data, dict) else data
+        raw_perfumes = data.get("data", []) if isinstance(data, dict) else data
+        
+        # Filtrado de campos para reducir tokens
+        filtered_perfumes = []
+        for p in raw_perfumes:
+            filtered = {
+                "id": p.get("id"),
+                "nombre": p.get("nombre"),
+                "marca": p.get("marca"),
+                "categoria": p.get("categoria"),
+                "familiaOlfativa": p.get("familiaOlfativa"),
+                "variantes": [
+                    {
+                        "tamanoMl": v.get("tamanoMl"),
+                        "precioVenta": v.get("precioVenta"),
+                        "precioOferta": v.get("precioOferta")
+                    } for v in p.get("variantes", [])
+                ]
+            }
+            filtered_perfumes.append(filtered)
 
-        return json.dumps(perfumes, ensure_ascii=False)
+        return json.dumps(filtered_perfumes, ensure_ascii=False)
     except Exception as exc:
         print(f"[MCP] Error backend para test olfativo ({exc}).")
         return json.dumps([], ensure_ascii=False)

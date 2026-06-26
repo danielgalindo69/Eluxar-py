@@ -6,6 +6,7 @@ export interface TestState {
   finished: boolean;
   totalSteps: number;
   response: string;
+  productId: number | null;
 }
 
 export type Phase = "idle" | "question" | "loading" | "result";
