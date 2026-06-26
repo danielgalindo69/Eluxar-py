@@ -23,6 +23,7 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
     """
     Genera la siguiente pregunta usando el LLM basándose en temas no cubiertos.
     """
+    log.info("recibido history: %s", history)
     history_summary = "\n".join(
         [
             f"Pregunta {i+1}: {item['question']}\nRespuesta: {item['answer']}"
@@ -32,6 +33,7 @@ async def _generate_question(history: list, step: int, total_steps: int) -> dict
 
     used_themes = [item.get("theme") for item in history if item.get("theme")]
     available = [t for t in QUESTION_THEMES if t not in used_themes]
+    log.info("used_themes=%s, available=%s", used_themes, available)
     theme = available[0] if available else QUESTION_THEMES[0]
 
     response = fragrance_question_generator(history_summary, step, total_steps, theme=theme)
@@ -87,7 +89,7 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             log.error("No se pudo generar la pregunta del LLM (step=%d): %s", step, exc)
             q_data = MOCK_QUESTIONS[min(step, len(MOCK_QUESTIONS) - 1)]
 
-        return {
+        result = {
             "response": q_data["question"],
             "question": q_data["question"],
             "options":  q_data["options"],
@@ -97,6 +99,8 @@ async def process_fragrance_test(message: str, history: list, step: int) -> dict
             "finished": False,
             "totalSteps": TOTAL_QUESTIONS,
         }
+        log.info("Retornando dict: %s", result)
+        return result
 
     # ── Fase de generación de recomendaciones ─────────────────────────────────
     if step == TOTAL_QUESTIONS:
