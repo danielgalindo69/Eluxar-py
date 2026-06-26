@@ -1,4 +1,5 @@
 import json
+import re
 from mcp import ClientSession
 from mcp.client.stdio import stdio_client
 
@@ -81,11 +82,21 @@ async def _do_fragrance_recommendation(answers_summary: str) -> str:
                     # 10. Continuar el bucle para que el LLM genere la respuesta basándose en los nuevos datos.
                     continue
                 else:
-                    # 11. Si no hay llamadas a herramientas, retornar el texto final de la recomendación.
-                    return response.text()
+                    # 11. Si no hay llamadas a herramientas, retornar el texto final de la recomendación y extraer ID.
+                    full_text = response.text()
+                    product_id = None
+                    
+                    # Regex para extraer el ID en el formato: ###PRODUCT_ID:id###
+                    match = re.search(r'###PRODUCT_ID:(\d+)###', full_text)
+                    if match:
+                        product_id = int(match.group(1))
+                        # Limpiar el marcador del texto final
+                        full_text = re.sub(r'###PRODUCT_ID:\d+###', '', full_text).strip()
+                    
+                    return full_text, product_id
 
 
-async def get_recommendation(answers_summary: str) -> str:
+async def get_recommendation(answers_summary: str) -> tuple[str, int | None]:
     """
     Punto de entrada público — reintenta hasta 3 veces en caso de errores recuperables del LLM.
 
@@ -93,7 +104,7 @@ async def get_recommendation(answers_summary: str) -> str:
         answers_summary: Cadena formateada con las respuestas del usuario al test.
 
     Returns:
-        Texto de recomendación generado por el LLM.
+        Tupla (texto_recomendacion, product_id_o_None).
     """
     return await run_with_retry(
         _do_fragrance_recommendation, answers_summary, retries=3, delay=6.0
