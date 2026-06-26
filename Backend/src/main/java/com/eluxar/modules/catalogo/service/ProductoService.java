@@ -166,6 +166,31 @@ public class ProductoService {
         return productoMapper.toDTO(productoRepository.save(producto));
     }
 
+    /**
+     * Marca una imagen específica como principal y desmarca las demás.
+     */
+    @Transactional
+    public ProductoDTO marcarImagenComoPrincipal(Long productoId, Long imagenId) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", productoId));
+
+        boolean found = false;
+        for (ProductoImagen imagen : producto.getImagenes()) {
+            if (imagen.getId().equals(imagenId)) {
+                imagen.setPrincipal(true);
+                found = true;
+            } else {
+                imagen.setPrincipal(false);
+            }
+        }
+
+        if (!found) {
+            throw new IllegalArgumentException("La imagen con ID " + imagenId + " no pertenece al producto " + productoId);
+        }
+
+        return productoMapper.toDTO(productoRepository.save(producto));
+    }
+
     @Transactional
     public void eliminar(Long id) {
         Producto producto = productoRepository.findById(id)
