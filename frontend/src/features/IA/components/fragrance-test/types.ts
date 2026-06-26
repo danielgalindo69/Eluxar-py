@@ -7,6 +7,7 @@ export interface TestState {
   totalSteps: number;
   response: string;
   productId: number | null;
+  theme: string;
 }
 
 export type Phase = "idle" | "question" | "loading" | "result";
