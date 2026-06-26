@@ -31,7 +31,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       name: product.name,
       type: product.type,
       image: product.image,
-      volume: defaultVariant?.volume ?? product.specs.volume,
+      volume: defaultVariant?.volume ?? product.variants?.[0]?.volume ?? '',
       price: defaultVariant?.price ?? parseFloat(product.price.replace('COP', '')),
     });
   };
@@ -111,7 +111,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <span className="text-[#2B2B2B] dark:text-[#EDEDED] text-xs font-medium">{product.price}</span>
         </div>
         <p className="text-[#2B2B2B]/40 dark:text-white/40 text-[10px] uppercase tracking-[0.15em] font-light">
-          {product.type} <span className="mx-1 text-[#2B2B2B]/20 dark:text-white/20">|</span> {product.specs.volume}
+          {product.type} <span className="mx-1 text-[#2B2B2B]/20 dark:text-white/20">|</span> {product.variants?.[0]?.volume ?? ''}
         </p>
       </div>
     </div>

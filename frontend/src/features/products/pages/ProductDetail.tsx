@@ -53,7 +53,7 @@ export const ProductDetail = () => {
       name: product.name,
       type: product.type,
       image: product.image,
-      volume: selectedVariant?.volume ?? product.specs.volume,
+      volume: selectedVariant?.volume ?? product.variants?.[0]?.volume ?? '',
       price: currentPrice,
     }, quantity);
   };
@@ -128,7 +128,7 @@ export const ProductDetail = () => {
       <SEOHead
         title={product ? `${product.name} | Eluxar` : "Eluxar"}
         exactTitle
-        description={`${product?.description?.slice(0, 150) ?? `Fragancia de alta concentración.`} Notas: ${product?.notes?.top ?? ''}. Disponible en ${product?.specs?.volume ?? ''}.`}
+        description={`${product?.description?.slice(0, 150) ?? `Fragancia de alta concentración.`} Notas: ${product?.notasSalida ?? ''}. Disponible en ${product?.variants?.[0]?.volume ?? ''}.`}
         canonical={`https://eluxar.com/product/${product.id}`}
         image={product.image}
         ogType="product"
@@ -229,15 +229,15 @@ export const ProductDetail = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="space-y-2">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-[#A5BAA8]">Salida</span>
-                  <p className="text-xs font-light text-[#2B2B2B]/60 dark:text-white/60">{product.notes.top}</p>
+                  <p className="text-xs font-light text-[#2B2B2B]/60 dark:text-white/60">{product.notasSalida ?? '—'}</p>
                 </div>
                 <div className="space-y-2">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-[#A5BAA8]">Corazón</span>
-                  <p className="text-xs font-light text-[#2B2B2B]/60 dark:text-white/60">{product.notes.heart}</p>
+                  <p className="text-xs font-light text-[#2B2B2B]/60 dark:text-white/60">{product.notasCorazon ?? '—'}</p>
                 </div>
                 <div className="space-y-2">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] dark:text-[#A5BAA8]">Fondo</span>
-                  <p className="text-xs font-light text-[#2B2B2B]/60 dark:text-white/60">{product.notes.base}</p>
+                  <p className="text-xs font-light text-[#2B2B2B]/60 dark:text-white/60">{product.notasFondo ?? '—'}</p>
                 </div>
               </div>
             </div>
@@ -270,7 +270,7 @@ export const ProductDetail = () => {
                 <div className="flex flex-col space-y-3">
                   <span className="text-[10px] uppercase tracking-widest font-bold">Formato</span>
                   <div className="border border-[#111111] px-4 py-2 text-center text-xs uppercase tracking-widest font-bold w-fit">
-                    {product.specs.volume}
+                    {product.variants?.[0]?.volume ?? '—'}
                   </div>
                 </div>
               )}
@@ -322,19 +322,23 @@ export const ProductDetail = () => {
                   <div className="grid grid-cols-2 gap-y-6">
                     <div className="flex flex-col space-y-1">
                       <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">Longevidad</span>
-                      <span className="text-xs uppercase tracking-widest font-bold">{product.specs.longevity}</span>
+                      <span className="text-xs uppercase tracking-widest font-bold">{product.longevidad ?? '—'}</span>
                     </div>
                     <div className="flex flex-col space-y-1">
-                      <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">Estela</span>
-                      <span className="text-xs uppercase tracking-widest font-bold">{product.specs.sillage}</span>
+                      <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">Intensidad</span>
+                      <span className="text-xs uppercase tracking-widest font-bold">{product.intensidad ?? '—'}</span>
                     </div>
                     <div className="flex flex-col space-y-1">
                       <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">Concentración</span>
-                      <span className="text-xs uppercase tracking-widest font-bold">25% Aceite Puro</span>
+                      <span className="text-xs uppercase tracking-widest font-bold">{product.concentracion ?? '—'}</span>
                     </div>
                     <div className="flex flex-col space-y-1">
                       <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">Familia Olfativa</span>
                       <span className="text-xs uppercase tracking-widest font-bold">{product.olfactoryFamily || '—'}</span>
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 uppercase tracking-widest font-bold">Estación</span>
+                      <span className="text-xs uppercase tracking-widest font-bold">{product.estaciones ?? '—'}</span>
                     </div>
                   </div>
                 ) : (
@@ -347,13 +351,25 @@ export const ProductDetail = () => {
           </div>
         </div>
 
+        {/* --- Guía de Uso --- */}
+        {product.guiaUso && (
+          <div className="mt-16 border-t border-[#EDEDED] dark:border-white/8 pt-12">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white mb-6">
+              Guía de Uso y Aplicación
+            </h3>
+            <p className="text-sm font-light text-[#2B2B2B]/70 dark:text-white/60 leading-relaxed max-w-2xl">
+              {product.guiaUso}
+            </p>
+          </div>
+        )}
+
         {/* --- Sección de Reseñas --- */}
-        <ProductReviews 
-          productId={product.id} 
+        <ProductReviews
+          productId={product.id}
           onReviewAdded={() => {
             // Invalida la caché del producto para que se recargue con el nuevo rating promedio
             queryClient.invalidateQueries({ queryKey: ['product', id] });
-          }} 
+          }}
         />
 
       </div>

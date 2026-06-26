@@ -56,6 +56,7 @@ export const Checkout = () => {
     email: user?.email || '',
     phone: '',
     address: '',
+    addressNotes: '',
     barrio: '',
     city: '',
     zip: '',
@@ -75,8 +76,15 @@ export const Checkout = () => {
     }
   }, [isAuthenticated]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  // Solo permite numéricos en campos phone y zip
+  const handleNumericInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const numericOnly = value.replace(/\D/g, '');
+    setFormData(prev => ({ ...prev, [name]: numericOnly }));
   };
 
   const handleValidateCoupon = async () => {
@@ -121,7 +129,7 @@ export const Checkout = () => {
         ...addr,
         metodoPago: paymentMethod,
         codigoDescuento: coupon?.codigo,
-        notas: '',
+        notas: formData.addressNotes || '',
       });
       queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] });
       clearCart();
@@ -185,7 +193,15 @@ export const Checkout = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label htmlFor="phone" className={LABEL_CLS}>Teléfono</label>
-                    <input id="phone" name="phone" value={formData.phone} onChange={handleChange} type="tel" className={INPUT_CLS} placeholder="+57 300 000 0000" />
+                    <input
+                      id="phone" name="phone"
+                      value={formData.phone}
+                      onChange={handleNumericInput}
+                      inputMode="numeric"
+                      maxLength={15}
+                      className={INPUT_CLS}
+                      placeholder="3001234567"
+                    />
                   </div>
                 </div>
 
@@ -279,7 +295,33 @@ export const Checkout = () => {
                       </div>
                       <div>
                         <label htmlFor="zip" className={LABEL_CLS}>Código Postal</label>
-                        <input id="zip" name="zip" value={formData.zip} onChange={handleChange} className={INPUT_CLS} placeholder="050001" />
+                        <input
+                          id="zip" name="zip"
+                          value={formData.zip}
+                          onChange={handleNumericInput}
+                          inputMode="numeric"
+                          maxLength={6}
+                          className={INPUT_CLS}
+                          placeholder="050001"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label htmlFor="addressNotes" className={LABEL_CLS}>
+                          Notas adicionales de entrega
+                          <span className="normal-case tracking-normal font-normal opacity-60 ml-1">(apartamento, torre, referencias...)</span>
+                        </label>
+                        <textarea
+                          id="addressNotes" name="addressNotes"
+                          value={formData.addressNotes}
+                          onChange={handleChange}
+                          rows={3}
+                          maxLength={300}
+                          className={INPUT_CLS + " resize-none"}
+                          placeholder="Ej: Apto 402, Torre B, timbre no funciona, dejar con portería..."
+                        />
+                        <p className="text-right text-[9px] text-[#2B2B2B]/30 dark:text-white/20 mt-1 font-bold tracking-widest uppercase">
+                          {formData.addressNotes.length}/300
+                        </p>
                       </div>
                       <div className="md:col-span-2">
                         <label htmlFor="country" className={LABEL_CLS}>País</label>
@@ -345,7 +387,7 @@ export const Checkout = () => {
                             ...addr,
                             metodoPago: 'MERCADOPAGO',
                             codigoDescuento: coupon?.codigo,
-                            notas: '',
+                            notas: formData.addressNotes || '',
                           });
                           queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] });
                           setPreferenceId(res.preferenceId);

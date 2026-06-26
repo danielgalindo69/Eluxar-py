@@ -19,16 +19,14 @@ export interface Product {
   category: string;
   variants: ProductVariant[];
   stock: number;
-  notes: {
-    top: string;
-    heart: string;
-    base: string;
-  };
-  specs: {
-    volume: string;
-    longevity: string;
-    sillage: string;
-  };
+  concentracion?: string;
+  notasSalida?: string;
+  notasCorazon?: string;
+  notasFondo?: string;
+  estaciones?: string;
+  longevidad?: string;
+  guiaUso?: string;
+  intensidad?: string;
   rating?: number;
   reviewCount?: number;
 }

@@ -9,5 +9,6 @@ public enum CategoriaEnum {
     CABALLERO,
     DAMA,
     NINO,   // Niño - Java no soporta ñ en identificadores de enum
-    NINA    // Niña
+    NINA,   // Niña
+    UNISEX
 }

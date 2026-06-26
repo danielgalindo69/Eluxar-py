@@ -27,7 +27,18 @@ public class ProductoDTO {
      * Al leer: se serializa el nombre del Enum (ej: "CABALLERO").
      */
     private String categoria;
+    private String concentracion;
+    private String notasSalida;
+    private String notasCorazon;
+    private String notasFondo;
+    private String ocasion;
+    private String estaciones;
+    private String guiaUso;
+    private String paisOrigen;
+    private String intensidad;
+    private String longevidad;
     private String familiaOlfativa;
+
     private List<VarianteDTO> variantes;
 
     /** Lista de URLs y detalles de las imágenes del producto */

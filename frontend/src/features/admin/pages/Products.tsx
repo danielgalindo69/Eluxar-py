@@ -16,7 +16,9 @@ const CATEGORIAS = [
   { value: "DAMA",      label: "Dama" },
   { value: "NINO",      label: "Niño" },
   { value: "NINA",      label: "Niña" },
+  { value: "UNISEX",    label: "Unisex" },
 ] as const;
+
 
 export const Products = () => {
   const queryClient = useQueryClient();
@@ -318,10 +320,19 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     familiaOlfativa: product?.olfactoryFamily || "",
     activo:          true,
     destacado:       false,
-    precio:          product?.variants?.[0]?.price || 0,
-    stock:           product?.variants?.[0]?.stock || 0,
+    precio:          product?.variants?.[0]?.price || "",
+    stock:           product?.variants?.[0]?.stock || "",
     tamanoMl:        parseVolume(product?.variants?.[0]?.volume),
+    concentracion:   product?.concentracion || "",
+    notasSalida:     product?.notasSalida || "",
+    notasCorazon:    product?.notasCorazon || "",
+    notasFondo:      product?.notasFondo || "",
+    estaciones:      product?.estaciones || "",
+    longevidad:      product?.longevidad || "",
+    guiaUso:         product?.guiaUso || "",
+    intensidad:      product?.intensidad || "",
   });
+
 
   // Image state — up to 3 slots
   const [images, setImages] = useState<(ImageEntry | null)[]>(() => {
@@ -387,6 +398,15 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
         familiaOlfativa: formData.familiaOlfativa,
         activo:          formData.activo,
         destacado:       formData.destacado,
+        // Perfil olfativo y sensorial
+        concentracion:   formData.concentracion || null,
+        notasSalida:     formData.notasSalida    || null,
+        notasCorazon:    formData.notasCorazon   || null,
+        notasFondo:      formData.notasFondo     || null,
+        estaciones:      formData.estaciones     || null,
+        longevidad:      formData.longevidad     || null,
+        guiaUso:         formData.guiaUso        || null,
+        intensidad:      formData.intensidad     || null,
         variantes: [{
           id: product?.variants?.[0]?.id,
           tamanoMl: formData.tamanoMl,
@@ -394,7 +414,6 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
           stockActual: formData.stock,
           activa: true,
         }],
-        // Si hay imágenes ya subidas a cloudinary, las mantenemos (temporal o vacío según API)
         imagenes: [],
       };
 
@@ -447,123 +466,272 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 overflow-y-auto flex-1">
-          <div className="grid grid-cols-2 gap-8">
+          {/* ── Sección 1: Información Básica ── */}
+          <div className="mb-10 pb-8 border-b border-[#EDEDED] dark:border-white/10">
+            <div className="flex items-center gap-2 mb-6">
+              <Package size={16} className="text-[var(--color-gold)]" />
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Información Básica</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Columna izquierda */}
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Nombre</label>
+                  <div className="relative group">
+                    <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
+                    <input
+                      type="text"
+                      required
+                      value={formData.nombre}
+                      onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                      placeholder="Ej: L'Eau de Parfum"
+                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    />
+                  </div>
+                </div>
 
-            {/* ── Col izquierda ── */}
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Nombre</label>
-                <div className="relative group">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Descripción</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={formData.descripcion}
+                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                    placeholder="Describe las notas y la esencia..."
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Precio (COP)</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={formData.precio}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, precio: val === "" ? "" : Number(val) });
+                      }}
+                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tamaño (ml)</label>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      value={formData.tamanoMl}
+                      onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
+                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Stock Inicial</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={formData.stock}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, stock: val === "" ? "" : Number(val) });
+                      }}
+                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Columna derecha */}
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Categoría</label>
+                  <select
+                    required
+                    value={formData.categoria}
+                    onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                  >
+                    <option value="">Seleccionar...</option>
+                    {CATEGORIAS.map(c => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Marca</label>
                   <input
                     type="text"
                     required
-                    value={formData.nombre}
-                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                    placeholder="Ej: L'Eau de Parfum"
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    value={formData.marca}
+                    onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                    placeholder="Ej: Chanel, Dior, Tom Ford..."
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Descripción</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                  placeholder="Describe las notas y la esencia..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
-                />
-              </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Familia Olfativa</label>
+                  <input
+                    type="text"
+                    value={formData.familiaOlfativa}
+                    onChange={(e) => setFormData({ ...formData, familiaOlfativa: e.target.value })}
+                    placeholder="Ej: Floral, Amaderada..."
+                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                  />
+                </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Precio (COP)</label>
+                <label className="flex items-center gap-2 cursor-pointer pt-1">
                   <input
-                    type="number"
-                    required
-                    min={0}
-                    value={formData.precio}
-                    onChange={(e) => setFormData({ ...formData, precio: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    type="checkbox"
+                    checked={formData.destacado}
+                    onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
+                    className="w-4 h-4 accent-[var(--color-gold)]"
                   />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tamaño (ml)</label>
-                  <input
-                    type="number"
-                    required
-                    min={1}
-                    value={formData.tamanoMl}
-                    onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Stock Inicial</label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
-                  />
-                </div>
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
+                </label>
               </div>
             </div>
+          </div>
 
-            {/* ── Col derecha ── */}
-            <div className="space-y-5">
+          {/* ── Sección 2: Perfil Olfativo y Sensorial ── */}
+          <div className="mb-10 pb-8 border-b border-[#EDEDED] dark:border-white/10">
+            <div className="flex items-center gap-2 mb-6">
+              <Sparkles size={16} className="text-[var(--color-gold)]" />
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Perfil Olfativo y Sensorial</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Categoría</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Concentración</label>
                 <select
-                  required
-                  value={formData.categoria}
-                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                  value={formData.concentracion}
+                  onChange={(e) => setFormData({ ...formData, concentracion: e.target.value })}
                   className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
                 >
                   <option value="">Seleccionar...</option>
-                  {CATEGORIAS.map(c => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
+                  <option value="Eau de Cologne">Eau de Cologne</option>
+                  <option value="Eau de Toilette">Eau de Toilette</option>
+                  <option value="Eau de Parfum">Eau de Parfum</option>
+                  <option value="Parfum">Parfum</option>
+                  <option value="Extrait de Parfum">Extrait de Parfum</option>
                 </select>
               </div>
-
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Marca</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.marca}
-                  onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
-                  placeholder="Ej: Chanel, Dior, Tom Ford..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Intensidad</label>
+                <select
+                  value={formData.intensidad}
+                  onChange={(e) => setFormData({ ...formData, intensidad: e.target.value })}
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="Suave">Suave</option>
+                  <option value="Moderada">Moderada</option>
+                  <option value="Intensa">Intensa</option>
+                  <option value="Muy Intensa">Muy Intensa</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Longevidad</label>
+                <select
+                  value={formData.longevidad}
+                  onChange={(e) => setFormData({ ...formData, longevidad: e.target.value })}
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="Efímera (1-2 horas)">Efímera (1-2 horas)</option>
+                  <option value="Corta (2-4 horas)">Corta (2-4 horas)</option>
+                  <option value="Moderada (4-6 horas)">Moderada (4-6 horas)</option>
+                  <option value="Larga (6-8 horas)">Larga (6-8 horas)</option>
+                  <option value="Muy Larga (8+ horas)">Muy Larga (8+ horas)</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Notas de Salida</label>
+                  <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.notasSalida.length}/200</span>
+                </div>
+                <textarea
+                  rows={3}
+                  maxLength={200}
+                  value={formData.notasSalida}
+                  onChange={(e) => setFormData({ ...formData, notasSalida: e.target.value })}
+                  placeholder="Ej: Bergamota, Limón, Lavanda..."
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
                 />
               </div>
-
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Familia Olfativa</label>
-                <input
-                  type="text"
-                  value={formData.familiaOlfativa}
-                  onChange={(e) => setFormData({ ...formData, familiaOlfativa: e.target.value })}
-                  placeholder="Ej: Floral, Amaderada..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Notas de Corazón</label>
+                  <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.notasCorazon.length}/200</span>
+                </div>
+                <textarea
+                  rows={3}
+                  maxLength={200}
+                  value={formData.notasCorazon}
+                  onChange={(e) => setFormData({ ...formData, notasCorazon: e.target.value })}
+                  placeholder="Ej: Rosa, Jazmín, Canela..."
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
                 />
               </div>
-
-              <label className="flex items-center gap-2 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  checked={formData.destacado}
-                  onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
-                  className="w-4 h-4 accent-[var(--color-gold)]"
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Notas de Fondo</label>
+                  <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.notasFondo.length}/200</span>
+                </div>
+                <textarea
+                  rows={3}
+                  maxLength={200}
+                  value={formData.notasFondo}
+                  onChange={(e) => setFormData({ ...formData, notasFondo: e.target.value })}
+                  placeholder="Ej: Sándalo, Vainilla, Almizcle..."
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
                 />
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
-              </label>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Sección 3: Contexto y Recomendaciones ── */}
+          <div className="mb-10 pb-8 border-b border-[#EDEDED] dark:border-white/10">
+            <div className="flex items-center gap-2 mb-6">
+              <Filter size={16} className="text-[var(--color-gold)]" />
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Contexto y Recomendaciones</h3>
+            </div>
+            <div className="space-y-4 mb-4">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Estaciones</label>
+                <select
+                  value={formData.estaciones}
+                  onChange={(e) => setFormData({ ...formData, estaciones: e.target.value })}
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none max-w-xs"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="Primavera">Primavera</option>
+                  <option value="Verano">Verano</option>
+                  <option value="Otoño">Otoño</option>
+                  <option value="Invierno">Invierno</option>
+                  <option value="Toda la Temporada">Toda la Temporada</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Guía de Uso y Aplicación</label>
+                <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.guiaUso.length}/500</span>
+              </div>
+              <textarea
+                rows={4}
+                maxLength={500}
+                value={formData.guiaUso}
+                onChange={(e) => setFormData({ ...formData, guiaUso: e.target.value })}
+                placeholder="Consejos de aplicación, momentos ideales, combinaciones sugeridas..."
+                className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+              />
             </div>
           </div>
 

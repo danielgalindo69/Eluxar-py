@@ -32,6 +32,19 @@ export const MercadoPagoBrick = ({
   const [isSDKReady, setIsSDKReady] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 
+  // Detectar el tema activo del sistema para pasarlo al Brick
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => document.documentElement.classList.contains('dark')
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     try {
       initMercadoPago(MP_PUBLIC_KEY, { locale: 'es-CO' });
@@ -66,7 +79,11 @@ export const MercadoPagoBrick = ({
 
   // ── Payment Brick ─────────────────────────────────────────────
   return (
-    <div className="w-full" id="mercadopago-brick-container">
+    <div
+      className="w-full rounded-sm overflow-hidden"
+      style={{ background: isDarkMode ? 'var(--bg-surface, #1a1a1a)' : '#ffffff' }}
+      id="mercadopago-brick-container"
+    >
       <Payment
         initialization={{
           amount: amount,           // Pasamos el total exacto del carrito
@@ -83,11 +100,13 @@ export const MercadoPagoBrick = ({
           },
           visual: {
             style: {
-              theme: 'default',
+              theme: isDarkMode ? 'dark' : 'default',
               customVariables: {
                 baseColor: '#3A4A3F',
                 baseColorFirstVariant: '#2d3d32',
                 baseColorSecondVariant: '#A5BAA8',
+                // Sobreescribe el fondo azul oscuro que usa MP por defecto en dark mode
+                formBackgroundColor: isDarkMode ? '#161616' : '#ffffff',
                 fontSizeSmall: '10px',
                 fontSizeMedium: '12px',
                 fontSizeLarge: '14px',
