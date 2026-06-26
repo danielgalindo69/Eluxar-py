@@ -3,10 +3,12 @@ package com.eluxar.modules.ia.controller;
 import com.eluxar.modules.ia.dto.ChatRequest;
 import com.eluxar.modules.ia.dto.ChatResponse;
 import com.eluxar.modules.ia.service.ChatService;
+import com.eluxar.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,7 +28,9 @@ public class ChatController {
      */
     @PostMapping("/chat")
     @Operation(summary = "Enviar mensaje al asesor de fragancias IA")
-    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
+    public ResponseEntity<ChatResponse> chat(
+            @RequestBody ChatRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         ChatResponse response = chatService.sendMessage(request);
         return ResponseEntity.ok(response);
     }
