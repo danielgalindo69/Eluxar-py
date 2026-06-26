@@ -328,6 +328,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
     notasCorazon:    product?.notasCorazon || "",
     notasFondo:      product?.notasFondo || "",
     estaciones:      product?.estaciones || "",
+    longevidad:      product?.longevidad || "",
     guiaUso:         product?.guiaUso || "",
     intensidad:      product?.intensidad || "",
   });
@@ -403,6 +404,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
         notasCorazon:    formData.notasCorazon   || null,
         notasFondo:      formData.notasFondo     || null,
         estaciones:      formData.estaciones     || null,
+        longevidad:      formData.longevidad     || null,
         guiaUso:         formData.guiaUso        || null,
         intensidad:      formData.intensidad     || null,
         variantes: [{
@@ -602,7 +604,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
               <Sparkles size={16} className="text-[var(--color-gold)]" />
               <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Perfil Olfativo y Sensorial</h3>
             </div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Concentración</label>
                 <select
@@ -615,6 +617,7 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   <option value="Eau de Toilette">Eau de Toilette</option>
                   <option value="Eau de Parfum">Eau de Parfum</option>
                   <option value="Parfum">Parfum</option>
+                  <option value="Extrait de Parfum">Extrait de Parfum</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -629,6 +632,21 @@ const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps) => {
                   <option value="Moderada">Moderada</option>
                   <option value="Intensa">Intensa</option>
                   <option value="Muy Intensa">Muy Intensa</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Longevidad</label>
+                <select
+                  value={formData.longevidad}
+                  onChange={(e) => setFormData({ ...formData, longevidad: e.target.value })}
+                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="Efímera (1-2 horas)">Efímera (1-2 horas)</option>
+                  <option value="Corta (2-4 horas)">Corta (2-4 horas)</option>
+                  <option value="Moderada (4-6 horas)">Moderada (4-6 horas)</option>
+                  <option value="Larga (6-8 horas)">Larga (6-8 horas)</option>
+                  <option value="Muy Larga (8+ horas)">Muy Larga (8+ horas)</option>
                 </select>
               </div>
             </div>
