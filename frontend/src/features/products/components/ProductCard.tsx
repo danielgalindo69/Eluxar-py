@@ -95,11 +95,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             </button>
           </div>
 
-          {product.id === "1" && (
-            <div className="absolute top-4 left-4 bg-white dark:bg-[var(--bg-surface)] px-3 py-1">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#3A4A3F] dark:text-[var(--color-gold)]">Nuevo</span>
-            </div>
-          )}
+          
         </div>
       </Link>
 
