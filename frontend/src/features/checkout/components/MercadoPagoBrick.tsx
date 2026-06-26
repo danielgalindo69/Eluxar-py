@@ -105,6 +105,8 @@ export const MercadoPagoBrick = ({
                 baseColor: '#3A4A3F',
                 baseColorFirstVariant: '#2d3d32',
                 baseColorSecondVariant: '#A5BAA8',
+                // Sobreescribe el fondo azul oscuro que usa MP por defecto en dark mode
+                formBackgroundColor: isDarkMode ? '#161616' : '#ffffff',
                 fontSizeSmall: '10px',
                 fontSizeMedium: '12px',
                 fontSizeLarge: '14px',
