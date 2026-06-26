@@ -65,4 +65,24 @@ public class ProductoImagenController {
         ProductoDTO dto = productoService.eliminarImagen(id, imagenId);
         return ResponseEntity.ok(ApiResponse.success("Imagen eliminada", dto));
     }
+
+    /**
+     * Marca una imagen específica como principal y desmarca las demás.
+     */
+    @PatchMapping("/{imagenId}/principal")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Marcar una imagen como principal")
+    public ResponseEntity<ApiResponse<ProductoDTO>> marcarImagenComoPrincipal(
+            @PathVariable Long id,
+            @PathVariable Long imagenId) {
+
+        try {
+            ProductoDTO dto = productoService.marcarImagenComoPrincipal(id, imagenId);
+            return ResponseEntity.ok(ApiResponse.success("Imagen principal actualizada", dto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }

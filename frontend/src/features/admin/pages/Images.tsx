@@ -76,6 +76,9 @@ export const Images = () => {
   const [deleteTarget, setDeleteTarget] = useState<ProductImage | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Set principal
+  const [isSettingPrincipal, setIsSettingPrincipal] = useState<number | null>(null);
+
   // ── Load products on mount
   useEffect(() => {
     setProductsState("loading");
@@ -170,6 +173,27 @@ export const Images = () => {
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
+    }
+  };
+
+  // ── Set image as principal
+  const handleSetPrincipal = async (img: ProductImage) => {
+    if (!selectedId) return;
+    setIsSettingPrincipal(img.id);
+    const tid = toast.loading("Estableciendo como principal...");
+    try {
+      await apiFetch(
+        `/productos/${selectedId}/imagenes/${img.id}/principal`,
+        { method: "PATCH" }
+      );
+      setProductImages((prev) =>
+        prev.map((i) => ({ ...i, principal: i.url === img.url }))
+      );
+      toast.success("Imagen principal actualizada", { id: tid });
+    } catch (e: any) {
+      toast.error(e.message || "Error al establecer imagen principal", { id: tid });
+    } finally {
+      setIsSettingPrincipal(null);
     }
   };
 
@@ -420,14 +444,21 @@ export const Images = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setProductImages((prev) =>
-                                prev.map((i) => ({ ...i, principal: i.url === img.url }))
-                              );
+                              handleSetPrincipal(img);
                             }}
-                            className="p-2.5 text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 backdrop-blur-md border border-transparent hover:border-[#3A4A3F]/30 transition-all duration-300"
+                            disabled={isSettingPrincipal === img.id}
+                            className={`p-2.5 backdrop-blur-md border border-transparent transition-all duration-300 ${
+                              isSettingPrincipal === img.id
+                                ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
+                                : "text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 hover:border-[#3A4A3F]/30"
+                            }`}
                             title="Establecer como principal"
                           >
-                            <Star size={16} strokeWidth={1.5} />
+                            {isSettingPrincipal === img.id ? (
+                              <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
+                            ) : (
+                              <Star size={16} strokeWidth={1.5} />
+                            )}
                           </button>
                         )}
                       </div>
