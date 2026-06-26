@@ -19,6 +19,10 @@ def fragrance_question_generator(history_summary: str, current_step: int, total_
     INSTRUCCIONES: Genera una pregunta enfocada EXCLUSIVAMENTE en el tema anterior. Evita repetir el enfoque exacto de preguntas previas listadas en el historial.
     DEBES generar 4 opciones.
 
+    SI EL TEMA ES 'presupuesto aproximado': genera las 4 opciones en PESOS COLOMBIANOS (COP), con rangos realistas para perfumes en el mercado colombiano, usando punto como separador de miles (ej: 'Menos de $80.000 COP', 'Entre $80.000 y $150.000 COP', 'Entre $150.000 y $250.000 COP', 'Más de $250.000 COP'). NUNCA generes precios en dólares.
+
+    VARIACIÓN: Aunque el tema está fijo, varía el ángulo, enfoque o tipo de pregunta (directa, hipotética, comparativa, situacional) respecto a otras preguntas del mismo tema que hayas visto en el historial. El objetivo es que si el mismo tema apareciera en otra sesión, la redacción no sea casi idéntica. No te salgas del tema asignado.
+
     HISTORIAL:
     {history_summary if history_summary else "Ninguno, esta es la primera pregunta."}
     
