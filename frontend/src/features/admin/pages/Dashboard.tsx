@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useQuery } from "@tanstack/react-query";
 import { DollarSign, BarChart3, Package, Users, AlertTriangle, TrendingUp } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -41,16 +42,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export const Dashboard = () => {
-  const [metrics, setMetrics] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    adminDashboardAPI.getMetrics()
-      .then(setMetrics)
-      .catch(() => setError("No se pudieron cargar las métricas. Verifica la conexión con el servidor."))
-      .finally(() => setIsLoading(false));
-  }, []);
+  const { data: metrics, isLoading, error } = useQuery({
+    queryKey: ['admin-dashboard'],
+    queryFn: () => adminDashboardAPI.getMetrics(),
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const statCards = metrics ? [
     {
@@ -98,7 +95,7 @@ export const Dashboard = () => {
       {/* Error Banner */}
       {error && (
         <div className="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-5 py-4 text-sm text-red-600 dark:text-red-400">
-          {error}
+          {error instanceof Error ? error.message : "No se pudieron cargar las métricas. Verifica la conexión con el servidor."}
         </div>
       )}
 

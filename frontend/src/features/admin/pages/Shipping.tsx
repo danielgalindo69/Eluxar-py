@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { shippingAPI, Shipment } from "../../../core/api/api";
 import { Truck, Package, CheckCircle, RotateCcw, Search, X, Filter } from "lucide-react";
 import { toast } from "sonner";
@@ -16,21 +17,23 @@ const statusConfig: Record<string, { icon: React.ElementType; color: string; bg:
 };
 
 export const Shipping = () => {
-  const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [confirmAction, setConfirmAction] = useState<{ id: string; status: Shipment['status'] } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    shippingAPI.getAll().then(d => { setShipments(d); setIsLoading(false); });
-  }, []);
+  const { data: shipments = [], isLoading } = useQuery({
+    queryKey: ['admin-envios'],
+    queryFn: () => shippingAPI.getAll(),
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleUpdateStatus = async () => {
     if (!confirmAction) return;
     await shippingAPI.updateStatus(confirmAction.id, confirmAction.status);
-    setShipments(prev => prev.map(s => s.id === confirmAction.id ? { ...s, status: confirmAction.status } : s));
+    queryClient.invalidateQueries({ queryKey: ['admin-envios'] });
     toast.success(`Envío actualizado a: ${confirmAction.status}`);
     setConfirmAction(null);
   };

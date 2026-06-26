@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Upload, Trash2, ImageIcon, Sparkles, Loader2, ChevronDown,
   Star, X, CheckCircle2,
@@ -6,6 +7,7 @@ import {
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { aiAPI, API_URL, getStoredToken } from "../../../core/api/api";
+import { productsAPI } from "../../../core/api/products";
 
 // ─── Types ────────────────────────────────────────────────────
 interface ProductOption {
@@ -55,10 +57,26 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
 // ─── Component ────────────────────────────────────────────────
 export const Images = () => {
+  const queryClient = useQueryClient();
+  
   // Products dropdown
-  const [products, setProducts] = useState<ProductOption[]>([]);
-  const [productsState, setProductsState] = useState<LoadState>("idle");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const { data: adminProducts = [], isLoading: isProductsLoading, error: productsError } = useQuery({
+    queryKey: ['admin-productos'],
+    queryFn: () => productsAPI.getAll(),
+    staleTime: 0,
+    gcTime: 60000,
+  });
+
+  useEffect(() => {
+    if (adminProducts.length > 0 && selectedId === null) {
+      setSelectedId(parseInt(adminProducts[0].id));
+    }
+  }, [adminProducts, selectedId]);
+
+  const productsState: LoadState = isProductsLoading ? "loading" : productsError ? "error" : "ok";
+  const products: ProductOption[] = adminProducts.map((p) => ({ id: parseInt(p.id), nombre: p.name, marca: p.brand }));
 
   // Gallery
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
@@ -78,23 +96,6 @@ export const Images = () => {
 
   // Set principal
   const [isSettingPrincipal, setIsSettingPrincipal] = useState<number | null>(null);
-
-  // ── Load products on mount
-  useEffect(() => {
-    setProductsState("loading");
-    apiFetch("/productos")
-      .then((dtos: any[]) => {
-        const opts = dtos.map((d) => ({
-          id: d.id as number,
-          nombre: d.nombre as string,
-          marca: d.marca as string,
-        }));
-        setProducts(opts);
-        setProductsState("ok");
-        if (opts.length > 0) setSelectedId(opts[0].id);
-      })
-      .catch(() => setProductsState("error"));
-  }, []);
 
   // ── Load images when product changes
   const loadImages = useCallback((id: number) => {

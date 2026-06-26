@@ -1,5 +1,6 @@
 import { Edit2, Ban, CheckCircle, Shield, User } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminUsersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
 import { SearchBar } from "../components/SearchBar";
@@ -21,15 +22,15 @@ const tableWrapClass = "bg-white dark:bg-[var(--bg-surface)] border border-[#EDE
 const thClass = "text-left text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-6 py-4";
 
 export const Users = () => {
-  const [users, setUsers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchUsers = async () => {
-    try {
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['admin-usuarios'],
+    queryFn: async () => {
       const data = await adminUsersAPI.getAll();
-      setUsers(data.map((u: any) => ({
+      return data.map((u: any) => ({
         id: u.id,
         name: `${u.nombre} ${u.apellido}`,
         email: u.email,
@@ -37,21 +38,17 @@ export const Users = () => {
         joined: new Date(u.fechaRegistro).toLocaleDateString(),
         orders: 0,
         active: u.activo
-      })));
-    } catch (error) {
-      toast.error("Error al cargar usuarios");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchUsers(); }, []);
+      }));
+    },
+    staleTime: 0,
+    gcTime: 60000,
+  });
 
   const handleToggleActive = async (id: string, currentActive: boolean) => {
     try {
       await adminUsersAPI.toggleActive(id);
       toast.success(currentActive ? "Usuario bloqueado" : "Usuario desbloqueado");
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ['admin-usuarios'] });
     } catch (error) {
       toast.error("Error al actualizar estado del usuario");
     }
@@ -61,7 +58,7 @@ export const Users = () => {
     try {
       await adminUsersAPI.updateRole(id, newRole);
       toast.success("Rol actualizado correctamente");
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ['admin-usuarios'] });
     } catch (error) {
       toast.error("Error al cambiar rol del usuario");
     }
