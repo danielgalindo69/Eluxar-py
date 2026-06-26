@@ -1,4 +1,4 @@
-import { apiClient, formatPrice, API_URL } from './client';
+import { apiClient, formatPrice } from './client';
 import { Product } from '../../features/products/types/products';
 
 // ─── Mappers ─────────────────────────────────────────────────
@@ -13,36 +13,41 @@ const mapCategoriaToGender = (categoria: string): Product['gender'] => {
   }
 };
 
-export const mapProductoDTOToProduct = (dto: any): Product => ({
-  id: String(dto.id),
-  name: dto.nombre || '',
-  type: dto.familiaOlfativa || dto.categoria || '',  // muestra familia olfativa como tipo
-  price: `${formatPrice(dto.variantes?.[0]?.precioVenta || 0)} COP`,
-  image: (dto.imagenes && dto.imagenes[0]?.url) || 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1080',
-  hoverImage: dto.imagenes && dto.imagenes[1]?.url,
-  description: dto.descripcion || '',
-  brand: dto.marca || 'Eluxar',
-  gender: mapCategoriaToGender(dto.categoria),
-  olfactoryFamily: dto.familiaOlfativa || '',
-  category: dto.categoria || '',
-  variants: (dto.variantes || []).map((v: any) => ({
-    id: v.id,
-    volume: `${v.tamanoMl}ml`,
-    price: v.precioVenta,
-    stock: v.stockActual
-  })),
-  stock: (dto.variantes || []).reduce((acc: number, v: any) => acc + (v.stockActual || 0), 0),
-  concentracion: dto.concentracion || undefined,
-  notasSalida: dto.notasSalida || undefined,
-  notasCorazon: dto.notasCorazon || undefined,
-  notasFondo: dto.notasFondo || undefined,
-  estaciones: dto.estaciones || undefined,
-  longevidad: dto.longevidad || undefined,
-  guiaUso: dto.guiaUso || undefined,
-  intensidad: dto.intensidad || undefined,
-  rating: dto.promedioCalificacion || 0,
-  reviewCount: dto.totalResenas || 0,
-});
+export const mapProductoDTOToProduct = (dto: any): Product => {
+  const principalImage = dto.imagenes?.find((img: any) => img.principal)?.url || dto.imagenes?.[0]?.url || 'https://images.unsplash.com/photo-1558710347-d8257f52e427?w=1080';
+  const hoverImage = dto.imagenes?.filter((img: any) => !img.principal)?.[0]?.url;
+
+  return {
+    id: String(dto.id),
+    name: dto.nombre || '',
+    type: dto.familiaOlfativa || dto.categoria || '',  // muestra familia olfativa como tipo
+    price: `${formatPrice(dto.variantes?.[0]?.precioVenta || 0)} COP`,
+    image: principalImage,
+    hoverImage: hoverImage,
+    description: dto.descripcion || '',
+    brand: dto.marca || 'Eluxar',
+    gender: mapCategoriaToGender(dto.categoria),
+    olfactoryFamily: dto.familiaOlfativa || '',
+    category: dto.categoria || '',
+    variants: (dto.variantes || []).map((v: any) => ({
+      id: v.id,
+      volume: `${v.tamanoMl}ml`,
+      price: v.precioVenta,
+      stock: v.stockActual
+    })),
+    stock: (dto.variantes || []).reduce((acc: number, v: any) => acc + (v.stockActual || 0), 0),
+    concentracion: dto.concentracion || undefined,
+    notasSalida: dto.notasSalida || undefined,
+    notasCorazon: dto.notasCorazon || undefined,
+    notasFondo: dto.notasFondo || undefined,
+    estaciones: dto.estaciones || undefined,
+    longevidad: dto.longevidad || undefined,
+    guiaUso: dto.guiaUso || undefined,
+    intensidad: dto.intensidad || undefined,
+    rating: dto.promedioCalificacion || 0,
+    reviewCount: dto.totalResenas || 0,
+  };
+};
 
 // ─── Products ────────────────────────────────────────────────
 export const productsAPI = {
