@@ -40,7 +40,7 @@ export const Orders = () => {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-pedidos'],
     queryFn: async () => {
-      const data = await ordersAPI.getAll();
+      const data = await ordersAPI.getAllAdmin();
       return data.map((o: any) => ({
         id: `#${o.id}`,
         rawId: o.id,

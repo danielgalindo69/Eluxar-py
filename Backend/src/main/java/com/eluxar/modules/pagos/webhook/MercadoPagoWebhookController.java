@@ -103,8 +103,13 @@ public class MercadoPagoWebhookController {
             } catch (NumberFormatException e) {
                 log.error("[Webhook MP] Formato de ID de pago o pedido inválido: {}", resourceId);
             } catch (Exception e) {
-                log.error("[Webhook MP] Error al procesar la notificación del pago {}: {}", resourceId, e.getMessage(), e);
-                // Retornamos 500 para que Mercado Pago reintente enviar la notificación
+                log.error("[Webhook MP] Error al procesar la notificación del pago {}: {}", resourceId, e.getMessage());
+                // Si el error es de la API de MP (ej. 404 por ID de prueba falso), devolvemos 200 para que no reintente
+                if (e.getClass().getName().contains("MPApiException") || e.getMessage().contains("404")) {
+                    log.warn("[Webhook MP] El pago {} no se encontró en Mercado Pago (posible simulación de prueba). Ignorando.", resourceId);
+                    return ResponseEntity.ok().build();
+                }
+                // Si es otro error (ej. base de datos), retornamos 500 para que Mercado Pago reintente enviar la notificación
                 return ResponseEntity.status(500).build();
             }
         }
