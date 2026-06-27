@@ -1,4 +1,4 @@
-import { Edit2, Ban, CheckCircle, Shield, User } from "lucide-react";
+import { Edit2, Ban, CheckCircle, Shield, User, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminUsersAPI } from "../../../core/api/api";
@@ -125,7 +125,7 @@ export const Users = () => {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={6} className="text-center py-8 text-sm text-[#2B2B2B]/40 dark:text-white/40">Cargando usuarios...</td></tr>
+                <tr><td colSpan={6} className="text-center py-8"><div className="flex items-center justify-center gap-2 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60"><Loader2 className="animate-spin" size={18} /><span>Cargando usuarios...</span></div></td></tr>
               ) : paginated.length > 0 ? (
                 paginated.map((user) => (
                   <tr key={user.id} className={`border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors ${!user.active ? 'opacity-50' : ''}`}>

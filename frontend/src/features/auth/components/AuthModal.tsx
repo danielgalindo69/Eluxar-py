@@ -69,7 +69,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   onClose();
                   navigate('/auth');
                 }}
-                className="w-full bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#1B5E20] transition-all duration-300"
+                className="w-full bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300"
               >
                 Iniciar Sesión
               </button>

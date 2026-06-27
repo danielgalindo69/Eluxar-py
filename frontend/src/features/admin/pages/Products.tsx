@@ -69,7 +69,7 @@ export const Products = () => {
         </div>
         <button
           onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
-          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors flex items-center gap-2"
+          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2"
         >
           <Plus size={16} />
           Nuevo Producto
@@ -171,7 +171,7 @@ export const Products = () => {
                             <button
                               title="Eliminar Producto"
                               onClick={() => handleDelete(product.id)}
-                              className="p-2 hover:bg-red-50 transition-colors"
+                              className="p-2 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors"
                             >
                               <Trash2 size={16} className="text-red-500" strokeWidth={1.5} />
                             </button>

@@ -185,7 +185,7 @@ export const Catalog = () => {
           <AuthAwareLink
             to="/chat"
             customMessage="Inicia sesión para chatear con nuestro experto en fragancias y buscar con IA."
-            className="w-fit bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#1B5E20 ] transition-all duration-300 cursor-pointer flex items-center gap-3 shadow-sm hover:shadow-lg"
+            className="w-fit bg-[#3A4A3F] text-white px-8 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 cursor-pointer flex items-center gap-3 shadow-sm hover:shadow-lg"
           >
             <Sparkles size={16} />
             Buscar con IA

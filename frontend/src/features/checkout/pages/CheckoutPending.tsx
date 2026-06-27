@@ -54,7 +54,7 @@ export const CheckoutPending = () => {
         <div className="flex flex-col gap-4">
           <Link
             to="/profile/orders"
-            className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors flex items-center justify-center gap-2"
           >
             Ver Estado del Pedido
             <ArrowRight size={14} />

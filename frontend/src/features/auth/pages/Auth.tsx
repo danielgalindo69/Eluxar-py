@@ -89,10 +89,10 @@ export const Auth = () => {
           <div className="flex flex-col space-y-2">
             <div className="flex justify-between">
               <label htmlFor="password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Contraseña</label>
-              <Link to="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:text-white">¿Olvidaste tu contraseña?</Link>
+              <Link to="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:text-white transition-colors">¿Olvidaste tu contraseña?</Link>
             </div>
             <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white transition-colors">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
               <input id="password" name="password" type={showPassword ? "text" : "password"} value={password} onChange={e => { setPassword(e.target.value); if (errors.password) setErrors(p => { const n = { ...p }; delete n.password; return n; }); }}
@@ -102,7 +102,7 @@ export const Auth = () => {
           </div>
 
           <button type="submit" disabled={isLoading}
-            className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50">
+            className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50">
             <span>{isLoading ? 'Accediendo...' : 'Iniciar Sesión'}</span>
             <ArrowRight size={14} />
           </button>

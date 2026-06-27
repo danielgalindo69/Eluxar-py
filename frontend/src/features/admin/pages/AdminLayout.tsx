@@ -67,7 +67,7 @@ export const AdminLayout = () => {
               <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40 mt-2">Panel Admin</p>
             </div>
           )}
-          <button aria-label={isDesktopCollapsed ? "Expandir menú" : "Colapsar menú"} onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)} className="text-[#2B2B2B] hover:text-[#111111] transition-colors">
+          <button aria-label={isDesktopCollapsed ? "Expandir menú" : "Colapsar menú"} onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)} className="text-[#2B2B2B] hover:text-[#111111] dark:text-white/60 dark:hover:text-white transition-colors">
             <Menu size={20} />
           </button>
         </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentsAPI, Payment, formatPrice } from "../../../core/api/api";
 import { toast } from "sonner";
@@ -109,7 +110,7 @@ export const Payments = () => {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={8} className="px-6 py-8 text-center text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando...</td></tr>
+                <tr><td colSpan={8} className="px-6 py-8 text-center"><div className="flex items-center justify-center gap-2 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60"><Loader2 className="animate-spin" size={18} /><span>Cargando...</span></div></td></tr>
 
               ) : paginated.length > 0 ? (
                 paginated.map(p => (

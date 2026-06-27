@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ordersAPI, Order, formatPrice } from "../../../core/api/api";
-import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronUp, Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
@@ -38,8 +38,9 @@ export const OrderHistory = () => {
         <p className="text-sm text-[#2B2B2B]/50 dark:text-white/40 font-light mb-16">Historial completo de tus compras</p>
 
         {isLoading ? (
-          <div className="text-center py-20">
-            <p className="text-[#2B2B2B]/40 dark:text-white/30 text-sm font-light uppercase tracking-widest">Cargando pedidos...</p>
+          <div className="flex items-center justify-center gap-2 py-20 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+            <Loader2 className="animate-spin" size={18} />
+            <span>Cargando pedidos...</span>
           </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-20 space-y-6">

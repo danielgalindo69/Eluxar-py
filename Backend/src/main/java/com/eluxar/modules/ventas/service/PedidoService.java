@@ -25,9 +25,15 @@ import com.eluxar.modules.pagos.dto.PaymentPreferenceRequest;
 import com.eluxar.modules.pagos.dto.PaymentPreferenceResponse;
 import com.eluxar.modules.pagos.service.PaymentService;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Sort;
 
 @Slf4j
 @Service
@@ -191,9 +197,94 @@ public class PedidoService {
     }
 
     public List<PedidoDTO> listarTodos() {
-        return pedidoRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "creadoEn")).stream()
+        return pedidoRepository.findAll(Sort.by(Sort.Direction.DESC, "creadoEn")).stream()
                 .map(this::mapToDTO)
                 .toList();
+    }
+
+    private static final DateTimeFormatter EXCEL_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    private String traducirEstado(Pedido.EstadoPedido estado) {
+        return switch (estado) {
+            case PENDIENTE -> "Pendiente";
+            case CONFIRMADO -> "Confirmado";
+            case EN_PROCESO -> "En Proceso";
+            case ENVIADO -> "Enviado";
+            case ENTREGADO -> "Entregado";
+            case CANCELADO -> "Cancelado";
+        };
+    }
+
+    public byte[] exportarPedidosExcel(List<Long> ids) throws Exception {
+        List<Pedido> pedidos;
+        if (ids == null || ids.isEmpty()) {
+            pedidos = pedidoRepository.findAll(Sort.by(Sort.Direction.DESC, "creadoEn"));
+        } else {
+            pedidos = pedidoRepository.findByIdIn(ids);
+            pedidos.sort((a, b) -> b.getCreadoEn().compareTo(a.getCreadoEn()));
+        }
+
+        try (XSSFWorkbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+
+            Sheet sheet = workbook.createSheet("Pedidos");
+
+            CellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.DARK_TEAL.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+
+            String[] headers = {"N° Pedido", "Fecha", "Cliente", "Estado", "Productos",
+                    "Cant. Items", "Subtotal", "Descuento", "Envío", "Total",
+                    "Método Pago", "Dirección", "Cupón", "Tracking"};
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+                sheet.setColumnWidth(i, 18 * 256);
+            }
+            sheet.setColumnWidth(2, 30 * 256);
+            sheet.setColumnWidth(4, 40 * 256);
+            sheet.setColumnWidth(11, 35 * 256);
+
+            int rowIdx = 1;
+            for (Pedido p : pedidos) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(p.getId());
+                row.createCell(1).setCellValue(p.getCreadoEn() != null ? p.getCreadoEn().format(EXCEL_DATE_FORMATTER) : "");
+                row.createCell(2).setCellValue(p.getUsuario().getNombre() + " " + p.getUsuario().getApellido());
+                row.createCell(3).setCellValue(traducirEstado(p.getEstado()));
+
+                String productos = p.getItems() != null
+                        ? p.getItems().stream()
+                        .map(i -> i.getVariante().getProducto().getNombre())
+                        .collect(Collectors.joining(", "))
+                        : "";
+                row.createCell(4).setCellValue(productos);
+
+                int cantItems = p.getItems() != null
+                        ? p.getItems().stream().mapToInt(PedidoItem::getCantidad).sum()
+                        : 0;
+                row.createCell(5).setCellValue(cantItems);
+
+                row.createCell(6).setCellValue(p.getSubtotal() != null ? p.getSubtotal().doubleValue() : 0);
+                row.createCell(7).setCellValue(p.getDescuento() != null ? p.getDescuento().doubleValue() : 0);
+                row.createCell(8).setCellValue(p.getCostoEnvio() != null ? p.getCostoEnvio().doubleValue() : 0);
+                row.createCell(9).setCellValue(p.getTotal() != null ? p.getTotal().doubleValue() : 0);
+                row.createCell(10).setCellValue(p.getMetodoPago() != null ? p.getMetodoPago() : "");
+                row.createCell(11).setCellValue(p.getDireccionEnvio() != null ? p.getDireccionEnvio() : "");
+                row.createCell(12).setCellValue(p.getCuponAplicado() != null ? p.getCuponAplicado().getCodigo() : "");
+                row.createCell(13).setCellValue(p.getTrackingNumber() != null ? p.getTrackingNumber() : "");
+            }
+
+            workbook.write(out);
+            return out.toByteArray();
+        }
     }
 
     public PedidoDTO obtenerPorId(Long usuarioId, Long pedidoId, boolean esAdmin) {
