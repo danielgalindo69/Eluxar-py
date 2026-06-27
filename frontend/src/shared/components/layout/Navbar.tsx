@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon, Lock } from "lucide-react";
+import { ShoppingBag, Menu, X, User, ChevronDown, LogOut, ClipboardList, Settings, Sparkles, MessageCircle, Sun, Moon, Lock, Search, ArrowLeft } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { SearchBar } from "../../../features/products/components/SearchBar";
 import { motion, AnimatePresence } from "motion/react";
@@ -9,30 +9,27 @@ import { useTheme } from "next-themes";
 import { AuthAwareLink } from "../../../features/auth/components/AuthAwareLink";
 
 interface MinimalHeaderProps {
-  backLabel: string;
   backTo: string;
   trustText: string;
   isDark: boolean;
   setTheme: (theme: string) => void;
 }
 
-const MinimalHeader = ({ backLabel, backTo, trustText, isDark, setTheme }: MinimalHeaderProps) => (
+const MinimalHeader = ({ backTo, trustText, isDark, setTheme }: MinimalHeaderProps) => (
   <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#111111] py-5 border-b border-[#111111]/5 dark:border-white/5">
-    <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative">
-      {/* Left Side: Volver */}
-      <div className="flex items-center">
-        <Link to={backTo} className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
-          {backLabel}
-        </Link>
-      </div>
+    <div className="max-w-7xl mx-auto px-6 grid grid-cols-[auto_1fr_auto] items-center">
+      {/* Left: ← */}
+      <Link to={backTo} className="text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
+        <ArrowLeft size={18} strokeWidth={1.5} />
+      </Link>
 
-      {/* Logo Centered Absolutely */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+      {/* Center: Logo */}
+      <div className="flex justify-center">
         <Link to="/" className="text-2xl font-light tracking-[0.3em] uppercase text-[#111111] dark:text-white">Eluxar</Link>
       </div>
 
-      {/* Right Side: Seguridad y Theme Toggle */}
-      <div className="flex items-center gap-6">
+      {/* Right: Trust + Theme */}
+      <div className="flex items-center justify-end gap-6">
         {trustText && (
           <div className="flex items-center gap-2 text-[#3A4A3F] dark:text-[#A5BAA8]">
             <Lock size={14} />
@@ -55,6 +52,7 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
@@ -69,7 +67,7 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => { setIsMenuOpen(false); setIsUserMenuOpen(false); }, [location]);
+  useEffect(() => { setIsMenuOpen(false); setIsUserMenuOpen(false); setIsSearchOpen(false); }, [location]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -89,38 +87,38 @@ export const Navbar = () => {
   const isAuthRoute = ['/auth', '/register', '/forgot-password'].includes(location.pathname);
 
   if (isCheckout) {
-    return <MinimalHeader backLabel="← Volver al Carrito" backTo="/cart" trustText="Compra 100% Segura" isDark={isDark} setTheme={setTheme} />;
+    return <MinimalHeader backTo="/cart" trustText="Compra 100% Segura" isDark={isDark} setTheme={setTheme} />;
   }
 
   if (isAuthRoute) {
-    return <MinimalHeader backLabel="← Volver al Inicio" backTo="/" trustText="Acceso Seguro" isDark={isDark} setTheme={setTheme} />;
+    return <MinimalHeader backTo="/" trustText="Acceso Seguro" isDark={isDark} setTheme={setTheme} />;
   }
 
   return (
         <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? "bg-white/90 dark:bg-[#111111]/90 backdrop-blur-md py-4 border-[#111111]/5 dark:border-white/5 shadow-sm" : "bg-transparent py-6 border-transparent"}`}
     >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          {/* Mobile Menu Button */}
-          <button aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"} className="lg:hidden text-[#2B2B2B] dark:text-[#EDEDED]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-
-          {/* Desktop Links - Left */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <Link to="/catalog" className="text-[#2B2B2B] dark:text-[#EDEDED] text-sm uppercase tracking-widest hover:opacity-60 transition-opacity">Colección</Link>
-            <AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="text-[#2B2B2B] dark:text-[#EDEDED] text-sm uppercase tracking-widest hover:opacity-60 transition-opacity flex items-center gap-2">
-              <Sparkles size={14} />Test Olfativo
-            </AuthAwareLink>
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-[auto_1fr_auto] items-center">
+          {/* Left: hamburger + desktop links */}
+          <div className="flex items-center">
+            <button aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"} className="lg:hidden text-[#2B2B2B] dark:text-[#EDEDED]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <div className="hidden lg:flex items-center space-x-8">
+              <Link to="/catalog" className="text-[#2B2B2B] dark:text-[#EDEDED] text-sm uppercase tracking-widest hover:opacity-60 transition-opacity">Colección</Link>
+              <AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="text-[#2B2B2B] dark:text-[#EDEDED] text-sm uppercase tracking-widest hover:opacity-60 transition-opacity flex items-center gap-2">
+                <Sparkles size={14} />Test Olfativo
+              </AuthAwareLink>
+            </div>
           </div>
 
-          {/* Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+          {/* Center: Logo */}
+          <div className="flex justify-center">
             <Link to="/" className="text-2xl font-light tracking-[0.3em] uppercase text-[#111111] dark:text-white">Eluxar</Link>
           </div>
 
-          {/* Icons - Right */}
-          <div className="flex items-center space-x-4">
+          {/* Right: Icons */}
+          <div className="flex items-center justify-end space-x-4">
             {/* SearchBar - visible en desktop */}
             <div className="hidden lg:block">
               <SearchBar />
@@ -129,10 +127,19 @@ export const Navbar = () => {
               <MessageCircle size={20} strokeWidth={1.5} />
             </AuthAwareLink>
 
+            {/* Search icon - mobile only */}
+            <button
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="lg:hidden text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity"
+              aria-label="Buscar productos"
+            >
+              <Search size={20} strokeWidth={1.5} />
+            </button>
+
             {/* Dark mode toggle */}
             <button
               onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="hidden sm:block text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity"
+              className="text-[#2B2B2B] dark:text-[#EDEDED] hover:opacity-60 transition-opacity"
               aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
               {isDark ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
@@ -204,6 +211,21 @@ export const Navbar = () => {
           </div>
         </div>
 
+        {/* Search Overlay (mobile) */}
+        <AnimatePresence>
+          {isSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute top-full left-0 right-0 bg-white dark:bg-[#111111] border-b border-[#EDEDED] dark:border-white/10 px-6 py-4 lg:hidden"
+            >
+              <SearchBar />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
@@ -215,33 +237,26 @@ export const Navbar = () => {
               className="absolute top-full left-0 right-0 bg-white dark:bg-[#111111] border-b border-[#EDEDED] dark:border-white/10 lg:hidden"
             >
               <div className="flex flex-col p-6 space-y-4">
-                <Link to="/catalog" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Colección</Link>
+                <Link to="/catalog" className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Colección</Link>
                 <AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest flex items-center gap-2"><Sparkles size={16} />Test Olfativo</AuthAwareLink>
-                {/* SearchBar mobile */}
-                <div className="pt-2 pb-1"><SearchBar /></div>
+
                 <AuthAwareLink to="/chat" customMessage="Inicia sesión para chatear con nuestro experto en fragancias." className="text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Chat IA</AuthAwareLink>
-                <button onClick={() => { openDrawer(); setIsMenuOpen(false); }} aria-label="Abrir bolsa de compra" className="text-left text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest focus-visible:outline-none">Bolsa ({itemCount})</button>
-                <button
-                  onClick={() => setTheme(isDark ? "light" : "dark")}
-                  className="flex items-center gap-2 text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest"
-                >
-                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                  {isDark ? "Modo Claro" : "Modo Oscuro"}
-                </button>
+                <button onClick={() => { openDrawer(); setIsMenuOpen(false); }} aria-label="Abrir bolsa de compra" className="text-left text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest focus-visible:outline-none hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Bolsa ({itemCount})</button>
+
                 <div className="border-t border-[#EDEDED] dark:border-white/10 pt-4">
                   {isAuthenticated ? (
                     <>
-                      <Link to="/profile" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4">Mi Perfil</Link>
-                      <Link to="/profile/orders" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4">Mis Pedidos</Link>
+                      <Link to="/profile" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4 hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Mi Perfil</Link>
+                      <Link to="/profile/orders" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4 hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Mis Pedidos</Link>
                       {hasRole('ADMIN', 'EMPLEADO') && (
-                        <Link to="/admin" className="block text-[#3A4A3F] text-lg uppercase tracking-widest font-bold mb-4">Panel Admin</Link>
+                        <Link to="/admin" className="block text-[#3A4A3F] text-lg uppercase tracking-widest font-bold mb-4 hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Panel Admin</Link>
                       )}
-                      <button onClick={handleLogout} className="text-red-500 text-lg uppercase tracking-widest">Cerrar Sesión</button>
+                      <button onClick={handleLogout} className="text-red-500 text-lg uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors">Cerrar Sesión</button>
                     </>
                   ) : (
                     <>
-                      <Link to="/auth" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4">Cuenta</Link>
-                      <Link to="/register" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest">Registrarse</Link>
+                      <Link to="/auth" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest mb-4 hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Cuenta</Link>
+                      <Link to="/register" className="block text-[#2B2B2B] dark:text-[#EDEDED] text-lg uppercase tracking-widest hover:bg-[#EDEDED] dark:hover:bg-white/5 active:bg-[#EDEDED] dark:active:bg-white/10 transition-colors">Registrarse</Link>
                     </>
                   )}
                 </div>

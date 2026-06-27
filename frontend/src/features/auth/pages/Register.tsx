@@ -64,7 +64,7 @@ export const Register = () => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Name & Last Name */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col space-y-2">
               <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Nombre</label>
               <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">

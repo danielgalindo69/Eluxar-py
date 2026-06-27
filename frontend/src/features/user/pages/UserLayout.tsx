@@ -37,38 +37,72 @@ export const UserLayout = () => {
         {/* Sidebar */}
         <aside className="w-full lg:w-64 lg:min-w-[16rem] lg:max-w-[16rem] shrink-0">
           <div className="sticky top-32 space-y-8">
-            <div>
-              <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight mb-2">Mi Cuenta</h1>
-              <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest font-bold">Panel de Control</p>
+            {/* Header with logout icon on mobile */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-light text-[#111111] dark:text-white tracking-tight mb-2">Mi Cuenta</h1>
+                <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest font-bold">Panel de Control</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="lg:hidden text-red-500 hover:opacity-60 transition-opacity"
+                aria-label="Cerrar Sesión"
+              >
+                <LogOut size={20} />
+              </button>
             </div>
-            
-            <nav className="flex flex-col space-y-2">
-              {navItems.map(item => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  end={item.exact}
-                  className={({ isActive }) => `
-                    flex items-center gap-4 px-6 py-4 rounded-sm transition-all text-[11px] uppercase tracking-[0.2em] font-semibold
-                    ${isActive 
-                      ? "bg-[#111111] text-white dark:bg-white dark:text-[#111111] shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(255,255,255,0.1)]" 
-                      : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#EDEDED] dark:hover:bg-white/5 hover:text-[#111111] dark:hover:text-white"
-                    }
-                  `}
-                >
-                  <item.icon size={16} />
-                  {item.name}
-                </NavLink>
-              ))}
 
-              <div className="pt-6 mt-6 border-t border-[#EDEDED] dark:border-white/10">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-4 px-6 py-4 rounded-sm transition-all text-[11px] uppercase tracking-[0.2em] font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                >
-                  <LogOut size={16} />
-                  Cerrar Sesión
-                </button>
+            <nav>
+              {/* Mobile: horizontal tabs */}
+              <div className="flex lg:hidden gap-2">
+                {navItems.map(item => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.exact}
+                    className={({ isActive }) => `
+                      flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded-sm transition-all text-[10px] uppercase tracking-[0.15em] font-semibold text-center
+                      ${isActive
+                        ? "bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white shadow-sm border border-[#EDEDED] dark:border-white/15"
+                        : "text-[#2B2B2B]/50 dark:text-white/40 border border-transparent hover:bg-[#EDEDED]/50 dark:hover:bg-white/5"
+                      }
+                    `}
+                  >
+                    <item.icon size={16} className="mb-1" />
+                    {item.name}
+                  </NavLink>
+                ))}
+              </div>
+
+              {/* Desktop: vertical links */}
+              <div className="hidden lg:flex lg:flex-col lg:space-y-2">
+                {navItems.map(item => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.exact}
+                    className={({ isActive }) => `
+                      flex items-center gap-4 px-6 py-4 rounded-sm transition-all text-[11px] uppercase tracking-[0.2em] font-semibold
+                      ${isActive
+                        ? "bg-[#111111] text-white dark:bg-white dark:text-[#111111] shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(255,255,255,0.1)]"
+                        : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#EDEDED] dark:hover:bg-white/5 hover:text-[#111111] dark:hover:text-white"
+                      }
+                    `}
+                  >
+                    <item.icon size={16} />
+                    {item.name}
+                  </NavLink>
+                ))}
+
+                <div className="pt-6 mt-6 border-t border-[#EDEDED] dark:border-white/10">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-4 px-6 py-4 rounded-sm transition-all text-[11px] uppercase tracking-[0.2em] font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                  >
+                    <LogOut size={16} />
+                    Cerrar Sesión
+                  </button>
+                </div>
               </div>
             </nav>
           </div>

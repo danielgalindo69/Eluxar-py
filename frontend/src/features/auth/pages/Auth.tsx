@@ -87,10 +87,7 @@ export const Auth = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <div className="flex justify-between">
-              <label htmlFor="password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Contraseña</label>
-              <Link to="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:text-white transition-colors">¿Olvidaste tu contraseña?</Link>
-            </div>
+            <label htmlFor="password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">Contraseña</label>
             <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white transition-colors">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -99,6 +96,9 @@ export const Auth = () => {
                 className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
             </div>
             {errors.password && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.password}</span>}
+            <div className="text-right">
+              <Link to="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:text-white transition-colors">¿Olvidaste tu contraseña?</Link>
+            </div>
           </div>
 
           <button type="submit" disabled={isLoading}
@@ -129,7 +129,7 @@ export const Auth = () => {
                 theme="outline"
                 shape="rectangular"
                 text="signin_with"
-                width={400}
+                width={300}
               />
             </div>
           </div>
