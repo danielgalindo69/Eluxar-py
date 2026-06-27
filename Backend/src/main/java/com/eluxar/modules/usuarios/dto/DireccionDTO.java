@@ -1,5 +1,6 @@
 package com.eluxar.modules.usuarios.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,5 +15,7 @@ public class DireccionDTO {
     private String state;
     private String zip;
     private String country;
+
+    @JsonProperty("isDefault")
     private boolean isDefault;
 }

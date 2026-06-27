@@ -1,30 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin, Plus, Pencil, Trash2, Star, X } from "lucide-react";
 import { addressAPI, Address } from "../../../core/api/api";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
+import { useAuth } from "../../auth/context/AuthContext";
 
 const emptyAddress = { label: '', street: '', barrio: '', city: '', state: '', zip: '', country: 'Colombia', isDefault: false };
 const MAX_ADDRESSES = 5;
 
 export const Addresses = () => {
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { data: addresses = [], isLoading } = useQuery({
+    queryKey: ['addresses', user?.id],
+    queryFn: () => addressAPI.getAll(),
+    staleTime: 60000,
+    gcTime: 300000,
+    enabled: !!user?.id,
+  });
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Omit<Address, 'id'>>(emptyAddress);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => { loadAddresses(); }, []);
-
-  const loadAddresses = async () => {
-    setIsLoading(true);
-    const data = await addressAPI.getAll();
-    setAddresses(data);
-    setIsLoading(false);
-  };
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -41,27 +41,26 @@ export const Addresses = () => {
     if (!validate()) return;
     if (editingId) {
       await addressAPI.update(editingId, formData);
-      setAddresses(prev => prev.map(a => a.id === editingId ? { ...a, ...formData } : a));
       toast.success('Dirección actualizada');
     } else {
-      const newAddr = await addressAPI.create(formData);
-      setAddresses(prev => [...prev, newAddr]);
+      await addressAPI.create(formData);
       toast.success('Dirección añadida');
     }
+    queryClient.invalidateQueries({ queryKey: ['addresses'] });
     closeForm();
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
     await addressAPI.remove(deleteId);
-    setAddresses(prev => prev.filter(a => a.id !== deleteId));
     setDeleteId(null);
+    queryClient.invalidateQueries({ queryKey: ['addresses'] });
     toast.success('Dirección eliminada');
   };
 
   const handleSetDefault = async (id: string) => {
     await addressAPI.setDefault(id);
-    setAddresses(prev => prev.map(a => ({ ...a, isDefault: a.id === id })));
+    queryClient.invalidateQueries({ queryKey: ['addresses'] });
     toast.success('Dirección predeterminada actualizada');
   };
 
