@@ -9,7 +9,7 @@ import { ImageSlot } from "./ImageSlot";
 const INPUT_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md px-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
 const INPUT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-10 pr-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
 const TEXTAREA_CLS = INPUT_CLS + " resize-none";
-const SELECT_CLS = INPUT_CLS + " appearance-none";
+const SELECT_CLS = INPUT_CLS + " appearance-none dark:[color-scheme:dark]";
 
 // ─── Enum de categorías fijas ─────────────────────────────────
 export const CATEGORIAS = [
@@ -201,7 +201,7 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
               <Package size={16} className="text-[var(--color-gold)]" />
               <h3 className="text-[12px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B] dark:text-white">Información Básica</h3>
             </div>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Columna izquierda */}
               <div className="space-y-5">
                 <div className="space-y-3">
@@ -232,8 +232,8 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Precio (COP)</label>
+                  <div>
+                    <label className="block text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60 min-h-[32px]">Precio (COP)</label>
                     <input
                       type="number"
                       required
@@ -248,8 +248,8 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                       className={INPUT_CLS}
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Tamaño (ml)</label>
+                  <div>
+                    <label className="block text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60 min-h-[32px]">Tamaño (ml)</label>
                     <input
                       type="number"
                       required
@@ -259,8 +259,8 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                       className={INPUT_CLS}
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Stock Inicial</label>
+                  <div>
+                    <label className="block text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60 min-h-[32px]">Stock Inicial</label>
                     <input
                       type="number"
                       required
@@ -337,7 +337,7 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
               <Sparkles size={16} className="text-[var(--color-gold)]" />
               <h3 className="text-[12px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B] dark:text-white">Perfil Olfativo y Sensorial</h3>
             </div>
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div className="space-y-3">
                 <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Concentración</label>
                 <select
@@ -383,7 +383,7 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Notas de Salida</label>
@@ -487,7 +487,7 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[0, 1, 2].map(i => (
                 <ImageSlot
                   key={i}
@@ -509,20 +509,20 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
           </div>
 
           {/* ── Actions ── */}
-          <div className="mt-8 flex gap-4">
+          <div className="mt-8 flex flex-col md:flex-row gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-md py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
+              className="w-full md:flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-md py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-[2] bg-[#b8946a] dark:bg-[#c8a062] hover:bg-[var(--color-gold)] dark:hover:bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-md disabled:opacity-50"
+              className="w-full md:flex-[2] bg-[#b8946a] dark:bg-[#c8a062] hover:bg-[var(--color-gold)] dark:hover:bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-md disabled:opacity-50"
             >
-              <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>
+              {isLoading ? <Loader2 size={16} className="animate-spin" /> : <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>}
             </button>
           </div>
         </form>

@@ -30,7 +30,7 @@ export const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="inline-flex items-center justify-center bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#2B2B2B] dark:hover:bg-[#E5E5E5] transition-all duration-300">
+            <AuthAwareLink to="/fragrance-test" customMessage="Inicia sesión para realizar el test olfativo y encontrar tu fragancia ideal." className="inline-flex items-center justify-center bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all duration-300">
               Descubre tu aroma con IA
             </AuthAwareLink>
             <Link to="/catalog" className="inline-flex items-center justify-center border border-[#111111]/20 dark:border-white/20 text-[#111111] dark:text-white px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:border-[#111111] dark:hover:border-white transition-all duration-300 group">
@@ -41,15 +41,6 @@ export const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Subtle Scroll Indicator */}
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-[#2B2B2B]/40 dark:text-white/40"
-      >
-        <span className="text-[10px] uppercase tracking-widest mb-2">Deslizar</span>
-        <div className="w-px h-12 bg-[#2B2B2B]/20 dark:bg-white/20" />
-      </motion.div>
     </section>
   );
 };

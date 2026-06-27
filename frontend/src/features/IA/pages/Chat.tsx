@@ -113,8 +113,6 @@ export const Chat = () => {
     }
   };
 
-  const quickActions = ['Perfumes para hombre', 'Perfumes para mujer', 'Quiero un regalo', 'Larga duración'];
-
   return (
     <main className="pt-24 bg-white dark:bg-[var(--bg-base)] min-h-screen flex flex-col font-sans">
       <SEOHead title="Eluxar | Asistente de Fragancias" exactTitle />
@@ -185,18 +183,6 @@ export const Chat = () => {
 
         {/* Bottom Section */}
         <div className="pb-8 pt-4 bg-white dark:bg-[var(--bg-base)] sticky bottom-0 z-10">
-          {/* Quick Actions */}
-          {messages.length === 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-wrap gap-3 mb-6 justify-center">
-              {quickActions.map(action => (
-                <button key={action} onClick={() => { setInput(action); inputRef.current?.focus(); }}
-                  className="px-5 py-2.5 rounded-full border border-black/10 dark:border-white/20 text-[11px] uppercase tracking-wider font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-[var(--bg-surface)] hover:border-[#3A4A3F] hover:bg-[#3A4A3F] hover:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
-                  {action}
-                </button>
-              ))}
-            </motion.div>
-          )}
-
           {/* Input */}
           <div className="relative flex items-center shadow-2xl rounded-full bg-white dark:bg-[var(--bg-elevated)]">
             <input

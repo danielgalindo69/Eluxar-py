@@ -8,7 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const INPUT_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md px-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
 const INPUT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-10 pr-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
-const SELECT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-4 pr-10 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none cursor-pointer";
+const SELECT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-4 pr-10 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none cursor-pointer dark:[color-scheme:dark]";
 
 const PAGE_SIZE = 15;
 

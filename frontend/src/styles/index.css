@@ -13,6 +13,9 @@
 html.dark {
   color-scheme: dark;
 }
+html.dark select {
+  color-scheme: dark;
+}
 
 /* ── Custom Scrollbar (Global) ─────────────────────────── */
 ::-webkit-scrollbar {

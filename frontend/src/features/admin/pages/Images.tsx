@@ -282,8 +282,8 @@ export const Images = () => {
       </div>
 
       {/* ─── [1] SELECCIONAR PRODUCTO ──────────────────────── */}
-      <div className="space-y-3">
-        <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60">
+      <div>
+        <label className="block text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-5">
           Seleccionar Producto a Gestionar
         </label>
         <div className="relative max-w-xl group">
@@ -291,7 +291,7 @@ export const Images = () => {
             value={selectedId ?? ""}
             disabled={productsState === "loading"}
             onChange={(e) => setSelectedId(Number(e.target.value))}
-            className="w-full bg-[#EDEDED]/50 dark:bg-white/5 border border-transparent hover:border-[#EDEDED] dark:hover:border-white/10 focus:border-[#3A4A3F] dark:focus:border-white/20 text-[#111111] dark:text-white pl-5 pr-12 py-4 text-sm outline-none appearance-none transition-all cursor-pointer rounded-none font-light shadow-sm"
+            className="w-full bg-[#EDEDED]/50 dark:bg-white/5 border border-transparent hover:border-[#EDEDED] dark:hover:border-white/10 focus:border-[#3A4A3F] dark:focus:border-white/20 text-[#111111] dark:text-white pl-5 pr-12 py-4 text-sm outline-none appearance-none transition-all cursor-pointer rounded-none font-light shadow-sm dark:[color-scheme:dark]"
           >
             {productsState === "loading" && (
               <option value="" disabled>Cargando productos...</option>
@@ -308,7 +308,7 @@ export const Images = () => {
           </select>
           <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#2B2B2B]/40 dark:text-white/40">
             {productsState === "loading"
-              ? <Loader2 size={18} className="animate-spin" />
+              ? <Loader2 size={16} className="animate-spin" />
               : <ChevronDown size={18} strokeWidth={1.5} />}
           </div>
         </div>
@@ -386,7 +386,7 @@ export const Images = () => {
         {/* Loading */}
         {imagesState === "loading" && (
           <div className="flex items-center gap-3 justify-center py-16 text-[#2B2B2B]/40 dark:text-white/40 text-sm">
-            <Loader2 size={20} className="animate-spin" /> Cargando imágenes...
+            <Loader2 size={32} className="animate-spin" /> Cargando imágenes...
           </div>
         )}
 

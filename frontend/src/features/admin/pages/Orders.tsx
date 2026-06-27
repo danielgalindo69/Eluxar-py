@@ -40,7 +40,7 @@ export const Orders = () => {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-pedidos'],
     queryFn: async () => {
-      const data = await ordersAPI.getAll();
+      const data = await ordersAPI.getAllAdmin();
       return data.map((o: any) => ({
         id: `#${o.id}`,
         rawId: o.id,
@@ -180,7 +180,7 @@ export const Orders = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilter(e.target.value)}
-              className="pl-8 pr-8 py-3 bg-transparent border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all"
+              className="pl-8 pr-8 py-3 bg-transparent dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 outline-none text-sm text-[#111111] dark:text-white appearance-none cursor-pointer focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-all dark:[color-scheme:dark]"
             >
               {STATUS_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -273,7 +273,7 @@ export const Orders = () => {
                         <select
                           value={order.status}
                           onChange={(e) => handleStatusChange(order.rawId, e.target.value)}
-                          className={`bg-transparent text-[10px] uppercase tracking-widest font-bold outline-none cursor-pointer ${
+                          className={`bg-transparent text-[10px] uppercase tracking-widest font-bold outline-none cursor-pointer dark:[color-scheme:dark] ${
                             order.status === "ENTREGADO" ? "text-[#3A4A3F]" :
                             order.status === "ENVIADO" ? "text-amber-500" :
                             order.status === "CANCELADO" ? "text-red-400" :

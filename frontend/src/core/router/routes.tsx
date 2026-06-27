@@ -32,8 +32,6 @@ const Orders = lazy(() => import("../../features/admin/pages/Orders").then(m => 
 const Users = lazy(() => import("../../features/admin/pages/Users").then(m => ({ default: m.Users })));
 const Inventory = lazy(() => import("../../features/admin/pages/Inventory").then(m => ({ default: m.Inventory })));
 const StockAlerts = lazy(() => import("../../features/admin/pages/StockAlerts").then(m => ({ default: m.StockAlerts })));
-const Payments = lazy(() => import("../../features/admin/pages/Payments").then(m => ({ default: m.Payments })));
-const Shipping = lazy(() => import("../../features/admin/pages/Shipping").then(m => ({ default: m.Shipping })));
 const Images = lazy(() => import("../../features/admin/pages/Images").then(m => ({ default: m.Images })));
 const Coupons = lazy(() => import("../../features/admin/pages/Coupons").then(m => ({ default: m.Coupons })));
 import { AdminLayout } from "../../features/admin/pages/AdminLayout";
@@ -165,8 +163,6 @@ export const router = createBrowserRouter([
       { path: "users", Component: Users },
       { path: "inventory", Component: Inventory },
       { path: "stock-alerts", Component: StockAlerts },
-      { path: "payments", Component: Payments },
-      { path: "shipping", Component: Shipping },
       { path: "images", Component: Images },
       { path: "coupons", Component: Coupons },
     ],

@@ -1,6 +1,7 @@
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, BarChart3, Package, Users, AlertTriangle, TrendingUp } from "lucide-react";
+import { DollarSign, BarChart3, Package, Users, AlertTriangle, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer
@@ -48,6 +49,13 @@ export const Dashboard = () => {
     staleTime: 0,
     gcTime: 60000,
   });
+
+  const [semestre, setSemestre] = useState<'h1' | 'h2'>('h1');
+  const mesesVisibles = metrics?.ventasMensuales
+    ? semestre === 'h1'
+      ? metrics.ventasMensuales.slice(0, 6)
+      : metrics.ventasMensuales.slice(6, 12)
+    : [];
 
   const statCards = metrics ? [
     {
@@ -135,18 +143,45 @@ export const Dashboard = () => {
           <SkeletonChart height={280} />
         ) : (
           <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-6">
-            <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white flex items-center gap-2 mb-6">
-              <BarChart3 size={15} /> Volumen de Ventas Mensuales
-            </h2>
-            {metrics?.ventasMensuales?.length > 0 ? (
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white flex items-center gap-2">
+                <BarChart3 size={15} /> Volumen de Ventas Mensuales
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSemestre('h1')}
+                  disabled={semestre === 'h1'}
+                  className="p-1.5 rounded-sm transition-colors text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  aria-label="Semestre Enero a Junio"
+                >
+                  <ChevronLeft size={18} strokeWidth={1.5} />
+                </button>
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-[#2B2B2B]/50 dark:text-white/50 min-w-[70px] text-center">
+                  {semestre === 'h1' ? 'Ene – Jun' : 'Jul – Dic'}
+                </span>
+                <button
+                  onClick={() => setSemestre('h2')}
+                  disabled={semestre === 'h2'}
+                  className="p-1.5 rounded-sm transition-colors text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  aria-label="Semestre Julio a Diciembre"
+                >
+                  <ChevronRight size={18} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+            {mesesVisibles.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={metrics.ventasMensuales} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <BarChart data={mesesVisibles} margin={{ top: 5, right: 20, left: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.12)" vertical={false} />
                   <XAxis
                     dataKey="month"
                     tick={{ fontSize: 10, fill: 'rgba(128,128,128,0.6)' }}
                     axisLine={false}
                     tickLine={false}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={50}
                   />
                   <YAxis
                     tick={{ fontSize: 10, fill: 'rgba(128,128,128,0.6)' }}
@@ -155,7 +190,7 @@ export const Dashboard = () => {
                     tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(128,128,128,0.05)' }} />
-                  <Bar dataKey="total" name="Ventas (COP)" fill="#3A4A3F" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="total" name="Ventas (COP)" fill="#3A4A3F" radius={[3, 3, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -179,7 +214,8 @@ export const Dashboard = () => {
                 <BarChart
                   data={metrics.topProductos}
                   layout="vertical"
-                  margin={{ top: 0, right: 20, left: 10, bottom: 0 }}
+                  margin={{ top: 5, right: 20, left: 5, bottom: 5 }}
+                  barCategoryGap="5%"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.12)" horizontal={false} />
                   <XAxis
@@ -193,12 +229,12 @@ export const Dashboard = () => {
                     type="category"
                     dataKey="name"
                     tick={{ fontSize: 10, fill: 'rgba(128,128,128,0.6)' }}
-                    width={110}
+                    width={90}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(128,128,128,0.05)' }} />
-                  <Bar dataKey="ventas" name="Unidades Vendidas" fill="#111111" radius={[0, 3, 3, 0]} barSize={22} />
+                  <Bar dataKey="ventas" name="Unidades Vendidas" fill="#3A4A3F" radius={[0, 3, 3, 0]} barSize={44} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
