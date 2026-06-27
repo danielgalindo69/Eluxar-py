@@ -289,7 +289,7 @@ export const ProductDetail = () => {
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleAddToCart}
-                className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all duration-300 shadow-lg shadow-black/5 flex items-center justify-center gap-3"
+                className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all duration-300 shadow-lg shadow-black/5 flex items-center justify-center gap-3"
               >
                 <ShoppingBag size={16} strokeWidth={1.5} />
                 Añadir a la Bolsa

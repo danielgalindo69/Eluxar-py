@@ -98,7 +98,7 @@ export const Register = () => {
           <div className="flex flex-col space-y-2">
             <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Contraseña</label>
             <div className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 py-2 group focus-within:border-[#111111] transition-colors">
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B]/20 hover:text-[#111111] dark:text-white transition-colors">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
               <input type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => update('password', e.target.value)} className="bg-transparent border-none outline-none w-full text-sm dark:text-white font-medium pr-10" />
@@ -129,13 +129,13 @@ export const Register = () => {
               {acceptTerms && <Check size={12} className="text-white" />}
             </button>
             <span className="text-[11px] text-[#2B2B2B]/60 dark:text-white/60 leading-relaxed">
-              Acepto los <a href="#" className="underline hover:text-[#111111] dark:text-white">Términos y Condiciones</a> y la <a href="#" className="underline hover:text-[#111111] dark:text-white">Política de Privacidad</a> de Eluxar.
+              Acepto los <a href="#" className="underline hover:text-[#111111] dark:text-white transition-colors">Términos y Condiciones</a> y la <a href="#" className="underline hover:text-[#111111] dark:text-white transition-colors">Política de Privacidad</a> de Eluxar.
             </span>
           </div>
           {errors.terms && <span className="text-red-500 text-[10px] uppercase tracking-widest">{errors.terms}</span>}
 
           <button type="submit" disabled={isLoading}
-            className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
+            className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
           >
             <span>{isLoading ? 'Creando...' : 'Crear Perfil'}</span>
             <ArrowRight size={14} />

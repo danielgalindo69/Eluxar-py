@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { shippingAPI, Shipment } from "../../../core/api/api";
-import { Truck, Package, CheckCircle, RotateCcw, Search, X, Filter } from "lucide-react";
+import { Truck, Package, CheckCircle, RotateCcw, Search, X, Filter, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
@@ -97,8 +97,9 @@ export const Shipping = () => {
       </div>
 
       {isLoading ? (
-        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-8 text-center">
-          <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando envíos...</p>
+        <div className="flex items-center justify-center gap-2 py-8 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+          <Loader2 className="animate-spin" size={18} />
+          <span>Cargando envíos...</span>
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8">

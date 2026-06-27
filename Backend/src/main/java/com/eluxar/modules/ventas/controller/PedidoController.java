@@ -15,8 +15,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -51,6 +55,28 @@ public class PedidoController {
     @Operation(summary = "Listar todos los pedidos (ADMIN)")
     public ResponseEntity<ApiResponse<List<PedidoDTO>>> listarTodos() {
         return ResponseEntity.ok(ApiResponse.success(pedidoService.listarTodos()));
+    }
+
+    @GetMapping("/exportar")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Exportar pedidos a Excel (ADMIN)")
+    public ResponseEntity<byte[]> exportarExcel(
+            @RequestParam(required = false) String ids) throws Exception {
+
+        List<Long> idList = null;
+        if (ids != null && !ids.isBlank()) {
+            idList = Arrays.stream(ids.split(","))
+                    .map(String::trim)
+                    .map(Long::valueOf)
+                    .toList();
+        }
+
+        byte[] excelBytes = pedidoService.exportarPedidosExcel(idList);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"pedidos.xlsx\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
     }
 
     @GetMapping("/{id}")

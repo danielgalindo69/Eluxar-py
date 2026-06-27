@@ -227,7 +227,7 @@ export const Checkout = () => {
                         onKeyDown={e => e.key === 'Enter' && handleValidateCoupon()}
                         className={INPUT_CLS + " flex-1"} placeholder="ELUXAR20" />
                       <button onClick={handleValidateCoupon} disabled={couponLoading}
-                        className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50">
+                        className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all disabled:opacity-50">
                         {couponLoading ? '...' : 'Aplicar'}
                       </button>
                     </div>
@@ -240,7 +240,7 @@ export const Checkout = () => {
                     setStep(2);
                   }} 
                   disabled={isSubmitting || isCreatingPreference}
-                  className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {isSubmitting ? 'Procesando...' : 'Continuar →'}
                   </button>
                 </div>
@@ -348,7 +348,7 @@ export const Checkout = () => {
                     setStep(3);
                   }} 
                   disabled={isSubmitting || isCreatingPreference}
-                  className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {isSubmitting ? 'Procesando...' : 'Continuar al Pago →'}
                   </button>
                 </div>
@@ -399,7 +399,7 @@ export const Checkout = () => {
                         }
                       }}
                       disabled={isCreatingPreference}
-                      className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                      className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                     >
                       {isCreatingPreference ? (
                         <><span className="animate-pulse">Preparando pago seguro...</span></>

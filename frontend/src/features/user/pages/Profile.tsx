@@ -152,7 +152,7 @@ export const Profile = () => {
                           }); 
                           setErrors({}); 
                         }}
-                        className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 dark:text-white/30 hover:text-[#111111] dark:text-white dark:hover:text-white">Cancelar</button>
+                        className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#2B2B2B]/40 dark:text-white/40 dark:text-white/30 hover:text-[#111111] dark:text-white dark:hover:text-white transition-colors">Cancelar</button>
                       <button onClick={handleSaveProfile} disabled={isSaving} className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#3A4A3F] hover:text-[#111111] dark:text-white dark:hover:text-white flex items-center gap-2">
                         <Save size={12} />{isSaving ? 'Guardando...' : 'Guardar'}
                       </button>

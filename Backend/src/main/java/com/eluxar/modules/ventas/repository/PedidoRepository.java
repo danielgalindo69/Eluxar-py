@@ -10,4 +10,6 @@ import java.util.List;
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     List<Pedido> findByUsuarioIdOrderByCreadoEnDesc(Long usuarioId);
+
+    List<Pedido> findByIdIn(List<Long> ids);
 }
