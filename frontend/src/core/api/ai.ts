@@ -1,4 +1,4 @@
-import { apiClient, delay } from './client';
+import { apiClient } from './client';
 
 // ─── AI ──────────────────────────────────────────────────────
 export const aiAPI = {
@@ -17,13 +17,23 @@ export const aiAPI = {
     });
   },
   async getRecommendations() {
-    await delay(800);
-    return { recommendedProductIds: ['4', '1', '3', '2'], reasons: {
-      '4': 'Tu perfil indica preferencia por notas cálidas y envolventes.',
-      '1': 'Ideal para tu estilo versátil según tus compras anteriores.',
-      '3': 'Coincide con tu preferencia por fragancias íntimas y elegantes.',
-      '2': 'Recomendado por usuarios con gustos similares al tuyo.',
-    }};
+    return apiClient<Array<{
+      id: number;
+      productId: number | null;
+      respuestaTexto: string;
+      fechaCreacion: string;
+    }>>('/ia/recomendaciones', { method: 'GET' });
+  },
+  async saveRecommendation(productId: number | null, respuestaTexto: string) {
+    return apiClient<{
+      id: number;
+      productId: number | null;
+      respuestaTexto: string;
+      fechaCreacion: string;
+    }>('/ia/recomendaciones', {
+      method: 'POST',
+      body: JSON.stringify({ productId, respuestaTexto }),
+    });
   },
   async chatMessage(message: string, history: object[] = []) {
     const result = await apiClient<{ response: string; history: object[] }>('/ia/chat', {

@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { Sparkles, RotateCcw, Eye, ShoppingBag } from "lucide-react";
 import { TestState } from "./types";
 import { useNavigate } from "react-router";
+import { aiAPI } from "../../../../core/api/api";
 
 interface FragranceTestResultProps {
   state: TestState;
@@ -30,6 +32,12 @@ function renderMarkdown(text: string) {
 
 export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    aiAPI.saveRecommendation(state.productId, state.response).catch((err) =>
+      console.error("[FragranceTestResult] Error al guardar recomendación:", err)
+    );
+  }, []);
 
   return (
     <main className="pt-28 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
