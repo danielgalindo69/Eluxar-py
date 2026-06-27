@@ -5,6 +5,7 @@ import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.resources.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
  
@@ -22,6 +23,9 @@ import java.util.Map;
 public class MercadoPagoWebhookController {
  
     private final PedidoService pedidoService;
+
+    @Value("${mercadopago.webhook-secret}")
+    private String webhookSecret;
  
     /**
      * Recibe notificaciones IPN/Webhook de Mercado Pago.
@@ -31,7 +35,9 @@ public class MercadoPagoWebhookController {
     public ResponseEntity<Void> handleWebhook(
             @RequestBody(required = false) Map<String, Object> payload,
             @RequestParam(required = false) String type,
-            @RequestParam(required = false) String id) {
+            @RequestParam(required = false) String id,
+            @RequestHeader(value = "x-signature", required = false) String xSignature,
+            @RequestHeader(value = "x-request-id", required = false) String xRequestId) {
  
         String resourceId = id;
         String eventType = type;
@@ -51,6 +57,17 @@ public class MercadoPagoWebhookController {
         }
  
         log.info("[Webhook MP] Notificación recibida — type={}, id={}", eventType, resourceId);
+
+        // ── VALIDACIÓN DE FIRMA HMAC-SHA256 ──────────────────────────────
+        // Se valida únicamente si la clave secreta está configurada.
+        if (webhookSecret != null && !webhookSecret.isBlank()) {
+            boolean isSignatureValid = MPWebhookSignatureValidator.validate(resourceId, xRequestId, xSignature, webhookSecret);
+            if (!isSignatureValid) {
+                log.warn("[Webhook MP] Firma digital inválida. Rechazando petición de webhook para el recurso: {}", resourceId);
+                return ResponseEntity.status(401).build();
+            }
+            log.info("[Webhook MP] Firma digital de webhook validada exitosamente.");
+        }
  
         // Solo procesamos eventos relacionados con pagos ("payment")
         if ("payment".equals(eventType) && resourceId != null && !resourceId.isBlank()) {

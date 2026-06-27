@@ -143,27 +143,14 @@ public class PedidoService {
             mpRequest.setPayerEmail(usuario.getEmail());
             mpRequest.setExternalReference(pedido.getId().toString());
             
-            List<PaymentPreferenceRequest.PaymentItemDTO> mpItems = carrito.getItems().stream().map(item -> {
-                PaymentPreferenceRequest.PaymentItemDTO dto = new PaymentPreferenceRequest.PaymentItemDTO();
-                dto.setTitle(item.getVariante().getProducto().getNombre() + " " + item.getVariante().getTamanoMl() + "ml");
-                dto.setQuantity(item.getCantidad());
-                
-                // Si hay descuento global en el pedido, MP necesita que los items sumen el total exacto.
-                // Para simplificar, si hay descuento aplicaremos un ajuste (o puedes enviar el total)
-                dto.setUnitPrice(item.getPrecioUnitario()); 
-                return dto;
-            }).collect(Collectors.toList());
-
-            // Si hay descuento, ajustamos el primer item o pasamos como item negativo
-            if (descuento.compareTo(BigDecimal.ZERO) > 0) {
-                PaymentPreferenceRequest.PaymentItemDTO dtoDesc = new PaymentPreferenceRequest.PaymentItemDTO();
-                dtoDesc.setTitle("Descuento aplicado");
-                dtoDesc.setQuantity(1);
-                dtoDesc.setUnitPrice(descuento.negate());
-                mpItems.add(dtoDesc);
-            }
+            // Consolidamos toda la compra en un único ítem con el precio neto total.
+            // Esto evita los problemas de precios unitarios negativos o redondeos no soportados por MP.
+            PaymentPreferenceRequest.PaymentItemDTO consolidatedItem = new PaymentPreferenceRequest.PaymentItemDTO();
+            consolidatedItem.setTitle("Compra Eluxar - Pedido #" + pedido.getId());
+            consolidatedItem.setQuantity(1);
+            consolidatedItem.setUnitPrice(total);
             
-            mpRequest.setItems(mpItems);
+            mpRequest.setItems(List.of(consolidatedItem));
 
             PaymentPreferenceResponse preference = paymentService.createPreference(mpRequest);
             pedido.setPreferenceId(preference.getPreferenceId());
