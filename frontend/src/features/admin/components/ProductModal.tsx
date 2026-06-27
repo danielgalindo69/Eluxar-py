@@ -5,6 +5,12 @@ import { Product } from "../../products/types/products";
 import { toast } from "sonner";
 import { ImageSlot } from "./ImageSlot";
 
+// ─── Clases compartidas de formulario ─────────────────────────
+const INPUT_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md px-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
+const INPUT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-10 pr-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
+const TEXTAREA_CLS = INPUT_CLS + " resize-none";
+const SELECT_CLS = INPUT_CLS + " appearance-none";
+
 // ─── Enum de categorías fijas ─────────────────────────────────
 export const CATEGORIAS = [
   { value: "CABALLERO", label: "Caballero" },
@@ -190,16 +196,16 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 overflow-y-auto flex-1">
           {/* ── Sección 1: Información Básica ── */}
-          <div className="mb-10 pb-8 border-b border-[#EDEDED] dark:border-white/10">
+          <div className="mb-12 pb-10 border-b border-[#EDEDED] dark:border-white/10">
             <div className="flex items-center gap-2 mb-6">
               <Package size={16} className="text-[var(--color-gold)]" />
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Información Básica</h3>
+              <h3 className="text-[12px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B] dark:text-white">Información Básica</h3>
             </div>
             <div className="grid grid-cols-2 gap-6">
               {/* Columna izquierda */}
               <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Nombre</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Nombre</label>
                   <div className="relative group">
                     <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
                     <input
@@ -208,26 +214,26 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                       value={formData.nombre}
                       onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                       placeholder="Ej: L'Eau de Parfum"
-                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                      className={INPUT_ICON_CLS}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Descripción</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Descripción</label>
                   <textarea
                     required
                     rows={3}
                     value={formData.descripcion}
                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                     placeholder="Describe las notas y la esencia..."
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+                    className={TEXTAREA_CLS}
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Precio (COP)</label>
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Precio (COP)</label>
                     <input
                       type="number"
                       required
@@ -239,22 +245,22 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                           precio: Number(e.target.value),
                         })
                       }
-                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                      className={INPUT_CLS}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tamaño (ml)</label>
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Tamaño (ml)</label>
                     <input
                       type="number"
                       required
                       min={1}
                       value={formData.tamanoMl}
                       onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
-                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                      className={INPUT_CLS}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Stock Inicial</label>
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Stock Inicial</label>
                     <input
                       type="number"
                       required
@@ -266,7 +272,7 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                           stock: Number(e.target.value),
                         })
                       }
-                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                      className={INPUT_CLS}
                     />
                   </div>
                 </div>
@@ -274,13 +280,13 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
 
               {/* Columna derecha */}
               <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Categoría</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Categoría</label>
                   <select
                     required
                     value={formData.categoria}
                     onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                    className={SELECT_CLS}
                   >
                     <option value="">Seleccionar...</option>
                     {CATEGORIAS.map(c => (
@@ -289,26 +295,26 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Marca</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Marca</label>
                   <input
                     type="text"
                     required
                     value={formData.marca}
                     onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
                     placeholder="Ej: Chanel, Dior, Tom Ford..."
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    className={INPUT_CLS}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Familia Olfativa</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Familia Olfativa</label>
                   <input
                     type="text"
                     value={formData.familiaOlfativa}
                     onChange={(e) => setFormData({ ...formData, familiaOlfativa: e.target.value })}
                     placeholder="Ej: Floral, Amaderada..."
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    className={INPUT_CLS}
                   />
                 </div>
 
@@ -319,25 +325,25 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                     onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
                     className="w-4 h-4 accent-[var(--color-gold)]"
                   />
-                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
+                  <span className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
                 </label>
               </div>
             </div>
           </div>
 
           {/* ── Sección 2: Perfil Olfativo y Sensorial ── */}
-          <div className="mb-10 pb-8 border-b border-[#EDEDED] dark:border-white/10">
+          <div className="mb-12 pb-10 border-b border-[#EDEDED] dark:border-white/10">
             <div className="flex items-center gap-2 mb-6">
               <Sparkles size={16} className="text-[var(--color-gold)]" />
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Perfil Olfativo y Sensorial</h3>
+              <h3 className="text-[12px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B] dark:text-white">Perfil Olfativo y Sensorial</h3>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Concentración</label>
+              <div className="space-y-3">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Concentración</label>
                 <select
                   value={formData.concentracion}
                   onChange={(e) => setFormData({ ...formData, concentracion: e.target.value })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                  className={SELECT_CLS}
                 >
                   <option value="">Seleccionar...</option>
                   <option value="Eau de Cologne">Eau de Cologne</option>
@@ -347,12 +353,12 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   <option value="Extrait de Parfum">Extrait de Parfum</option>
                 </select>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Intensidad</label>
+              <div className="space-y-3">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Intensidad</label>
                 <select
                   value={formData.intensidad}
                   onChange={(e) => setFormData({ ...formData, intensidad: e.target.value })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                  className={SELECT_CLS}
                 >
                   <option value="">Seleccionar...</option>
                   <option value="Suave">Suave</option>
@@ -361,12 +367,12 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   <option value="Muy Intensa">Muy Intensa</option>
                 </select>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Longevidad</label>
+              <div className="space-y-3">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Longevidad</label>
                 <select
                   value={formData.longevidad}
                   onChange={(e) => setFormData({ ...formData, longevidad: e.target.value })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none"
+                  className={SELECT_CLS}
                 >
                   <option value="">Seleccionar...</option>
                   <option value="Efímera (1-2 horas)">Efímera (1-2 horas)</option>
@@ -378,9 +384,9 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Notas de Salida</label>
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Notas de Salida</label>
                   <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.notasSalida.length}/200</span>
                 </div>
                 <textarea
@@ -389,12 +395,12 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   value={formData.notasSalida}
                   onChange={(e) => setFormData({ ...formData, notasSalida: e.target.value })}
                   placeholder="Ej: Bergamota, Limón, Lavanda..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+                  className={TEXTAREA_CLS}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Notas de Corazón</label>
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Notas de Corazón</label>
                   <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.notasCorazon.length}/200</span>
                 </div>
                 <textarea
@@ -403,12 +409,12 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   value={formData.notasCorazon}
                   onChange={(e) => setFormData({ ...formData, notasCorazon: e.target.value })}
                   placeholder="Ej: Rosa, Jazmín, Canela..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+                  className={TEXTAREA_CLS}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Notas de Fondo</label>
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Notas de Fondo</label>
                   <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.notasFondo.length}/200</span>
                 </div>
                 <textarea
@@ -417,25 +423,25 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   value={formData.notasFondo}
                   onChange={(e) => setFormData({ ...formData, notasFondo: e.target.value })}
                   placeholder="Ej: Sándalo, Vainilla, Almizcle..."
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+                  className={TEXTAREA_CLS}
                 />
               </div>
             </div>
           </div>
 
           {/* ── Sección 3: Contexto y Recomendaciones ── */}
-          <div className="mb-10 pb-8 border-b border-[#EDEDED] dark:border-white/10">
+          <div className="mb-12 pb-10 border-b border-[#EDEDED] dark:border-white/10">
             <div className="flex items-center gap-2 mb-6">
               <Filter size={16} className="text-[var(--color-gold)]" />
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B] dark:text-white">Contexto y Recomendaciones</h3>
+              <h3 className="text-[12px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B] dark:text-white">Contexto y Recomendaciones</h3>
             </div>
-            <div className="space-y-4 mb-4">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Estaciones</label>
+            <div className="space-y-5">
+              <div className="space-y-3">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Estaciones</label>
                 <select
                   value={formData.estaciones}
                   onChange={(e) => setFormData({ ...formData, estaciones: e.target.value })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none max-w-xs"
+                  className={SELECT_CLS}
                 >
                   <option value="">Seleccionar...</option>
                   <option value="Primavera">Primavera</option>
@@ -445,28 +451,28 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                   <option value="Toda la Temporada">Toda la Temporada</option>
                 </select>
               </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Guía de Uso y Aplicación</label>
-                <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.guiaUso.length}/500</span>
-              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Guía de Uso y Aplicación</label>
+                  <span className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 font-bold">{formData.guiaUso.length}/500</span>
+                </div>
               <textarea
                 rows={4}
                 maxLength={500}
                 value={formData.guiaUso}
                 onChange={(e) => setFormData({ ...formData, guiaUso: e.target.value })}
                 placeholder="Consejos de aplicación, momentos ideales, combinaciones sugeridas..."
-                className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] resize-none"
+                className={TEXTAREA_CLS}
               />
             </div>
+          </div>
           </div>
 
           {/* ── Image Picker ── */}
           <div className="mt-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">
                   Imágenes del Producto
                 </label>
                 <p className="text-[9px] text-[#2B2B2B]/30 dark:text-white/30 mt-0.5 uppercase tracking-wider">
@@ -507,16 +513,15 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
+              className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-md py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-[2] bg-[var(--color-gold)] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-[2] bg-[#b8946a] dark:bg-[#c8a062] hover:bg-[var(--color-gold)] dark:hover:bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-md disabled:opacity-50"
             >
-              {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
               <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>
             </button>
           </div>

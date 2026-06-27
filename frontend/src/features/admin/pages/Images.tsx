@@ -348,7 +348,7 @@ export const Images = () => {
               <p className="text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light mb-3">
                 Arrastra una imagen aquí o
               </p>
-              <label className="inline-block bg-[#111111] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold cursor-pointer hover:bg-[#3A4A3F] transition-colors">
+              <label className="inline-block bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold cursor-pointer hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg">
                 Seleccionar Archivo
                 <input
                   type="file"
@@ -557,7 +557,7 @@ export const Images = () => {
                       <button
                         onClick={() => handleGenerate(selectedAiImage)}
                         disabled={aiPanels[selectedAiImage.urlIndex]?.isGenerating}
-                        className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-purple-700 dark:hover:bg-purple-500 disabled:opacity-50 transition-colors"
                       >
                         {aiPanels[selectedAiImage.urlIndex]?.isGenerating
                           ? <><Loader2 size={16} className="animate-spin" /> Generando...</>
@@ -583,7 +583,7 @@ export const Images = () => {
                         <div className="flex flex-col gap-3">
                           <button
                             onClick={() => handleUseAiResult(selectedAiImage)}
-                            className="w-full flex items-center justify-center gap-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-gray-200 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-[#3A4A3F] text-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg"
                           >
                             <CheckCircle2 size={14} /> Usar como imagen del producto
                           </button>

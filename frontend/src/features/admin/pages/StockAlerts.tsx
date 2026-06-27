@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { inventoryAPI, StockAlert } from "../../../core/api/api";
-import { AlertTriangle, AlertCircle, Settings } from "lucide-react";
+import { AlertTriangle, AlertCircle, Settings, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SearchBar } from "../components/SearchBar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -77,7 +77,7 @@ export const StockAlerts = () => {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">Cargando alertas...</p>
+        <div className="flex items-center justify-center gap-2 py-8 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60"><Loader2 className="animate-spin" size={18} /><span>Cargando alertas...</span></div>
       ) : alerts.length === 0 ? (
         <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-12 text-center">
           <AlertCircle size={48} className="mx-auto text-[#3A4A3F] mb-4" />
@@ -135,7 +135,7 @@ export const StockAlerts = () => {
                 <div className="flex gap-2">
                   <input type="number" min="1" value={newThreshold} onChange={e => setNewThreshold(e.target.value)} placeholder="Nuevo umbral"
                     className="flex-1 border border-[#EDEDED] dark:border-white/10 dark:bg-[#111111] dark:text-white px-3 py-2 text-sm outline-none" />
-                  <button onClick={() => handleUpdateThreshold(alert.varianteId)} className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold">Guardar</button>
+                  <button onClick={() => handleUpdateThreshold(alert.varianteId)} className="bg-[#3A4A3F] text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg">Guardar</button>
                   <button onClick={() => { setEditingId(null); setNewThreshold(''); }} className="border border-[#EDEDED] dark:border-white/10 dark:text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold">Cancelar</button>
                 </div>
               ) : (

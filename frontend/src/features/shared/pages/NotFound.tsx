@@ -33,14 +33,14 @@ export const NotFound = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 bg-[#111111] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] transition-colors"
+              className="flex items-center justify-center gap-2 bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors"
             >
               <ArrowLeft size={14} />
               Volver al Inicio
             </Link>
             <Link
               to="/catalog"
-              className="border border-[#111111] text-[#111111] dark:text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white transition-colors"
+              className="border border-[#111111] dark:border-white/30 text-[#111111] dark:text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors"
             >
               Ver Colección
             </Link>

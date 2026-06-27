@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, getStoredToken, API_URL } from './client';
 
 // ─── Orders ──────────────────────────────────────────────────
 export interface OrderItem {
@@ -74,5 +74,20 @@ export const ordersAPI = {
   },
   async cancel(id: string) {
     return apiClient<any>(`/pedidos/${id}/cancelar`, { method: 'PUT' });
+  },
+  async exportarExcel(ids?: number[]): Promise<void> {
+    const token = getStoredToken();
+    const params = ids && ids.length > 0 ? `?ids=${ids.join(',')}` : '';
+    const response = await fetch(`${API_URL}/pedidos/exportar${params}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Error al exportar Excel');
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pedidos_${new Date().toISOString().split('T')[0]}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 };

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { wishlistAPI, getStoredToken } from '../../../core/api/api';
+import { createContext, useContext, ReactNode } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { wishlistAPI } from '../../../core/api/api';
 import { useAuth } from '../../auth/context/AuthContext';
 
 interface WishlistContextType {
@@ -12,62 +13,53 @@ interface WishlistContextType {
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlistIds, setWishlistIds] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const queryKey = ['wishlist', user?.id];
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Guard: solo cargar si el JWT realmente existe en localStorage
-      const token = getStoredToken();
-      if (!token) {
-        setWishlistIds([]);
-        setIsLoading(false);
-        return;
-      }
-      loadWishlistIds();
-    } else {
-      setWishlistIds([]);
-      setIsLoading(false);
-    }
-  }, [isAuthenticated]);
+  const { data: wishlistIds = [], isLoading } = useQuery({
+    queryKey,
+    queryFn: () => wishlistAPI.getIds(),
+    enabled: !!user,
+    staleTime: 60000,
+    gcTime: 300000,
+  });
 
-  const loadWishlistIds = async () => {
-    try {
-      setIsLoading(true);
-      const ids = await wishlistAPI.getIds();
-      setWishlistIds(ids);
-    } catch (error) {
-      console.error('Error loading wishlist:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const toggleWishlist = async (productId: string | number) => {
-    if (!isAuthenticated) return;
-    const numId = Number(productId);
-    const currentlyInWishlist = wishlistIds.includes(numId);
-
-    // Optimistic UI update
-    setWishlistIds(prev => 
-      currentlyInWishlist ? prev.filter(id => id !== numId) : [...prev, numId]
-    );
-
-    try {
-      if (currentlyInWishlist) {
+  const toggleMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      const isCurrentlyInWishlist = wishlistIds.includes(productId);
+      if (isCurrentlyInWishlist) {
         await wishlistAPI.remove(String(productId));
       } else {
         await wishlistAPI.add(String(productId));
       }
-    } catch (error) {
-      // Revert optimistic update on failure
-      setWishlistIds(prev => 
-        currentlyInWishlist ? [...prev, numId] : prev.filter(id => id !== numId)
+    },
+    onMutate: async (productId: number) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousIds = queryClient.getQueryData<number[]>(queryKey) ?? [];
+      const isCurrentlyInWishlist = previousIds.includes(productId);
+
+      queryClient.setQueryData<number[]>(queryKey, (old = []) =>
+        isCurrentlyInWishlist
+          ? old.filter(id => id !== productId)
+          : [...old, productId]
       );
-      console.error('Error toggling wishlist item:', error);
-      throw error;
-    }
+
+      return { previousIds };
+    },
+    onError: (_err, _productId, context) => {
+      if (context?.previousIds) {
+        queryClient.setQueryData(queryKey, context.previousIds);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  const toggleWishlist = async (productId: string | number) => {
+    if (!user) return;
+    toggleMutation.mutate(Number(productId));
   };
 
   const isInWishlist = (productId: string | number) => {

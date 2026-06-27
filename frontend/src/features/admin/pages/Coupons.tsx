@@ -6,6 +6,10 @@ import { SearchBar } from "../components/SearchBar";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+const INPUT_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md px-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
+const INPUT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-10 pr-4 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]";
+const SELECT_ICON_CLS = "w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-md pl-4 pr-10 py-3 text-sm font-normal text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-white/15 focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none cursor-pointer";
+
 const PAGE_SIZE = 15;
 
 export const Coupons = () => {
@@ -131,7 +135,7 @@ export const Coupons = () => {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors flex items-center gap-2"
+          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2"
         >
           <Ticket size={16} />
           Crear Cupón
@@ -216,7 +220,7 @@ export const Coupons = () => {
                               <button onClick={() => handleOpenModal(c)} className="text-[#3A4A3F] dark:text-[#A5BAA8] hover:text-[#111111] dark:hover:text-white transition-colors">
                                 <Edit2 size={16} />
                               </button>
-                              <button onClick={() => handleDelete(c.id!)} className="text-red-500 hover:text-red-700 transition-colors">
+                              <button onClick={() => handleDelete(c.id!)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors">
                                 <Trash2 size={16} />
                               </button>
                             </td>
@@ -268,8 +272,8 @@ export const Coupons = () => {
             </div>
             
             <form onSubmit={handleSave} className="p-8 overflow-y-auto flex-1 space-y-5">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Código</label>
+              <div className="space-y-3">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Código</label>
                 <div className="relative group">
                   <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors" size={14} />
                   <input
@@ -277,29 +281,29 @@ export const Coupons = () => {
                     required
                     value={formData.codigo}
                     onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-10 pr-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] uppercase placeholder:normal-case"
+                    className={INPUT_ICON_CLS}
                     placeholder="Ej. VERANO20"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Tipo</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Tipo</label>
                   <div className="relative group">
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2B2B]/30 group-focus-within:text-[var(--color-gold)] transition-colors pointer-events-none" size={14} />
                     <select
                       value={formData.tipo}
                       onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
-                      className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm pl-4 pr-10 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)] appearance-none cursor-pointer"
+                      className={SELECT_ICON_CLS}
                     >
                       <option value="PORCENTAJE">Porcentaje (%)</option>
                       <option value="VALOR_FIJO">Monto Fijo ($)</option>
                     </select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Descuento</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Descuento</label>
                   <input
                     type="number"
                     required
@@ -308,42 +312,42 @@ export const Coupons = () => {
                     max={formData.tipo === 'PORCENTAJE' ? '100' : undefined}
                     value={formData.descuento}
                     onChange={(e) => setFormData({ ...formData, descuento: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    className={INPUT_CLS}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Compra Mínima (Opcional)</label>
+              <div className="space-y-3">
+                <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Compra mínima (opcional)</label>
                 <input
                   type="number"
                   min="0"
                   value={formData.montoMinimo || ''}
                   onChange={(e) => setFormData({ ...formData, montoMinimo: Number(e.target.value) })}
-                  className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                  className={INPUT_CLS}
                   placeholder="0 para sin mínimo"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Límite de Usos</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Límite de usos</label>
                   <input
                     type="number"
                     min="1"
                     value={formData.limiteUsos || ''}
                     onChange={(e) => setFormData({ ...formData, limiteUsos: Number(e.target.value) })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    className={INPUT_CLS}
                     placeholder="En blanco = Ilimitado"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-white/60">Expiración (Opcional)</label>
+                <div className="space-y-3">
+                  <label className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-white/60">Expiración (opcional)</label>
                   <input
                     type="datetime-local"
                     value={formData.fechaExpiracion as string}
                     onChange={(e) => setFormData({ ...formData, fechaExpiracion: e.target.value })}
-                    className="w-full bg-[#F5F5F5] dark:bg-[var(--bg-surface)] border rounded-sm px-4 py-3 text-sm font-medium text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30 outline-none transition-all border-[#DEDEDE] dark:border-[#2A2A2A] focus:border-[var(--color-gold)] dark:focus:border-[var(--color-gold)]"
+                    className={INPUT_CLS}
                   />
                 </div>
               </div>
@@ -355,7 +359,7 @@ export const Coupons = () => {
                   onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
                   className="w-4 h-4 accent-[var(--color-gold)]"
                 />
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2B2B2B]/60 dark:text-[#9090a8]">Cupón Activo</span>
+                <span className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-[#9090a8]">Cupón activo</span>
               </label>
 
               {/* Actions */}
@@ -363,15 +367,14 @@ export const Coupons = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 border border-[#EDEDED] dark:border-[#2A2A2A] rounded-sm py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
+                  className="flex-1 border border-[#EDEDED] dark:border-white/15 rounded-md py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#F5F5F5] dark:hover:bg-[var(--bg-surface)] transition-all text-[#111111] dark:text-white"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-[2] bg-[var(--color-gold)] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm flex items-center justify-center gap-2"
+                  className="flex-[2] bg-[#b8946a] dark:bg-[#c8a062] hover:bg-[var(--color-gold)] dark:hover:bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-md"
                 >
-                  <Ticket size={16} />
                   <span>{editingId ? "Actualizar Cupón" : "Crear Cupón"}</span>
                 </button>
               </div>

@@ -131,21 +131,21 @@ export const Inventory = () => {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center gap-2 border border-[#EDEDED] dark:border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold text-[#111111] dark:text-white hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-[#3A4A3F] text-white px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-50"
           >
             <Download size={13} />
             {isExporting ? 'Exportando...' : 'Exportar Excel'}
           </button>
           <button
             onClick={() => setShowArchiveModal(true)}
-            className="flex items-center gap-2 border border-[#EDEDED] dark:border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/40 hover:text-[#111111] dark:hover:text-white hover:bg-[#EDEDED] dark:hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2 bg-[#3A4A3F] text-white px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg"
           >
             <Archive size={13} />
             Archivar Historial
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors flex items-center gap-2"
+            className="bg-[#3A4A3F] text-white px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2"
           >
             <Plus size={13} /> Ajustar Stock
           </button>
@@ -187,7 +187,7 @@ export const Inventory = () => {
 
             <button
               onClick={handleFilter}
-              className="shrink-0 bg-[#111111] dark:bg-[var(--color-gold)] text-white dark:text-[#111111] px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#b59567] transition-colors"
+              className="shrink-0 bg-[#3A4A3F] text-white px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg"
             >
               Filtrar
             </button>
@@ -313,7 +313,7 @@ export const Inventory = () => {
             className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6">
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
               className="bg-white dark:bg-[var(--bg-surface)] w-full max-w-lg p-10 space-y-6 relative">
-              <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white">
+              <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white transition-colors">
                 <X size={20} />
               </button>
               <h2 className="text-lg font-light text-[#111111] dark:text-white">Ajustar Stock de Variante</h2>
@@ -355,7 +355,7 @@ export const Inventory = () => {
               </div>
 
               <button onClick={handleSubmit}
-                className="w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all">
+                className="w-full bg-[#3A4A3F] text-white py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg">
                 Actualizar Stock
               </button>
             </motion.div>
@@ -370,7 +370,7 @@ export const Inventory = () => {
             className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="bg-white dark:bg-[var(--bg-surface)] w-full max-w-md p-10 space-y-6 relative">
-              <button onClick={() => setShowArchiveModal(false)} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white">
+              <button onClick={() => setShowArchiveModal(false)} className="absolute top-4 right-4 text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:hover:text-white transition-colors">
                 <X size={20} />
               </button>
               <div className="space-y-2">
@@ -400,7 +400,7 @@ export const Inventory = () => {
                   Cancelar
                 </button>
                 <button onClick={handleArchive} disabled={isArchiving}
-                  className="flex-1 bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors disabled:opacity-50">
+                  className="flex-1 bg-[#3A4A3F] text-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-50">
                   {isArchiving ? 'Archivando...' : 'Confirmar Archivo'}
                 </button>
               </div>

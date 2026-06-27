@@ -45,16 +45,25 @@ function renderMarkdown(text: string) {
 export const Recommendations = () => {
   const [recomendaciones, setRecomendaciones] = useState<RecomendacionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    aiAPI.getRecommendations().then((data) => {
+  const fetchRecommendations = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await aiAPI.getRecommendations();
       setRecomendaciones(data);
-      setIsLoading(false);
-    }).catch((err) => {
+    } catch (err) {
       console.error("[Recommendations] Error al cargar recomendaciones:", err);
+      setError("No pudimos cargar las recomendaciones en este momento.");
+    } finally {
       setIsLoading(false);
-    });
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommendations();
   }, []);
 
   if (isLoading) return (
@@ -63,6 +72,21 @@ export const Recommendations = () => {
       <div className="text-center space-y-4">
         <Sparkles className="mx-auto text-[#3A4A3F] animate-pulse" size={32} />
         <p className="text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/30 text-sm font-light uppercase tracking-widest">Cargando tus recomendaciones...</p>
+      </div>
+    </main>
+  );
+
+  if (error) return (
+    <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
+      <SEOHead title="Eluxar | Mis Recomendaciones" exactTitle />
+      <div className="text-center space-y-6">
+        <p className="text-sm text-red-500 font-light">{error}</p>
+        <button
+          onClick={fetchRecommendations}
+          className="border border-[#111111] dark:border-white px-6 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors"
+        >
+          Reintentar
+        </button>
       </div>
     </main>
   );
@@ -89,7 +113,7 @@ export const Recommendations = () => {
               Aún no tienes recomendaciones. Realiza el test olfativo para descubrir tu fragancia ideal.
             </p>
             <Link to="/fragrance-test"
-              className="inline-flex items-center gap-2 bg-[#3A4A3F] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors">
+              className="inline-flex items-center gap-2 bg-[#3A4A3F] dark:bg-white/10 text-white dark:text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white/25 transition-colors">
               <Sparkles size={14} /> Hacer el Test Olfativo
             </Link>
           </div>
@@ -121,7 +145,7 @@ export const Recommendations = () => {
                 {rec.productId ? (
                   <button
                     onClick={() => navigate(`/product/${rec.productId}`)}
-                    className="inline-flex items-center gap-2 bg-[#C8A97E] text-[#111111] px-8 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#b09670] transition-all duration-300"
+                    className="inline-flex items-center gap-2 bg-[#C8A97E] text-[#111111] px-8 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#b09670] dark:hover:bg-[#d4b98c] transition-all duration-300"
                   >
                     <Eye size={13} /> Ver Detalles del Producto
                   </button>
@@ -142,7 +166,7 @@ export const Recommendations = () => {
         <div className="text-center mt-20 space-y-6">
           <p className="text-sm text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/40 font-light">¿Quieres descubrir más fragancias?</p>
           <Link to="/fragrance-test"
-            className="inline-flex items-center gap-2 bg-[#3A4A3F] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] transition-colors">
+            className="inline-flex items-center gap-2 bg-[#3A4A3F] dark:bg-white/10 text-white dark:text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white/25 transition-colors">
             <Sparkles size={14} /> Hacer el Test Olfativo
           </Link>
         </div>

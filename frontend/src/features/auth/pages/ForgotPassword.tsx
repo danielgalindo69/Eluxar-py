@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { Link } from "react-router";
-import { Mail, ArrowRight, ArrowLeft, CheckCircle, KeyRound, Lock } from "lucide-react";
+import { Loader2, Mail, ArrowRight, ArrowLeft, CheckCircle, KeyRound, Lock } from "lucide-react";
 import { authAPI } from "../../../core/api/api";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -94,10 +94,19 @@ export const ForgotPassword = () => {
                 </div>
 
                 <button type="submit" disabled={isLoading}
-                  className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
+                  className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
                 >
-                  <span>{isLoading ? 'Enviando...' : 'Enviar Código'}</span>
-                  <ArrowRight size={14} />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16} />
+                      <span>Enviando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Enviar Código</span>
+                      <ArrowRight size={14} />
+                    </>
+                  )}
                 </button>
               </form>
 
@@ -132,10 +141,19 @@ export const ForgotPassword = () => {
                 </div>
 
                 <button type="submit" disabled={isLoading || code.length !== 6}
-                  className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
+                  className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
                 >
-                  <span>{isLoading ? 'Verificando...' : 'Verificar'}</span>
-                  <ArrowRight size={14} />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16} />
+                      <span>Verificando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Verificar</span>
+                      <ArrowRight size={14} />
+                    </>
+                  )}
                 </button>
               </form>
 
@@ -183,10 +201,19 @@ export const ForgotPassword = () => {
                 {error && <span className="text-red-500 text-[10px] uppercase tracking-widest block">{error}</span>}
 
                 <button type="submit" disabled={isLoading}
-                  className="w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
+                  className="w-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 disabled:opacity-50"
                 >
-                  <span>{isLoading ? 'Guardando...' : 'Restaurar Contraseña'}</span>
-                  <CheckCircle size={14} />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16} />
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Restaurar Contraseña</span>
+                      <CheckCircle size={14} />
+                    </>
+                  )}
                 </button>
               </form>
             </motion.div>
@@ -207,7 +234,7 @@ export const ForgotPassword = () => {
                 </p>
               </div>
               <Link to="/auth"
-                className="inline-block bg-[#111111] text-white px-10 py-5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] transition-colors shadow-lg shadow-black/5"
+                className="inline-block bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-10 py-5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors shadow-lg shadow-black/5"
               >
                 Ir a Iniciar Sesión
               </Link>

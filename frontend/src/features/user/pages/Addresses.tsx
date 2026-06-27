@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MapPin, Plus, Pencil, Trash2, Star, X } from "lucide-react";
+import { MapPin, Plus, Pencil, Trash2, Star, X, Loader2 } from "lucide-react";
 import { addressAPI, Address } from "../../../core/api/api";
 import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { toast } from "sonner";
@@ -106,8 +106,9 @@ export const Addresses = () => {
 
         {/* Address List */}
         {isLoading ? (
-          <div className="text-center py-20">
-            <p className="text-[#2B2B2B]/40 dark:text-white/40 text-sm font-light uppercase tracking-widest">Cargando direcciones...</p>
+          <div className="flex items-center justify-center gap-2 py-20 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+            <Loader2 className="animate-spin" size={18} />
+            <span>Cargando direcciones...</span>
           </div>
         ) : addresses.length === 0 ? (
           <div className="text-center py-20 space-y-6">
@@ -216,7 +217,7 @@ export const Addresses = () => {
                   {/* Save Button */}
                   <button
                     onClick={handleSave}
-                    className="w-full mt-2 bg-[var(--color-gold)] hover:bg-[#b8946a] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm"
+                    className="w-full mt-2 bg-[var(--color-gold)] hover:bg-[#b8946a] dark:hover:bg-[#c8a062] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm"
                   >
                     {editingId ? 'Actualizar Dirección' : 'Guardar Dirección'}
                   </button>

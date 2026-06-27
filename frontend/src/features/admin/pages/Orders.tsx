@@ -1,10 +1,11 @@
-import { Eye, Download, Search, X, ShoppingBag, Filter } from "lucide-react";
+import { Eye, Download, Search, X, ShoppingBag, Filter, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ordersAPI } from "../../../core/api/api";
 import { toast } from "sonner";
 import { AdminPaginator } from "../../../shared/components/ui/AdminPaginator";
 import { EmptyStateRow } from "../../../shared/components/ui/EmptyState";
+import { format, subDays, subMonths } from "date-fns";
 
 
 
@@ -30,7 +31,11 @@ export const Orders = () => {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [datePreset, setDatePreset] = useState('all');
+  const [filterDesde, setFilterDesde] = useState('');
+  const [filterHasta, setFilterHasta] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-pedidos'],
@@ -40,10 +45,13 @@ export const Orders = () => {
         id: `#${o.id}`,
         rawId: o.id,
         date: new Date(o.creadoEn).toLocaleDateString(),
+        createdAt: new Date(o.creadoEn),
         client: o.clienteNombre || 'Cliente Desconocido',
-        product: o.items ? `${o.items.length} item(s)` : 'N/A',
+        product: o.items?.length ? o.items.map((i: any) => i.productoNombre).join(', ') : 'N/A',
+        quantity: o.items?.length ? o.items.reduce((sum: number, i: any) => sum + (i.cantidad || 0), 0) : 0,
         total: `${o.total} COP`,
-        status: o.estado
+        status: o.estado,
+        paymentMethod: o.metodoPago || '—'
       }));
     },
     staleTime: 0,
@@ -64,7 +72,13 @@ export const Orders = () => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = o.id.toLowerCase().includes(q) || o.client.toLowerCase().includes(q);
     const matchesStatus = filterStatus === "" || o.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    let matchesDate = true;
+    if (filterDesde || filterHasta) {
+      const d = o.createdAt;
+      if (filterDesde && d < new Date(filterDesde + 'T00:00:00')) matchesDate = false;
+      if (filterHasta && d > new Date(filterHasta + 'T23:59:59')) matchesDate = false;
+    }
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -72,6 +86,39 @@ export const Orders = () => {
 
   const handleSearch = (val: string) => { setSearchQuery(val); setCurrentPage(1); };
   const handleFilter = (val: string) => { setFilterStatus(val); setCurrentPage(1); };
+  const handleDatePreset = (preset: string) => {
+    setDatePreset(preset);
+    setCurrentPage(1);
+    if (preset === 'all') {
+      setFilterDesde('');
+      setFilterHasta('');
+    } else if (preset === 'today') {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      setFilterDesde(today);
+      setFilterHasta(today);
+    } else if (preset === 'week') {
+      const today = new Date();
+      setFilterHasta(format(today, 'yyyy-MM-dd'));
+      setFilterDesde(format(subDays(today, 7), 'yyyy-MM-dd'));
+    } else if (preset === 'month') {
+      const today = new Date();
+      setFilterHasta(format(today, 'yyyy-MM-dd'));
+      setFilterDesde(format(subMonths(today, 1), 'yyyy-MM-dd'));
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const ids = filtered.map(o => o.rawId);
+      await ordersAPI.exportarExcel(ids);
+      toast.success('Reporte Excel descargado correctamente');
+    } catch {
+      toast.error('Error al generar el reporte Excel');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -80,9 +127,13 @@ export const Orders = () => {
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Pedidos</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra y monitorea todos los pedidos</p>
         </div>
-        <button className="bg-white dark:bg-[#1a1a24] border border-[#EDEDED] dark:border-white/10 text-[#2B2B2B] dark:text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#EDEDED] dark:hover:bg-white/8 transition-colors flex items-center gap-2">
-          <Download size={16} />
-          Exportar
+        <button
+          onClick={handleExport}
+          disabled={isExporting}
+          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+          {isExporting ? 'Exportando...' : 'Exportar'}
         </button>
       </div>
 
@@ -139,6 +190,47 @@ export const Orders = () => {
         </div>
       </div>
 
+      {/* Date Filter */}
+      <div className="flex flex-wrap items-center gap-2">
+        {[
+          { value: 'all', label: 'Todos' },
+          { value: 'today', label: 'Hoy' },
+          { value: 'week', label: 'Última semana' },
+          { value: 'month', label: 'Último mes' },
+          { value: 'custom', label: 'Personalizar' },
+        ].map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => handleDatePreset(opt.value)}
+            className={`px-4 py-2 text-sm font-medium transition-all duration-200 ${
+              datePreset === opt.value
+                ? 'bg-[#3A4A3F] text-white shadow-sm'
+                : 'border border-[#EDEDED] dark:border-white/15 text-[#2B2B2B]/70 dark:text-white/70 hover:border-[#3A4A3F] dark:hover:border-white/30'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+
+        {datePreset === 'custom' && (
+          <div className="flex items-center gap-2 ml-2 pl-3 border-l border-[#EDEDED] dark:border-white/10">
+            <input
+              type="date"
+              value={filterDesde}
+              onChange={(e) => { setFilterDesde(e.target.value); setCurrentPage(1); }}
+              className="bg-transparent border border-[#EDEDED] dark:border-white/10 px-3 py-2 text-sm text-[#111111] dark:text-white outline-none [&::-webkit-calendar-picker-indicator]:dark:invert"
+            />
+            <span className="text-[#2B2B2B]/30 dark:text-white/30">—</span>
+            <input
+              type="date"
+              value={filterHasta}
+              onChange={(e) => { setFilterHasta(e.target.value); setCurrentPage(1); }}
+              className="bg-transparent border border-[#EDEDED] dark:border-white/10 px-3 py-2 text-sm text-[#111111] dark:text-white outline-none [&::-webkit-calendar-picker-indicator]:dark:invert"
+            />
+          </div>
+        )}
+      </div>
+
       {/* Orders Table */}
       <div className={tableWrapClass}>
         <div className="overflow-x-auto">
@@ -149,14 +241,16 @@ export const Orders = () => {
                 <th className={thClass}>Fecha</th>
                 <th className={thClass}>Cliente</th>
                 <th className={thClass}>Producto</th>
+                <th className={thClass}>Cantidad</th>
                 <th className={thClass}>Total</th>
+                <th className={thClass}>Método de Pago</th>
                 <th className={thClass}>Estado</th>
                 <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={7} className="text-center py-8 text-sm text-[#2B2B2B]/40 dark:text-white/40">Cargando pedidos...</td></tr>
+                <tr><td colSpan={9} className="text-center py-8"><div className="flex items-center justify-center gap-2 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60"><Loader2 className="animate-spin" size={18} /><span>Cargando pedidos...</span></div></td></tr>
               ) : paginated.length > 0 ? (
                 paginated.map((order, index) => (
                   <tr key={index} className="border-b border-[#EDEDED] dark:border-white/8 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors">
@@ -164,7 +258,11 @@ export const Orders = () => {
                     <td className={tdMutedClass}>{order.date}</td>
                     <td className={tdClass}>{order.client}</td>
                     <td className={tdClass}>{order.product}</td>
+                    <td className={tdClass}>{order.quantity}</td>
                     <td className="px-4 py-2 text-sm text-[#2B2B2B] dark:text-white font-bold">{order.total}</td>
+                    <td className={tdClass}>
+                      <span className="text-[10px] uppercase tracking-widest font-bold">{order.paymentMethod}</span>
+                    </td>
                     <td className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${
@@ -203,7 +301,7 @@ export const Orders = () => {
                   icon={ShoppingBag}
                   title="No hay pedidos"
                   description={searchQuery || filterStatus ? "Intenta con otros filtros" : "Aún no se han registrado pedidos"}
-                  colSpan={7}
+                  colSpan={9}
                 />
               )}
             </tbody>

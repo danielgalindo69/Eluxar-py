@@ -75,7 +75,7 @@ export const Cart = () => {
                   ) : (
                      <div className="text-center py-20 space-y-6">
                         <p className="text-[#2B2B2B]/40 dark:text-white/40 text-sm font-light uppercase tracking-widest">Tu bolsa está vacía</p>
-                        <Link to="/catalog" className="inline-block bg-[#111111] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] transition-colors">Explorar Colección</Link>
+                        <Link to="/catalog" className="inline-block bg-[#111111] dark:bg-white dark:text-[#111111] text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors">Explorar Colección</Link>
                      </div>
                   )}
                </div>
@@ -107,7 +107,7 @@ export const Cart = () => {
                      <div className="space-y-4">
                         <Link
                            to={items.length > 0 ? "/checkout" : "#"}
-                           className={`w-full bg-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 ${items.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
+                           className={`w-full bg-[#111111] dark:bg-white dark:text-[#111111] text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-black/5 ${items.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
                         >
                            <span>Tramitar Pedido</span>
                            <ArrowRight size={14} />

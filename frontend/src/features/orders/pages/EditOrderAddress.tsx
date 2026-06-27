@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate, Link } from "react-router";
-import { ArrowLeft, Save, MapPin } from "lucide-react";
+import { ArrowLeft, Save, MapPin, Loader2 } from "lucide-react";
 import { ordersAPI, addressAPI, Address } from "../../../core/api/api";
 import { toast } from "sonner";
 import { motion } from "motion/react";
@@ -95,8 +95,9 @@ export const EditOrderAddress = () => {
         </p>
 
         {isLoadingAddresses ? (
-          <div className="py-10 text-center text-[#2B2B2B]/40 dark:text-white/40 text-sm uppercase tracking-widest">
-            Cargando direcciones...
+          <div className="flex items-center justify-center gap-2 py-10 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+            <Loader2 className="animate-spin" size={18} />
+            <span>Cargando direcciones...</span>
           </div>
         ) : (
           <div className="space-y-8">
