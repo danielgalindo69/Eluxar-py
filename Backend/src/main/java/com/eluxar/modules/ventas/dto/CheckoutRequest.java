@@ -29,7 +29,8 @@ public class CheckoutRequest {
 
     private String notas;
 
-    /** Construye la dirección completa para almacenar en el pedido */
+    /** Construye la dirección completa para almacenar en el pedido.
+     *  Incluye las notas adicionales de entrega al final entre paréntesis. */
     public String getDireccionCompleta() {
         StringBuilder sb = new StringBuilder(direccion);
         if (barrio != null && !barrio.isBlank()) sb.append(", ").append(barrio);
@@ -37,6 +38,7 @@ public class CheckoutRequest {
         if (codigoPostal != null && !codigoPostal.isBlank()) sb.append(" ").append(codigoPostal);
         if (departamento != null && !departamento.isBlank()) sb.append(", ").append(departamento);
         if (pais != null && !pais.isBlank()) sb.append(", ").append(pais);
+        if (notas != null && !notas.isBlank()) sb.append(" (").append(notas.trim()).append(")");
         return sb.toString();
     }
 }

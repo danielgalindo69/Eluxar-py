@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
-import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter } from "lucide-react";
+import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchBar } from "../components/SearchBar";
@@ -34,7 +34,7 @@ export const Inventory = () => {
     motivo: ''
   });
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['admin-inventario', filterDesde, filterHasta],
     queryFn: async () => {
       const [movs, inv] = await Promise.all([
@@ -45,6 +45,8 @@ export const Inventory = () => {
     },
     staleTime: 0,
     gcTime: 60000,
+    refetchInterval: 60000,      // Revalidar cada 60 segundos para capturar SALIDAs por webhook
+    refetchOnWindowFocus: true,  // Revalidar al volver a la pestaña
   });
 
   const movements = data?.movs || [];
@@ -122,7 +124,7 @@ export const Inventory = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-4" id="inventory-header">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Inventario</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-1">Bitácora de movimientos de almacén</p>
@@ -142,6 +144,14 @@ export const Inventory = () => {
           >
             <Archive size={13} />
             Archivar Historial
+          </button>
+          <button
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['admin-inventario'] })}
+            disabled={isFetching}
+            className="flex items-center gap-2 bg-[#3A4A3F] text-white px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-60"
+          >
+            <RefreshCw size={13} className={isFetching ? 'animate-spin' : ''} />
+            {isFetching ? 'Actualizando...' : 'Refrescar'}
           </button>
           <button
             onClick={() => setShowForm(true)}
@@ -269,7 +279,13 @@ export const Inventory = () => {
                           <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
                             m.tipo === 'ENTRADA'
                               ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[var(--color-gold)]/10 dark:text-[var(--color-gold)]'
-                              : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
+                              : m.tipo === 'SALIDA'
+                              ? 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
+                              : m.tipo === 'AJUSTE'
+                              ? 'bg-orange-50 text-orange-500 dark:bg-orange-900/20 dark:text-orange-400'
+                              : m.tipo === 'RESERVA'
+                              ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/20 dark:text-blue-400'
+                              : 'bg-[#EDEDED] text-[#2B2B2B]/60 dark:bg-white/10 dark:text-white/40'
                           }`}>
                             {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
                             {m.tipo}
