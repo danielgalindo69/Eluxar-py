@@ -8,7 +8,7 @@ import { useAuth } from "../../auth/context/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { MercadoPagoBrick } from "../components/MercadoPagoBrick";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 type Step = 1 | 2 | 3;
@@ -38,9 +38,22 @@ export const Checkout = () => {
   const [isCreatingPreference, setIsCreatingPreference] = useState(false);
 
   // Saved addresses
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const { data: addresses = [] } = useQuery({
+    queryKey: ['addresses', user?.id],
+    queryFn: () => addressAPI.getAll(),
+    staleTime: 60000,
+    gcTime: 300000,
+    enabled: isAuthenticated && !!user?.id,
+  });
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [useNewAddress, setUseNewAddress] = useState(true);
+
+  useEffect(() => {
+    if (addresses.length > 0 && !selectedAddressId) {
+      const def = addresses.find(a => a.isDefault);
+      if (def) { setSelectedAddressId(def.id); setUseNewAddress(false); }
+    }
+  }, [addresses]);
 
   // Coupon
   const [couponCode, setCouponCode] = useState('');
@@ -63,18 +76,6 @@ export const Checkout = () => {
     department: '',
     country: 'Colombia',
   });
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      addressAPI.getAll()
-        .then(data => {
-          setAddresses(data);
-          const def = data.find(a => a.isDefault);
-          if (def) { setSelectedAddressId(def.id); setUseNewAddress(false); }
-        })
-        .catch(() => {});
-    }
-  }, [isAuthenticated]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));

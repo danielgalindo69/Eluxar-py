@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate, Link } from "react-router";
 import { ArrowLeft, Save, MapPin } from "lucide-react";
 import { ordersAPI, addressAPI, Address } from "../../../core/api/api";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { useAuth } from "../../auth/context/AuthContext";
 
 export const EditOrderAddress = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const { data: addresses = [], isLoading: isLoadingAddresses } = useQuery({
+    queryKey: ['addresses', user?.id],
+    queryFn: () => addressAPI.getAll(),
+    staleTime: 60000,
+    gcTime: 300000,
+    enabled: !!user?.id,
+  });
   
   const [mode, setMode] = useState<'select' | 'new'>('select');
   const [selectedAddressStr, setSelectedAddressStr] = useState<string>('');
@@ -27,23 +35,10 @@ export const EditOrderAddress = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const fetchAddresses = async () => {
-      try {
-        const data = await addressAPI.getAll();
-        setAddresses(data);
-        if (data.length > 0) {
-          setMode('select');
-        } else {
-          setMode('new');
-        }
-      } catch (err) {
-        setMode('new');
-      } finally {
-        setIsLoadingAddresses(false);
-      }
-    };
-    fetchAddresses();
-  }, []);
+    if (addresses.length > 0) {
+      setMode('select');
+    }
+  }, [addresses]);
 
   const validate = () => {
     if (mode === 'select') {
