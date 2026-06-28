@@ -15,7 +15,7 @@ import com.mercadopago.client.preference.PreferencePayerRequest;
 import com.mercadopago.client.preference.PreferencePaymentMethodsRequest;
 import com.mercadopago.client.preference.PreferencePaymentTypeRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
-import com.mercadopago.core.types.IdentificationRequest;
+import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import com.mercadopago.resources.payment.Payment;
