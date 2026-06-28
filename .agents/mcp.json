@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "my-mcp-server-e3692c5a": {
+      "url": "https://mcp.mercadopago.com/mcp",
+      "type": "sse"
+    }
+  }
+}

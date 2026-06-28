@@ -3,6 +3,8 @@ package com.eluxar.modules.pagos.controller;
 import com.eluxar.common.ApiResponse;
 import com.eluxar.modules.pagos.dto.PaymentPreferenceRequest;
 import com.eluxar.modules.pagos.dto.PaymentPreferenceResponse;
+import com.eluxar.modules.pagos.dto.ProcessPaymentRequest;
+import com.eluxar.modules.pagos.dto.ProcessPaymentResponse;
 import com.eluxar.modules.pagos.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,5 +44,27 @@ public class PaymentController {
 
         PaymentPreferenceResponse response = paymentService.createPreference(request);
         return ResponseEntity.ok(ApiResponse.success("Preferencia creada exitosamente", response));
+    }
+
+    /**
+     * Procesa el pago usando el token de tarjeta generado por el Payment Brick.
+     * Es llamado por el frontend desde el callback onSubmit del Brick, que expone
+     * el formData con el token tokenizado de la tarjeta (nunca los datos crudos).
+     *
+     * Endpoint público porque el Brick no envía JWT en su submit.
+     *
+     * @param request DTO con token, método de pago, cuotas y datos del pagador
+     * @return Resultado del pago: paymentId, status y statusDetail
+     */
+    @PostMapping("/process-payment")
+    @Operation(summary = "Procesar pago desde el Payment Brick (token de tarjeta)")
+    public ResponseEntity<ApiResponse<ProcessPaymentResponse>> processPayment(
+            @Valid @RequestBody ProcessPaymentRequest request) {
+
+        log.info("[PaymentController] Procesando pago — externalRef={} | método={}",
+                request.getExternalReference(), request.getPaymentMethodId());
+
+        ProcessPaymentResponse response = paymentService.processPayment(request);
+        return ResponseEntity.ok(ApiResponse.success("Pago procesado exitosamente", response));
     }
 }
