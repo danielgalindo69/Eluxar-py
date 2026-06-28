@@ -35,16 +35,17 @@ export const Checkout = () => {
 
   // MercadoPago
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [pedidoId, setPedidoId] = useState<number | null>(null);
   const [isCreatingPreference, setIsCreatingPreference] = useState(false);
 
   // Saved addresses
   const { data: addresses = [] } = useQuery({
-    queryKey: ['addresses', user?.id],
+    key: ['addresses', user?.id],
     queryFn: () => addressAPI.getAll(),
     staleTime: 60000,
     gcTime: 300000,
     enabled: isAuthenticated && !!user?.id,
-  });
+  } as any); // cast for compatibility if type differs
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [useNewAddress, setUseNewAddress] = useState(true);
 
@@ -391,6 +392,7 @@ export const Checkout = () => {
                             notas: formData.addressNotes || '',
                           });
                           queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] });
+                          setPedidoId(Number(res.id));
                           setPreferenceId(res.preferenceId);
                         } catch (e: any) {
                           toast.error(e.message || 'Error al iniciar el pago. Intenta de nuevo.');
@@ -414,12 +416,16 @@ export const Checkout = () => {
                 ) : (
                   <MercadoPagoBrick
                     preferenceId={preferenceId}
+                    pedidoId={pedidoId!}
                     amount={total}
                     onSuccess={() => {
                       clearCart();
                       navigate('/checkout/success');
                     }}
-                    onError={() => toast.error('Error en el procesamiento del pago')}
+                    onError={(err: any) => {
+                      const detailMsg = typeof err === 'string' ? `: ${err}` : '';
+                      toast.error(`Error en el procesamiento del pago${detailMsg}`);
+                    }}
                   />
                 )}
 

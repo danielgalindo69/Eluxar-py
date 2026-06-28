@@ -22,3 +22,6 @@ export { aiAPI } from './ai';
 export { userAPI } from './user';
 export { wishlistAPI } from './wishlist';
 export { cartAPI } from './cart';
+export { paymentAPI } from './payments';
+export type { MercadoPagoBrickFormData, ProcessPaymentResult } from './payments';
+
