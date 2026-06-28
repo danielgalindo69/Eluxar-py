@@ -1,5 +1,6 @@
 package com.eluxar.modules.ia.service;
 
+import com.eluxar.exception.ResourceNotFoundException;
 import com.eluxar.modules.ia.dto.RecomendacionRequest;
 import com.eluxar.modules.ia.dto.RecomendacionResponse;
 import com.eluxar.modules.ia.entity.Recomendacion;
@@ -7,8 +8,10 @@ import com.eluxar.modules.ia.repository.RecomendacionRepository;
 import com.eluxar.modules.usuarios.entity.Usuario;
 import com.eluxar.modules.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +45,17 @@ public class RecomendacionService {
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void eliminar(Long id, Long usuarioId) {
+        Recomendacion entity = recomendacionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Recomendación", id));
+        if (!entity.getUsuario().getId().equals(usuarioId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "No tienes permiso para eliminar esta recomendación");
+        }
+        recomendacionRepository.delete(entity);
     }
 
     private RecomendacionResponse toResponse(Recomendacion entity) {

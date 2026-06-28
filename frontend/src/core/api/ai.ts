@@ -24,6 +24,9 @@ export const aiAPI = {
       fechaCreacion: string;
     }>>('/ia/recomendaciones', { method: 'GET' });
   },
+  async deleteRecommendation(id: number) {
+    return apiClient<void>(`/ia/recomendaciones/${id}`, { method: 'DELETE' });
+  },
   async saveRecommendation(productId: number | null, respuestaTexto: string) {
     return apiClient<{
       id: number;

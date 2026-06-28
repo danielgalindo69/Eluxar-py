@@ -37,4 +37,13 @@ public class RecomendacionController {
         List<RecomendacionResponse> recomendaciones = recomendacionService.listarPorUsuario(userDetails.getId());
         return ResponseEntity.ok(recomendaciones);
     }
+
+    @DeleteMapping("/recomendaciones/{id}")
+    @Operation(summary = "Eliminar una recomendación del test olfativo")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        recomendacionService.eliminar(id, userDetails.getId());
+        return ResponseEntity.noContent().build();
+    }
 }
