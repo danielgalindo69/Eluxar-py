@@ -73,14 +73,14 @@ export const StockAlerts = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Alertas de Stock</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Productos con inventario por debajo del umbral mínimo</p>
         </div>
 
         {/* Refresco manual + indicador de última actualización */}
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-start md:items-end gap-1">
           <button
             onClick={handleManualRefresh}
             disabled={isFetching}
@@ -124,6 +124,7 @@ export const StockAlerts = () => {
               </p>
             </div>
           ) : filteredAlerts.map(alert => (
+
             <div
               key={alert.varianteId}
               className={`bg-white dark:bg-[var(--bg-surface)] border p-6 space-y-4 ${
@@ -152,15 +153,16 @@ export const StockAlerts = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#EDEDED] dark:bg-[#111111] p-4">
+                <div className="bg-[#EDEDED] dark:bg-[#111111] p-3 md:p-4">
                   <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-1">Stock Actual</p>
-                  <p className={`text-2xl font-light ${alert.severity === 'critical' ? 'text-red-500' : 'text-amber-500'}`}>
+                  <p className={`text-xl md:text-2xl font-light ${alert.severity === 'critical' ? 'text-red-500' : 'text-amber-500'}`}>
                     {alert.stockActual}
                   </p>
+
                 </div>
-                <div className="bg-[#EDEDED] dark:bg-[#111111] p-4">
+                <div className="bg-[#EDEDED] dark:bg-[#111111] p-3 md:p-4">
                   <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-1">Umbral Mínimo</p>
-                  <p className="text-2xl font-light text-[#111111] dark:text-white">{alert.stockMinimo}</p>
+                  <p className="text-xl md:text-2xl font-light text-[#111111] dark:text-white">{alert.stockMinimo}</p>
                 </div>
               </div>
 
@@ -179,27 +181,19 @@ export const StockAlerts = () => {
 
               {/* Edit Threshold */}
               {editingId === alert.varianteId ? (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="number"
                     min="1"
                     value={newThreshold}
                     onChange={e => setNewThreshold(e.target.value)}
                     placeholder="Nuevo umbral"
-                    className="flex-1 border border-[#EDEDED] dark:border-white/10 dark:bg-[#111111] dark:text-white px-3 py-2 text-sm outline-none"
+                    className="w-full sm:flex-1 border border-[#EDEDED] dark:border-white/10 dark:bg-[#111111] dark:text-white px-3 py-2 text-sm outline-none"
                   />
-                  <button
-                    onClick={() => handleUpdateThreshold(alert.varianteId)}
-                    className="bg-[#3A4A3F] text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg"
-                  >
-                    Guardar
-                  </button>
-                  <button
-                    onClick={() => { setEditingId(null); setNewThreshold(''); }}
-                    className="border border-[#EDEDED] dark:border-white/10 dark:text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold"
-                  >
-                    Cancelar
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleUpdateThreshold(alert.varianteId)} className="flex-1 sm:flex-none bg-[#3A4A3F] text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg">Guardar</button>
+                    <button onClick={() => { setEditingId(null); setNewThreshold(''); }} className="flex-1 sm:flex-none border border-[#EDEDED] dark:border-white/10 dark:text-white px-4 py-2 text-[10px] uppercase tracking-widest font-bold">Cancelar</button>
+                  </div>
                 </div>
               ) : (
                 <button

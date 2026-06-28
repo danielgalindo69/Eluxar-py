@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
-import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, RefreshCw, Loader2 } from "lucide-react";
+import { inventoryAPI } from "../../../core/api/api";
+import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, Loader2, Search, ChevronDown, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchBar } from "../components/SearchBar";
@@ -20,6 +20,7 @@ export const Inventory = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
   // Filtros
   const [filterDesde, setFilterDesde] = useState('');
@@ -121,15 +122,18 @@ export const Inventory = () => {
     );
   });
 
+  const totalPages = Math.ceil(filteredMovements.length / PAGE_SIZE);
+  const paginated = filteredMovements.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4" id="inventory-header">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0" id="inventory-header">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Inventario</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-1">Bitácora de movimientos de almacén</p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleExport}
             disabled={isExporting}
@@ -162,8 +166,27 @@ export const Inventory = () => {
         </div>
       </div>
 
-      {/* Filtros y Búsqueda */}
-      <div className={`${tableWrap} p-4 flex flex-col gap-4`}>
+      {/* Toggle búsqueda - mobile only */}
+      <div className="md:hidden">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="w-full flex items-center justify-between bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 px-4 py-3 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:hover:text-white transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <Search size={14} strokeWidth={1.5} />
+            Buscar / Filtrar
+          </span>
+          <span className="flex items-center gap-2">
+            {(filterDesde || filterHasta || searchQuery) && (
+              <span className="w-2 h-2 rounded-full bg-[var(--color-gold)]" />
+            )}
+            <ChevronDown size={14} strokeWidth={1.5} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
+      </div>
+
+      {/* Filtros y Búsqueda - colapsable en mobile */}
+      <div className={`${tableWrap} p-4 flex flex-col gap-4 ${showFilters ? '' : 'hidden'} md:block`}>
         <div className="flex flex-col lg:flex-row items-center gap-4">
           <div className="flex-1 w-full">
             <SearchBar
@@ -172,20 +195,20 @@ export const Inventory = () => {
               onChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
             />
           </div>
-          <div className="flex items-center gap-3 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto pb-2 lg:pb-0">
             <div className={`flex items-center gap-2 px-3 py-2 border transition-colors ${filterDesde || filterHasta ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-[#EDEDED] dark:border-white/10'}`}>
               <div className="flex items-center gap-2 text-[#2B2B2B]/40 dark:text-white/40 border-r border-[#EDEDED] dark:border-white/10 pr-3">
                 <Filter size={14} className={filterDesde || filterHasta ? 'text-[var(--color-gold)]' : ''} />
                 <span className="text-[10px] uppercase tracking-widest font-bold hidden sm:inline">Rango</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <input
                   type="date"
                   value={filterDesde}
                   onChange={(e) => setFilterDesde(e.target.value)}
                   className="bg-transparent text-xs text-[#111111] dark:text-white outline-none [&::-webkit-calendar-picker-indicator]:dark:invert"
                 />
-                <span className="text-[#2B2B2B]/30 dark:text-white/30">-</span>
+                <span className="text-[#2B2B2B]/30 dark:text-white/30 hidden sm:inline">-</span>
                 <input
                   type="date"
                   value={filterHasta}
@@ -212,22 +235,21 @@ export const Inventory = () => {
             )}
           </div>
         </div>
-        
-        {/* Results indicator */}
-        {(filterDesde || filterHasta || searchQuery) && (
-          <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold border-t border-[#EDEDED] dark:border-white/5 pt-3">
-            <span className="text-[#2B2B2B]/40 dark:text-white/40">Mostrando resultados filtrados</span>
-            <span className="text-[var(--color-gold)]">
-              {filteredMovements.length} registro{filteredMovements.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        )}
       </div>
 
-      
+      {/* Results indicator - siempre visible */}
+      {(filterDesde || filterHasta || searchQuery) && (
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 px-4 py-3">
+          <span className="text-[#2B2B2B]/40 dark:text-white/40">Mostrando resultados filtrados</span>
+          <span className="text-[var(--color-gold)]">
+            {filteredMovements.length} registro{filteredMovements.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+      )}
 
-      {/* Tabla de Movimientos */}
-      <div className={tableWrap}>
+      
+      {/* Desktop table */}
+      <div className={tableWrap + " hidden lg:block"}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -321,6 +343,78 @@ export const Inventory = () => {
           </table>
         </div>
       </div>
+
+      {/* Mobile cards */}
+      <div className="block lg:hidden space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+            <Loader2 size={18} className="animate-spin" />
+            <span className="text-xs uppercase tracking-widest">Cargando...</span>
+          </div>
+        ) : paginated.length === 0 ? (
+          <div className="py-16 text-center">
+            <div className="w-16 h-16 bg-[#EDEDED] dark:bg-white/5 flex items-center justify-center mx-auto mb-5">
+              <ArrowDownCircle size={28} className="text-[#2B2B2B]/20 dark:text-white/20" strokeWidth={1.2} />
+            </div>
+            <p className="text-sm font-light text-[#111111] dark:text-white mb-2">Sin movimientos</p>
+            <p className="text-[13px] text-[#2B2B2B]/50 dark:text-white/40">
+              {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "Aún no se han registrado movimientos de inventario"}
+            </p>
+          </div>
+        ) : paginated.map((m) => (
+          <div key={m.id} className="border border-[#EDEDED] dark:border-white/10 rounded-sm p-4 space-y-3 bg-white dark:bg-[var(--bg-surface)]">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</div>
+                <div className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest mt-0.5">{m.tamanoMl}</div>
+              </div>
+            </div>
+            <hr className="border-[#EDEDED] dark:border-white/10" />
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Fecha</span>
+                <span className="text-sm text-[#2B2B2B] dark:text-white/80">
+                  {new Date(m.fecha).toLocaleDateString('es-CO', {
+                    year: 'numeric', month: 'short', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Tipo</span>
+                <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
+                  m.tipo === 'ENTRADA'
+                    ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[var(--color-gold)]/10 dark:text-[var(--color-gold)]'
+                    : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
+                }`}>
+                  {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
+                  {m.tipo}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Cantidad</span>
+                <span className={`text-sm font-bold ${m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[var(--color-gold)]' : 'text-red-500'}`}>
+                  {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
+                </span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60 shrink-0">Motivo</span>
+                <span className="text-sm text-[#2B2B2B] dark:text-white/80 text-right max-w-[65%]">{m.motivo}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {totalPages > 1 && (
+        <AdminPaginator
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={filteredMovements.length}
+          pageSize={PAGE_SIZE}
+        />
+      )}
 
       {/* Modal: Ajustar Stock */}
       <AnimatePresence>

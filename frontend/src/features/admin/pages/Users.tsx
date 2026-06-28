@@ -109,8 +109,8 @@ export const Users = () => {
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className={tableWrapClass}>
+      {/* Desktop table */}
+      <div className={tableWrapClass + " hidden lg:block"}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -189,14 +189,104 @@ export const Users = () => {
             </tbody>
           </table>
         </div>
-        <AdminPaginator
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={filteredUsers.length}
-          pageSize={PAGE_SIZE}
-        />
       </div>
+
+      {/* Mobile cards */}
+      <div className="block lg:hidden space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+            <Loader2 className="animate-spin" size={18} />
+            <span>Cargando usuarios...</span>
+          </div>
+        ) : paginated.length > 0 ? (
+          paginated.map((user) => (
+            <div key={user.id} className={`border border-[#EDEDED] dark:border-white/10 rounded-sm p-4 space-y-3 bg-white dark:bg-[var(--bg-surface)] ${!user.active ? 'opacity-50' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-sm font-medium text-[#111111] dark:text-white">{user.name}</div>
+                  <div className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60 mt-0.5">{user.email}</div>
+                </div>
+              </div>
+              <hr className="border-[#EDEDED] dark:border-white/10" />
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Rol</span>
+                  <span className={`text-sm ${user.role === "ADMIN" ? "text-[#3A4A3F] dark:text-[var(--color-gold)] font-medium" : "text-[#2B2B2B] dark:text-white/80"}`}>
+                    {user.role}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Registro</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80">{user.joined}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Pedidos</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80">{user.orders}</span>
+                </div>
+              </div>
+              <hr className="border-[#EDEDED] dark:border-white/10" />
+              <div className="flex items-center justify-between pt-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 text-[13px] text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:hover:text-white transition-colors">
+                      <Edit2 size={14} strokeWidth={1.5} />
+                      <span>Rol</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white border-[#EDEDED] dark:border-white/10">
+                    <DropdownMenuLabel>Asignar Rol</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-[#EDEDED] dark:bg-white/10" />
+                    <DropdownMenuItem onClick={() => handleRoleChange(user.id, "USUARIO")} className="flex items-center gap-2 cursor-pointer focus:bg-[#EDEDED] dark:focus:bg-white/5">
+                      <User size={14} />
+                      <span>USUARIO</span>
+                      {user.role === "USUARIO" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[var(--color-gold)]" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRoleChange(user.id, "ADMIN")} className="flex items-center gap-2 cursor-pointer focus:bg-[#EDEDED] dark:focus:bg-white/5">
+                      <Shield size={14} />
+                      <span>ADMIN</span>
+                      {user.role === "ADMIN" && <CheckCircle size={14} className="ml-auto text-[#3A4A3F] dark:text-[var(--color-gold)]" />}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <button
+                  onClick={() => handleToggleActive(user.id, user.active)}
+                  className="flex items-center gap-2 text-[13px] text-[#2B2B2B]/60 dark:text-white/60 hover:text-[#111111] dark:hover:text-white transition-colors"
+                >
+                  {user.active ? (
+                    <>
+                      <Ban size={14} strokeWidth={1.5} />
+                      <span>Bloquear</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={14} strokeWidth={1.5} />
+                      <span>Desbloquear</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="py-16 text-center">
+            <div className="w-16 h-16 bg-[#EDEDED] dark:bg-white/5 flex items-center justify-center mx-auto mb-5">
+              <User size={28} className="text-[#2B2B2B]/20 dark:text-white/20" strokeWidth={1.2} />
+            </div>
+            <p className="text-sm font-light text-[#111111] dark:text-white mb-2">No se encontraron usuarios</p>
+            <p className="text-[13px] text-[#2B2B2B]/50 dark:text-white/40">
+              {searchQuery ? "Intenta buscar con otro término" : "Aún no hay usuarios registrados"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <AdminPaginator
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={filteredUsers.length}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   );
 };

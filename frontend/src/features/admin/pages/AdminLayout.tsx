@@ -46,9 +46,18 @@ export const AdminLayout = () => {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-[#111111] border-b border-[#EDEDED] dark:border-white/10 z-50 flex items-center justify-between p-4">
         <Link to="/" className="text-lg font-light tracking-[0.3em] uppercase text-[#111111] dark:text-white">Eluxar</Link>
-        <button aria-label={isSidebarOpen ? "Cerrar menú" : "Abrir menú"} onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-[#2B2B2B]">
-          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            className="p-2 text-[#2B2B2B] dark:text-white/70 hover:text-[#111111] dark:hover:text-white transition-colors"
+            aria-label={isDark ? "Modo claro" : "Modo oscuro"}
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button aria-label={isSidebarOpen ? "Cerrar menú" : "Abrir menú"} onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-[#2B2B2B]">
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar Overlay (Mobile) */}
@@ -65,9 +74,18 @@ export const AdminLayout = () => {
               <p className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/40 mt-2">Panel Admin</p>
             </div>
           )}
-          <button aria-label={isDesktopCollapsed ? "Expandir menú" : "Colapsar menú"} onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)} className="text-[#2B2B2B] hover:text-[#111111] dark:text-white/60 dark:hover:text-white transition-colors">
-            <Menu size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="p-2 text-[#2B2B2B] hover:text-[#111111] dark:text-white/60 dark:hover:text-white transition-colors"
+              aria-label={isDark ? "Modo claro" : "Modo oscuro"}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button aria-label={isDesktopCollapsed ? "Expandir menú" : "Colapsar menú"} onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)} className="text-[#2B2B2B] hover:text-[#111111] dark:text-white/60 dark:hover:text-white transition-colors">
+              <Menu size={20} />
+            </button>
+          </div>
         </div>
 
         <nav className="admin-sidebar-nav flex-1 p-4 overflow-y-auto mt-16 lg:mt-0 overflow-x-hidden">
@@ -90,18 +108,7 @@ export const AdminLayout = () => {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-[#EDEDED] dark:border-white/8 space-y-2">
-          <button
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            title={isDesktopCollapsed ? (isDark ? "Modo Claro" : "Modo Oscuro") : undefined}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-[#2B2B2B] dark:text-white/70 hover:bg-[#F5F5F5] dark:hover:bg-white/5 transition-colors ${isDesktopCollapsed ? 'lg:justify-center' : ''}`}
-          >
-            {isDark ? <Sun size={18} strokeWidth={1.5} className="shrink-0" /> : <Moon size={18} strokeWidth={1.5} className="shrink-0" />}
-            <span className={`uppercase tracking-widest text-[10px] font-bold whitespace-nowrap transition-opacity duration-300 ${isDesktopCollapsed ? 'lg:opacity-0 lg:hidden' : 'opacity-100'}`}>
-              {isDark ? "Modo Claro" : "Modo Oscuro"}
-            </span>
-          </button>
-
+        <div className="p-4 border-t border-[#EDEDED] dark:border-white/8">
           <button
             onClick={handleLogout}
             title={isDesktopCollapsed ? "Cerrar Sesión" : undefined}

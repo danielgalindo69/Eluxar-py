@@ -256,10 +256,9 @@ def edit_image_endpoint():
 
     image_base64: str = data.get("image_base64", "")
     style: str = data.get("style", "")
-    additional_prompt: str = data.get("additional_prompt", "")
 
     log.info("[%s] image_size=%d chars", rid, len(image_base64))
-    log.info("[%s] style=%r prompt=%r", rid, style[:40], additional_prompt[:40])
+    log.info("[%s] style=%r", rid, style[:40])
 
     if not image_base64:
         return jsonify({"error": "El campo 'image_base64' es requerido."}), 400
@@ -267,7 +266,7 @@ def edit_image_endpoint():
     try:
         # 2. Enviar a Clipdrop para cambiar el fondo utilizando el estilo y el prompt descriptivo.
         log.info("[%s] Calling process_image_edit", rid)
-        result = process_image_edit(image_base64, style, additional_prompt)
+        result = process_image_edit(image_base64, style)
         duration_ms = int((time.monotonic() - start_ts) * 1000)
         log.info("[%s] process_image_edit completed successfully durationMs=%d", rid, duration_ms)
         return jsonify(result)

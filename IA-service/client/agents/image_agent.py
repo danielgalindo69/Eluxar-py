@@ -33,14 +33,13 @@ CLIPDROP_TIMEOUT_SECONDS = 30
 MAX_DECODED_BYTES = 10 * 1024 * 1024  # 10 MB después de decodificación base64
 
 
-def process_image_edit(image_base64: str, style: str, additional_prompt: str) -> dict:
+def process_image_edit(image_base64: str, style: str) -> dict:
     """
     Decode a base64 image and call Clipdrop to replace its background.
 
     Args:
-        image_base64:      Raw base64 string (with or without data-URI prefix).
-        style:             Style descriptor, e.g. "elegante, oscuro".
-        additional_prompt: Extra prompt text, e.g. "fondo de mármol".
+        image_base64: Raw base64 string (with or without data-URI prefix).
+        style:        Style / scene descriptor, e.g. "elegante, oscuro, fondo de mármol".
 
     Returns:
         dict with keys ``edited_image_base64`` and ``original_image_base64``.
@@ -68,7 +67,7 @@ def process_image_edit(image_base64: str, style: str, additional_prompt: str) ->
     image_buffer.seek(0)
 
     # 4. Construye el prompt.
-    parts = [p.strip() for p in [style, additional_prompt] if p.strip()]
+    parts = [style.strip()] if style.strip() else []
     prompt_final = ", ".join(parts + ["professional perfume photography", "high quality", "studio lighting"])
 
     log.info("Calling ClipDrop API. url=%s prompt=%r", CLIPDROP_URL, prompt_final[:80])
