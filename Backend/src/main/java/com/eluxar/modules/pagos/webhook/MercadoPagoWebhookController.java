@@ -26,6 +26,13 @@ public class MercadoPagoWebhookController {
 
     @Value("${mercadopago.webhook-secret}")
     private String webhookSecret;
+
+    /**
+     * Si está en true, omite la validación de firma HMAC.
+     * USAR SOLO EN ENTORNOS DE SANDBOX/TESTING. En producción debe ser false.
+     */
+    @Value("${mercadopago.webhook-skip-signature:false}")
+    private boolean skipSignatureValidation;
  
     /**
      * Recibe notificaciones IPN/Webhook de Mercado Pago.
@@ -59,14 +66,16 @@ public class MercadoPagoWebhookController {
         log.info("[Webhook MP] Notificación recibida — type={}, id={}", eventType, resourceId);
 
         // ── VALIDACIÓN DE FIRMA HMAC-SHA256 ──────────────────────────────
-        // Se valida únicamente si la clave secreta está configurada.
-        if (webhookSecret != null && !webhookSecret.isBlank()) {
+        // Se valida únicamente si la clave secreta está configurada Y no se omite la validación.
+        if (!skipSignatureValidation && webhookSecret != null && !webhookSecret.isBlank()) {
             boolean isSignatureValid = MPWebhookSignatureValidator.validate(resourceId, xRequestId, xSignature, webhookSecret);
             if (!isSignatureValid) {
                 log.warn("[Webhook MP] Firma digital inválida. Rechazando petición de webhook para el recurso: {}", resourceId);
                 return ResponseEntity.status(401).build();
             }
             log.info("[Webhook MP] Firma digital de webhook validada exitosamente.");
+        } else if (skipSignatureValidation) {
+            log.warn("[Webhook MP] ⚠ ADVERTENCIA: Validación de firma OMITIDA (modo sandbox/testing). NO usar en producción.");
         }
  
         // Solo procesamos eventos relacionados con pagos ("payment")
@@ -103,9 +112,10 @@ public class MercadoPagoWebhookController {
             } catch (NumberFormatException e) {
                 log.error("[Webhook MP] Formato de ID de pago o pedido inválido: {}", resourceId);
             } catch (Exception e) {
-                log.error("[Webhook MP] Error al procesar la notificación del pago {}: {}", resourceId, e.getMessage());
+                log.error("[Webhook MP] Error al procesar la notificación del pago {}: {}", resourceId, e.getMessage(), e);
                 // Si el error es de la API de MP (ej. 404 por ID de prueba falso), devolvemos 200 para que no reintente
-                if (e.getClass().getName().contains("MPApiException") || e.getMessage().contains("404")) {
+                if (e.getClass().getName().contains("MPApiException") ||
+                    (e.getMessage() != null && e.getMessage().contains("404"))) {
                     log.warn("[Webhook MP] El pago {} no se encontró en Mercado Pago (posible simulación de prueba). Ignorando.", resourceId);
                     return ResponseEntity.ok().build();
                 }
