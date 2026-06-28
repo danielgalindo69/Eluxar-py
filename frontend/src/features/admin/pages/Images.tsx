@@ -97,6 +97,9 @@ export const Images = () => {
   // Set principal
   const [isSettingPrincipal, setIsSettingPrincipal] = useState<number | null>(null);
 
+  // Mobile single-image selector
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   // ── Load images when product changes
   const loadImages = useCallback((id: number) => {
     setImagesState("loading");
@@ -113,6 +116,18 @@ export const Images = () => {
       })
       .catch(() => setImagesState("error"));
   }, []);
+
+  // Keep selectedImageIndex in bounds after delete/upload
+  useEffect(() => {
+    setSelectedImageIndex(prev => {
+      if (productImages.length === 0) return 0;
+      if (prev >= productImages.length) {
+        const principalIdx = productImages.findIndex(img => img.principal);
+        return principalIdx >= 0 ? principalIdx : 0;
+      }
+      return prev;
+    });
+  }, [productImages]);
 
   useEffect(() => {
     if (selectedId !== null) loadImages(selectedId);
@@ -267,6 +282,116 @@ export const Images = () => {
 
   const selectedProduct = products.find((p) => p.id === selectedId);
 
+  const renderTopButtons = (img: ProductImage, mode: 'toolbar' | 'overlay') => {
+    const isToolbar = mode === 'toolbar';
+    return (
+      <>
+        <button
+          onClick={(e) => { e.stopPropagation(); setDeleteTarget(img); }}
+          className={
+            isToolbar
+              ? "p-2.5 text-white/90 active:text-red-400"
+              : "p-2.5 text-white/50 hover:text-red-400 hover:bg-red-500/20 backdrop-blur-md border border-transparent hover:border-red-500/30 transition-all duration-300"
+          }
+          title="Eliminar imagen"
+        >
+          <Trash2 size={16} strokeWidth={1.5} />
+        </button>
+        {!img.principal && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleSetPrincipal(img); }}
+            disabled={isSettingPrincipal === img.id}
+            className={
+              isToolbar
+                ? `p-2.5 ${
+                    isSettingPrincipal === img.id
+                      ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
+                      : "text-white/90"
+                  }`
+                : `p-2.5 backdrop-blur-md border border-transparent transition-all duration-300 ${
+                    isSettingPrincipal === img.id
+                      ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
+                      : "text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 hover:border-[#3A4A3F]/30"
+                  }`
+            }
+            title="Establecer como principal"
+          >
+            {isSettingPrincipal === img.id ? (
+              <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
+            ) : (
+              <Star size={16} strokeWidth={1.5} />
+            )}
+          </button>
+        )}
+      </>
+    );
+  };
+
+  const renderImageCard = (img: ProductImage, large?: boolean) => (
+    large ? (
+      <div key={img.url} className="flex flex-col">
+        <div className="relative bg-[#EDEDED] dark:bg-white/5 aspect-square overflow-hidden shadow-md">
+          <img
+            src={img.url}
+            alt={`Imagen ${img.urlIndex + 1}`}
+            className="w-full h-full object-cover"
+          />
+          {img.principal && (
+            <div className="absolute top-2 left-2 bg-[#3A4A3F] text-white text-[8px] uppercase tracking-widest px-2 py-1 flex items-center gap-1 z-10 shadow-md">
+              <Star size={8} fill="white" /> Principal
+            </div>
+          )}
+          <div className="absolute bottom-3 right-3 z-20 bg-black/40 backdrop-blur-sm rounded flex items-center gap-1 p-1">
+            {renderTopButtons(img, 'toolbar')}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleAiPanel(img); }}
+              className="p-2.5 text-purple-300"
+              title="Mejorar con IA"
+            >
+              <Sparkles size={16} strokeWidth={1.5} />
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div key={img.url} className="flex flex-col">
+        <div className="relative group bg-[#EDEDED] dark:bg-white/5 aspect-square overflow-hidden shadow-sm">
+          <img
+            src={img.url}
+            alt={`Imagen ${img.urlIndex + 1}`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          {img.principal && (
+            <div className="absolute top-2 left-2 bg-[#3A4A3F] text-white text-[8px] uppercase tracking-widest px-2 py-1 flex items-center gap-1 z-10 shadow-md">
+              <Star size={8} fill="white" /> Principal
+            </div>
+          )}
+          <div className="absolute inset-0 md:bg-gradient-to-t md:from-black/80 md:via-black/30 md:to-black/80 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-4 z-20 md:backdrop-blur-[2px]">
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+              {renderTopButtons(img, 'overlay')}
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleAiPanel(img); }}
+              className="group/ai flex flex-col items-center gap-4 md:translate-y-4 md:group-hover:translate-y-0 transition-all duration-500 delay-75 bg-black/20 md:bg-transparent"
+            >
+              <div className="h-14 w-14 flex items-center justify-center bg-purple-500/10 border border-purple-500/30 text-purple-300 group-hover/ai:bg-purple-600 group-hover/ai:text-white group-hover/ai:border-purple-500 group-hover/ai:scale-110 group-hover/ai:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 backdrop-blur-sm">
+                <Sparkles size={24} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 group-hover/ai:text-white transition-colors duration-300">
+                Mejorar con IA
+              </span>
+            </button>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-[var(--bg-surface)]/90 px-3 py-2 backdrop-blur-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
+            <p className="text-[9px] text-[#2B2B2B] dark:text-white/80 uppercase tracking-widest truncate">
+              imagen_{img.urlIndex + 1}.jpg
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  );
+
   // ─── JSX ──────────────────────────────────────────────────────
   return (
     <div className="space-y-8">
@@ -407,86 +532,39 @@ export const Images = () => {
           </div>
         )}
 
-        {/* Grid */}
+        {/* Mobile: selector + single image */}
         {imagesState === "ok" && productImages.length > 0 && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {productImages.map((img) => (
-                <div key={img.url} className="flex flex-col">
-                  {/* Image card */}
-                  <div className="relative group bg-[#EDEDED] dark:bg-white/5 aspect-square overflow-hidden shadow-sm">
-                    <img
-                      src={img.url}
-                      alt={`Imagen ${img.urlIndex + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
-                    {/* Principal badge */}
-                    {img.principal && (
-                      <div className="absolute top-2 left-2 bg-[#3A4A3F] text-white text-[8px] uppercase tracking-widest px-2 py-1 flex items-center gap-1 z-10 shadow-md">
-                        <Star size={8} fill="white" /> Principal
-                      </div>
-                    )}
-
-                    {/* Hover Overlay Actions */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/80 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-4 z-20 backdrop-blur-[2px]">
-
-                      {/* Top Action Row (Delete & Star) */}
-                      <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(img); }}
-                          className="p-2.5 text-white/50 hover:text-red-400 hover:bg-red-500/20 backdrop-blur-md border border-transparent hover:border-red-500/30 transition-all duration-300"
-                          title="Eliminar imagen"
-                        >
-                          <Trash2 size={16} strokeWidth={1.5} />
-                        </button>
-
-                        {!img.principal && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetPrincipal(img);
-                            }}
-                            disabled={isSettingPrincipal === img.id}
-                            className={`p-2.5 backdrop-blur-md border border-transparent transition-all duration-300 ${
-                              isSettingPrincipal === img.id
-                                ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
-                                : "text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 hover:border-[#3A4A3F]/30"
-                            }`}
-                            title="Establecer como principal"
-                          >
-                            {isSettingPrincipal === img.id ? (
-                              <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
-                            ) : (
-                              <Star size={16} strokeWidth={1.5} />
-                            )}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Center Action (AI) */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleAiPanel(img); }}
-                        className="group/ai flex flex-col items-center gap-4 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75"
-                      >
-                        <div className="h-14 w-14 flex items-center justify-center bg-purple-500/10 border border-purple-500/30 text-purple-300 group-hover/ai:bg-purple-600 group-hover/ai:text-white group-hover/ai:border-purple-500 group-hover/ai:scale-110 group-hover/ai:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 backdrop-blur-sm">
-                          <Sparkles size={24} strokeWidth={1.5} />
-                        </div>
-                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 group-hover/ai:text-white transition-colors duration-300">
-                          Mejorar con IA
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Caption (hides on hover) */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-[var(--bg-surface)]/90 px-3 py-2 backdrop-blur-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
-                      <p className="text-[9px] text-[#2B2B2B] dark:text-white/80 uppercase tracking-widest truncate">
-                        imagen_{img.urlIndex + 1}.jpg
-                      </p>
-                    </div>
-                  </div>
+          <div className="block md:hidden space-y-4">
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-3">
+                Seleccionar Imagen
+              </label>
+              <div className="relative group">
+                <select
+                  value={selectedImageIndex}
+                  onChange={(e) => setSelectedImageIndex(Number(e.target.value))}
+                  className="w-full bg-[#EDEDED]/50 dark:bg-white/5 border border-transparent hover:border-[#EDEDED] dark:hover:border-white/10 focus:border-[#3A4A3F] dark:focus:border-white/20 text-[#111111] dark:text-white pl-5 pr-12 py-4 text-sm outline-none appearance-none transition-all cursor-pointer rounded-none font-light shadow-sm dark:[color-scheme:dark]"
+                >
+                  {productImages.map((img, idx) => (
+                    <option key={img.id} value={idx} className="bg-white dark:bg-[var(--bg-surface)]">
+                      Imagen {img.urlIndex + 1}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#2B2B2B]/40 dark:text-white/40">
+                  <ChevronDown size={18} strokeWidth={1.5} />
                 </div>
-              ))}
+              </div>
+            </div>
+            {renderImageCard(productImages[selectedImageIndex], true)}
+          </div>
+        )}
+
+        {/* Desktop: grid */}
+        {imagesState === "ok" && productImages.length > 0 && (
+          <div className="hidden md:block space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {productImages.map((img) => renderImageCard(img))}
             </div>
           </div>
         )}

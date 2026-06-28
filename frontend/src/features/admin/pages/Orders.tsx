@@ -1,4 +1,4 @@
-import { Eye, Download, Search, X, ShoppingBag, Filter, Loader2 } from "lucide-react";
+import { Download, Search, X, ShoppingBag, Filter, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ordersAPI } from "../../../core/api/api";
@@ -49,9 +49,10 @@ export const Orders = () => {
         client: o.clienteNombre || 'Cliente Desconocido',
         product: o.items?.length ? o.items.map((i: any) => i.productoNombre).join(', ') : 'N/A',
         quantity: o.items?.length ? o.items.reduce((sum: number, i: any) => sum + (i.cantidad || 0), 0) : 0,
-        total: `${o.total} COP`,
-        status: o.estado,
-        paymentMethod: o.metodoPago || '—'
+      total: `${o.total} COP`,
+      status: o.estado,
+      paymentMethod: o.metodoPago || '—',
+      direccionEnvio: o.direccionEnvio || '—'
       }));
     },
     staleTime: 0,
@@ -122,7 +123,7 @@ export const Orders = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Gestión de Pedidos</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-2">Administra y monitorea todos los pedidos</p>
@@ -130,7 +131,7 @@ export const Orders = () => {
         <button
           onClick={handleExport}
           disabled={isExporting}
-          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed w-full md:w-auto justify-center"
         >
           {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           {isExporting ? 'Exportando...' : 'Exportar'}
@@ -213,7 +214,7 @@ export const Orders = () => {
         ))}
 
         {datePreset === 'custom' && (
-          <div className="flex items-center gap-2 ml-2 pl-3 border-l border-[#EDEDED] dark:border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-4 sm:pt-0 border-t sm:border-l border-[#EDEDED] dark:border-white/10 sm:pl-3">
             <input
               type="date"
               value={filterDesde}
@@ -231,8 +232,8 @@ export const Orders = () => {
         )}
       </div>
 
-      {/* Orders Table */}
-      <div className={tableWrapClass}>
+      {/* Desktop table */}
+      <div className={tableWrapClass + " hidden lg:block"}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -244,8 +245,8 @@ export const Orders = () => {
                 <th className={thClass}>Cantidad</th>
                 <th className={thClass}>Total</th>
                 <th className={thClass}>Método de Pago</th>
+                <th className={thClass}>Dirección</th>
                 <th className={thClass}>Estado</th>
-                <th className="text-right text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/50 px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -263,7 +264,8 @@ export const Orders = () => {
                     <td className={tdClass}>
                       <span className="text-[10px] uppercase tracking-widest font-bold">{order.paymentMethod}</span>
                     </td>
-                    <td className="px-4 py-2">
+                    <td className={tdMutedClass + " whitespace-normal max-w-[200px]"}>{order.direccionEnvio}</td>
+                    <td className="px-4 py-2 min-w-[140px]">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${
                           order.status === "ENTREGADO" ? "bg-green-500" :
@@ -289,11 +291,6 @@ export const Orders = () => {
                         </select>
                       </div>
                     </td>
-                    <td className="px-4 py-2 text-right">
-                      <button title="Ver Detalles" className="p-2 hover:bg-[#EDEDED] dark:hover:bg-white/10 transition-colors inline-flex items-center gap-2">
-                        <Eye size={16} className="text-[#2B2B2B] dark:text-white/60" strokeWidth={1.5} />
-                      </button>
-                    </td>
                   </tr>
                 ))
               ) : (
@@ -307,14 +304,103 @@ export const Orders = () => {
             </tbody>
           </table>
         </div>
-        <AdminPaginator
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={filtered.length}
-          pageSize={PAGE_SIZE}
-        />
       </div>
+
+      {/* Mobile cards */}
+      <div className="block lg:hidden space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+            <Loader2 className="animate-spin" size={18} />
+            <span>Cargando pedidos...</span>
+          </div>
+        ) : paginated.length > 0 ? (
+          paginated.map((order, index) => (
+            <div
+              key={index}
+              className="border border-[#EDEDED] dark:border-white/10 rounded-sm p-4 space-y-3 bg-white dark:bg-[var(--bg-surface)]"
+            >
+              {/* Header: ID + status */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-[#111111] dark:text-white">{order.id}</span>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    order.status === "ENTREGADO" ? "bg-green-500" :
+                    order.status === "ENVIADO" ? "bg-amber-500" :
+                    order.status === "CANCELADO" ? "bg-red-500" : "bg-blue-400"
+                  }`} />
+                  <select
+                    value={order.status}
+                    onChange={(e) => handleStatusChange(order.rawId, e.target.value)}
+                    className={`bg-transparent text-[13px] font-medium outline-none cursor-pointer dark:[color-scheme:dark] ${
+                      order.status === "ENTREGADO" ? "text-[#3A4A3F]" :
+                      order.status === "ENVIADO" ? "text-amber-500" :
+                      order.status === "CANCELADO" ? "text-red-400" :
+                      "text-[#2B2B2B]/60 dark:text-white/60"
+                    }`}
+                  >
+                    <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="PENDIENTE">Pendiente</option>
+                    <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="CONFIRMADO">Confirmado</option>
+                    <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="EN_PROCESO">En Proceso</option>
+                    <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="ENVIADO">Enviado</option>
+                    <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="ENTREGADO">Entregado</option>
+                    <option className="bg-white dark:bg-[var(--bg-surface)] text-[#111111] dark:text-white" value="CANCELADO">Cancelado</option>
+                  </select>
+                </div>
+              </div>
+              <hr className="border-[#EDEDED] dark:border-white/10" />
+              {/* Body: labeled rows */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Cliente</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80">{order.client}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Fecha</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80">{order.date}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Producto</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80 text-right max-w-[60%]">{order.product}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Cantidad</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80">{order.quantity}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Total</span>
+                  <span className="text-sm font-bold text-[#2B2B2B] dark:text-white">{order.total}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Método de pago</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80">{order.paymentMethod}</span>
+                </div>
+                <div className="flex justify-between items-start">
+                  <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60 shrink-0">Dirección</span>
+                  <span className="text-sm text-[#2B2B2B] dark:text-white/80 text-right max-w-[65%]">{order.direccionEnvio}</span>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="py-16 text-center">
+            <div className="w-16 h-16 bg-[#EDEDED] dark:bg-white/5 flex items-center justify-center mx-auto mb-5">
+              <ShoppingBag size={28} className="text-[#2B2B2B]/20 dark:text-white/20" strokeWidth={1.2} />
+            </div>
+            <p className="text-sm font-light text-[#111111] dark:text-white mb-2">No hay pedidos</p>
+            <p className="text-[13px] text-[#2B2B2B]/50 dark:text-white/40">
+              {searchQuery || filterStatus ? "Intenta con otros filtros" : "Aún no se han registrado pedidos"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <AdminPaginator
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   );
 };

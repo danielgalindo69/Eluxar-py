@@ -121,9 +121,12 @@ export const Coupons = () => {
     );
   });
 
+  const totalPages = Math.ceil(filteredCoupons.length / PAGE_SIZE);
+  const paginated = filteredCoupons.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white flex items-center gap-2">
             <Ticket className="text-[#3A4A3F] dark:text-[#A5BAA8]" />
@@ -135,7 +138,7 @@ export const Coupons = () => {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2"
+          className="bg-[#3A4A3F] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-2 w-full md:w-auto justify-center"
         >
           <Ticket size={16} />
           Crear Cupón
@@ -159,94 +162,149 @@ export const Coupons = () => {
           <div className="h-12 bg-[#EDEDED] dark:bg-[var(--bg-surface)] rounded"></div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#EDEDED]/50 dark:bg-white/5 border-b border-[#EDEDED] dark:border-white/10">
-                <tr>
-                  <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Código</th>
-                  <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Descuento</th>
-                  <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Usos</th>
-                  <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Expiración</th>
-                  <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Estado</th>
-                  <th className="px-6 py-4 text-right font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#EDEDED] dark:divide-white/10">
-                {(() => {
-                  const totalPages = Math.ceil(filteredCoupons.length / PAGE_SIZE);
-                  const paginated = filteredCoupons.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-                  return (
-                    <>
-                      {paginated.length === 0 ? (
-                        <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
-                            <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
-                            {searchQuery
-                              ? `No se encontraron resultados para "${searchQuery}"`
-                              : "No hay cupones registrados"}
-                          </td>
-                        </tr>
-                      ) : paginated.map((c) => {
-                        const expired = isExpired(c.fechaExpiracion);
-                        return (
-                          <tr key={c.id} className="hover:bg-[#EDEDED]/20 dark:hover:bg-white/5 transition-colors">
-                            <td className="px-6 py-4 font-bold tracking-widest">{c.codigo}</td>
-                            <td className="px-6 py-4">
-                              {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
-                              {c.montoMinimo ? (
-                                <span className="block text-[10px] text-[#2B2B2B]/50 dark:text-[#9090a8]">Min: ${formatPrice(c.montoMinimo)}</span>
-                              ) : null}
-                            </td>
-                            <td className="px-6 py-4">
-                              {c.usosActuales} / {c.limiteUsos || '∞'}
-                            </td>
-                            <td className="px-6 py-4 text-xs">
-                              {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleString('es-CO') : 'Sin expiración'}
-                              {expired && <span className="text-red-500 ml-2">(Expirado)</span>}
-                            </td>
-                            <td className="px-6 py-4">
-                              {c.activo && !expired ? (
-                                <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold uppercase">
-                                  <CheckCircle2 size={14} /> Activo
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-bold uppercase">
-                                  <XCircle size={14} /> {expired ? 'Expirado' : 'Inactivo'}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-right space-x-3">
-                              <button onClick={() => handleOpenModal(c)} className="text-[#3A4A3F] dark:text-[#A5BAA8] hover:text-[#111111] dark:hover:text-white transition-colors">
-                                <Edit2 size={16} />
-                              </button>
-                              <button onClick={() => handleDelete(c.id!)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors">
-                                <Trash2 size={16} />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {totalPages > 1 && (
-                        <tr>
-                          <td colSpan={6} className="p-0">
-                            <AdminPaginator
-                              currentPage={currentPage}
-                              totalPages={totalPages}
-                              onPageChange={setCurrentPage}
-                              totalItems={filteredCoupons.length}
-                              pageSize={PAGE_SIZE}
-                            />
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  );
-                })()}
-              </tbody>
-            </table>
+        <>
+          <div className="hidden lg:block bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#EDEDED]/50 dark:bg-white/5 border-b border-[#EDEDED] dark:border-white/10">
+                  <tr>
+                    <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Código</th>
+                    <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Descuento</th>
+                    <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Usos</th>
+                    <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Expiración</th>
+                    <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Estado</th>
+                    <th className="px-6 py-4 text-right font-bold text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/60">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EDEDED] dark:divide-white/10">
+                  {paginated.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
+                        <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
+                        {searchQuery
+                          ? `No se encontraron resultados para "${searchQuery}"`
+                          : "No hay cupones registrados"}
+                      </td>
+                    </tr>
+                  ) : paginated.map((c) => {
+                    const expired = isExpired(c.fechaExpiracion);
+                    return (
+                      <tr key={c.id} className="hover:bg-[#EDEDED]/20 dark:hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 font-bold tracking-widest">{c.codigo}</td>
+                        <td className="px-6 py-4">
+                          {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
+                          {c.montoMinimo ? (
+                            <span className="block text-[10px] text-[#2B2B2B]/50 dark:text-[#9090a8]">Min: ${formatPrice(c.montoMinimo)}</span>
+                          ) : null}
+                        </td>
+                        <td className="px-6 py-4">
+                          {c.usosActuales} / {c.limiteUsos || '∞'}
+                        </td>
+                        <td className="px-6 py-4 text-xs">
+                          {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleString('es-CO') : 'Sin expiración'}
+                          {expired && <span className="text-red-500 ml-2">(Expirado)</span>}
+                        </td>
+                        <td className="px-6 py-4">
+                          {c.activo && !expired ? (
+                            <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold uppercase">
+                              <CheckCircle2 size={14} /> Activo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-bold uppercase">
+                              <XCircle size={14} /> {expired ? 'Expirado' : 'Inactivo'}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right space-x-3">
+                          <button onClick={() => handleOpenModal(c)} className="text-[#3A4A3F] dark:text-[#A5BAA8] hover:text-[#111111] dark:hover:text-white transition-colors">
+                            <Edit2 size={16} />
+                          </button>
+                          <button onClick={() => handleDelete(c.id!)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors">
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          <div className="block lg:hidden space-y-3">
+            {paginated.length === 0 ? (
+              <div className="px-6 py-12 text-center text-[#2B2B2B]/60 dark:text-white/60">
+                <AlertCircle className="mx-auto mb-2 opacity-50" size={24} />
+                {searchQuery
+                  ? `No se encontraron resultados para "${searchQuery}"`
+                  : "No hay cupones registrados"}
+              </div>
+            ) : paginated.map((c) => {
+              const expired = isExpired(c.fechaExpiracion);
+              return (
+                <div key={c.id} className="border border-[#EDEDED] dark:border-white/10 rounded-sm p-4 space-y-3 bg-white dark:bg-[var(--bg-surface)]">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold tracking-widest text-sm text-[#111111] dark:text-white">{c.codigo}</span>
+                  </div>
+                  <hr className="border-[#EDEDED] dark:border-white/10" />
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Descuento</span>
+                      <span className="text-sm text-[#2B2B2B] dark:text-white/80 text-right">
+                        {c.tipo === 'PORCENTAJE' ? `${c.descuento}%` : `$${formatPrice(c.descuento)}`}
+                        {c.montoMinimo ? <span className="block text-[10px] text-[#2B2B2B]/50 dark:text-[#9090a8]">Min: ${formatPrice(c.montoMinimo)}</span> : null}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Usos</span>
+                      <span className="text-sm text-[#2B2B2B] dark:text-white/80">{c.usosActuales} / {c.limiteUsos || '∞'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Expiración</span>
+                      <span className="text-sm text-[#2B2B2B] dark:text-white/80 text-right">
+                        {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleString('es-CO') : 'Sin expiración'}
+                        {expired && <span className="text-red-500 ml-1">(Expirado)</span>}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[13px] text-[#2B2B2B]/60 dark:text-white/60">Estado</span>
+                      {c.activo && !expired ? (
+                        <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold uppercase">
+                          <CheckCircle2 size={14} /> Activo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-bold uppercase">
+                          <XCircle size={14} /> {expired ? 'Expirado' : 'Inactivo'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <hr className="border-[#EDEDED] dark:border-white/10" />
+                  <div className="flex items-center justify-between pt-1">
+                    <button onClick={() => handleOpenModal(c)} className="flex items-center gap-2 text-[13px] text-[#3A4A3F] dark:text-[#A5BAA8] hover:text-[#111111] dark:hover:text-white transition-colors">
+                      <Edit2 size={14} strokeWidth={1.5} />
+                      <span>Editar</span>
+                    </button>
+                    <button onClick={() => handleDelete(c.id!)} className="flex items-center gap-2 text-[13px] text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors">
+                      <Trash2 size={14} strokeWidth={1.5} />
+                      <span>Eliminar</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <AdminPaginator
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredCoupons.length}
+              pageSize={PAGE_SIZE}
+            />
+          )}
+        </>
       )}
 
       {/* Modal Form */}
