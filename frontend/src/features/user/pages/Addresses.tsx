@@ -91,7 +91,7 @@ export const Addresses = () => {
   return (
     <div>
       <div className="w-full">
-        <div className="flex items-center justify-between mb-16">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0 mb-16">
           <div>
             <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4">Mis Direcciones</h1>
             <p className="text-sm text-[#2B2B2B]/50 dark:text-white/50 font-light">Gestiona tus direcciones de envío</p>
@@ -99,7 +99,7 @@ export const Addresses = () => {
           <button
             onClick={() => { setIsFormOpen(true); setEditingId(null); setFormData(emptyAddress); setErrors({}); }}
             disabled={addresses.length >= MAX_ADDRESSES}
-            className="bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-6 py-3 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+            className="bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-6 py-3 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#3A4A3F] dark:hover:bg-[#EDEDED] transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed w-full md:w-auto justify-center">
             <Plus size={14} /> Nueva Dirección
           </button>
         </div>

@@ -434,6 +434,7 @@ export const Orders = () => {
               Administra y monitorea todos los pedidos
             </p>
           </div>
+
           <button
             onClick={handleExport}
             disabled={isExporting}
@@ -487,9 +488,7 @@ export const Orders = () => {
               Pendientes
             </div>
           </div>
-        </div>
-
-        {/* Filters */}
+        </div>        {/* Filters */}
         <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative group flex-1">

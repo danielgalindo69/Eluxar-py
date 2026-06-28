@@ -189,7 +189,7 @@ export const Profile = () => {
 
             {/* Change Password */}
             <div className="mt-8 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 shadow-[0_10px_60px_rgba(0,0,0,0.02)] dark:shadow-none p-10 md:p-16 rounded-sm">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white">Seguridad</h2>
                 <button onClick={() => { setShowPasswordChange(!showPasswordChange); setErrors({}); }}
                   className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#3A4A3F] hover:text-[#111111] dark:text-white dark:hover:text-white transition-colors flex items-center gap-2">

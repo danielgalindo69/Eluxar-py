@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, Navigate, useNavigate } from "react-router";
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, CreditCard, Truck, Image, Menu, X, Sun, Moon, Ticket } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Warehouse, AlertTriangle, Image, Menu, X, Sun, Moon, Ticket } from "lucide-react";
 import { useAuth } from '../../auth/context/AuthContext';
 import { useTheme } from "next-themes";
 import { ScrollToTop } from '../../../shared/components/ScrollToTop';
@@ -26,8 +26,6 @@ export const AdminLayout = () => {
     { path: "/admin/users", label: "Usuarios", icon: Users },
     { path: "/admin/inventory", label: "Inventario", icon: Warehouse },
     { path: "/admin/stock-alerts", label: "Alertas Stock", icon: AlertTriangle },
-    { path: "/admin/payments", label: "Pagos", icon: CreditCard },
-    { path: "/admin/shipping", label: "Envíos", icon: Truck },
     { path: "/admin/images", label: "Imágenes", icon: Image },
     { path: "/admin/coupons", label: "Cupones", icon: Ticket },
   ];

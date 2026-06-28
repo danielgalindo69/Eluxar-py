@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
-import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, RefreshCw } from "lucide-react";
+import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchBar } from "../components/SearchBar";
@@ -135,7 +135,7 @@ export const Inventory = () => {
             disabled={isExporting}
             className="flex items-center gap-2 bg-[#3A4A3F] text-white px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-50"
           >
-            <Download size={13} />
+            {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={13} />}
             {isExporting ? 'Exportando...' : 'Exportar Excel'}
           </button>
           <button
@@ -240,8 +240,8 @@ export const Inventory = () => {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan={5} className="px-6 py-12 text-center">
-                  <div className="flex items-center justify-center gap-3 text-[#2B2B2B]/30 dark:text-white/20">
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  <div className="flex items-center justify-center gap-2 text-[#2B2B2B]/60 dark:text-[#EDEDED]/60">
+                    <Loader2 size={18} className="animate-spin" />
                     <span className="text-xs uppercase tracking-widest">Cargando...</span>
                   </div>
                 </td></tr>
@@ -337,7 +337,7 @@ export const Inventory = () => {
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/40">Variante *</label>
                 <select value={formData.varianteId} onChange={e => setFormData(p => ({ ...p, varianteId: e.target.value }))}
-                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent dark:bg-[#111111] dark:text-white px-4 py-3 text-sm outline-none">
+                  className="w-full border border-[#EDEDED] dark:border-white/10 bg-transparent dark:bg-[#111111] dark:text-white px-4 py-3 text-sm outline-none dark:[color-scheme:dark]">
                   <option value="">Seleccionar variante</option>
                   {inventario.map(inv => (
                     <option key={inv.varianteId} value={inv.varianteId}>
@@ -417,7 +417,10 @@ export const Inventory = () => {
                 </button>
                 <button onClick={handleArchive} disabled={isArchiving}
                   className="flex-1 bg-[#3A4A3F] text-white py-3 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-50">
-                  {isArchiving ? 'Archivando...' : 'Confirmar Archivo'}
+                  <span className="flex items-center justify-center gap-2">
+                    {isArchiving && <Loader2 size={16} className="animate-spin" />}
+                    {isArchiving ? 'Archivando...' : 'Confirmar Archivo'}
+                  </span>
                 </button>
               </div>
             </motion.div>
