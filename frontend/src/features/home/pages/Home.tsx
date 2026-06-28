@@ -3,23 +3,35 @@ import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFal
 import { Link } from "react-router";
 import { Sparkles, Loader2, Star } from "lucide-react";
 import { Product } from "../../products/types/products";
-import { productsAPI } from "../../../core/api/api";
+import { productsAPI, aiAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
 import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
+import { useAuth } from "../../auth/context/AuthContext";
 
 export const Home = () => {
-
+  const { isAuthenticated } = useAuth();
 
   const {
     data: products = [],
-    isLoading,
+    isLoading: isLoadingProducts,
   } = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: () => productsAPI.getAll(),
     staleTime: 300000,   // 5 minutos
     gcTime: 600000,      // 10 minutos
+  });
+
+  const {
+    data: recomendaciones = [],
+    isLoading: isLoadingRecs,
+  } = useQuery({
+    queryKey: ['recomendaciones'],
+    queryFn: () => aiAPI.getRecommendations(),
+    enabled: isAuthenticated,
+    staleTime: 300000,
+    gcTime: 600000,
   });
 
   const {
@@ -32,8 +44,40 @@ export const Home = () => {
     gcTime: 600000,      // 10 minutos
   });
 
-  // AI Recommended Products (primeros 2 productos)
-  const aiRecommended = products.slice(0, 2);
+  let showInvitation = false;
+  let invitationVariant: 'login' | 'test' = 'test';
+  let displayProducts: Product[] = [];
+
+  if (!isAuthenticated) {
+    showInvitation = true;
+    invitationVariant = 'login';
+  } else if (recomendaciones.length === 0) {
+    showInvitation = true;
+    invitationVariant = 'test';
+  } else {
+    const validRecs = recomendaciones.filter(r => r.productId != null);
+    for (const rec of validRecs) {
+      if (displayProducts.length >= 2) break;
+      const product = products.find(p => p.id === String(rec.productId));
+      if (product && !displayProducts.find(d => d.id === product.id)) {
+        displayProducts.push(product);
+      }
+    }
+    if (displayProducts.length < 2) {
+      for (const p of products) {
+        if (displayProducts.length >= 2) break;
+        if (!displayProducts.find(d => d.id === p.id)) {
+          displayProducts.push(p);
+        }
+      }
+    }
+    if (displayProducts.length === 0) {
+      showInvitation = true;
+      invitationVariant = 'test';
+    }
+  }
+
+  const isLoadingAI = isLoadingProducts || (isAuthenticated && isLoadingRecs);
 
   const homeStructuredData = {
     "@context": "https://schema.org",
@@ -79,14 +123,29 @@ export const Home = () => {
             </div>
           </div>
 
-          {isLoading ? (
+          {isLoadingAI ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-4">
-               <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
-               <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40">Cargando recomendaciones...</span>
+               <Loader2 className="animate-spin text-[#3A4A3F] dark:text-[#A5BAA8]" size={32} />
+               <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/80">Cargando recomendaciones...</span>
+            </div>
+          ) : showInvitation ? (
+            <div className="py-20 text-center space-y-6">
+              <p className="text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light max-w-md mx-auto">
+                {invitationVariant === 'login'
+                  ? "Inicia sesión y completa el test olfativo para recibir recomendaciones personalizadas con IA."
+                  : "Realiza el test olfativo para descubrir tu fragancia ideal con recomendaciones personalizadas por IA."}
+              </p>
+              <Link
+                to={invitationVariant === 'login' ? "/auth" : "/fragrance-test"}
+                className="inline-flex items-center gap-2 bg-[#3A4A3F] dark:bg-white/10 text-white dark:text-white px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white/25 transition-colors"
+              >
+                <Sparkles size={14} />
+                {invitationVariant === 'login' ? "Iniciar Sesión" : "Hacer Test Olfativo"}
+              </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {aiRecommended.map((product) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:max-w-5xl lg:mx-auto">
+              {displayProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -138,8 +197,8 @@ export const Home = () => {
 
           {isLoadingDestacados ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-4">
-               <Loader2 className="animate-spin text-[#3A4A3F]" size={32} />
-               <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/40">Cargando destacados...</span>
+               <Loader2 className="animate-spin text-[#3A4A3F] dark:text-[#A5BAA8]" size={32} />
+               <span className="text-[10px] uppercase tracking-widest text-[#2B2B2B]/60 dark:text-white/80">Cargando destacados...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

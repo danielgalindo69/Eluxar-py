@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router";
+import { RatingStars } from "../../../shared/components/ui/RatingStars";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Product } from "../types/products";
 import { useState } from "react";
@@ -109,6 +110,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-[#2B2B2B]/40 dark:text-white/40 text-[10px] uppercase tracking-[0.15em] font-light">
           {product.type} <span className="mx-1 text-[#2B2B2B]/20 dark:text-white/20">|</span> {product.variants?.[0]?.volume ?? ''}
         </p>
+        {(product.reviewCount ?? 0) > 0 && (
+          <div className="flex items-center gap-1.5 pt-0.5">
+            <RatingStars rating={product.rating ?? 0} size={10} />
+            <span className="text-[10px] text-[#2B2B2B]/50 dark:text-white/50 font-medium">
+              {product.rating?.toFixed(1)}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
