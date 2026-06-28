@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Upload, Trash2, ImageIcon, Sparkles, Loader2, ChevronDown,
   Star, X, CheckCircle2,
@@ -26,7 +26,6 @@ interface ProductImage {
 // State for the per-card AI panel
 interface AiPanelState {
   style: string;
-  prompt: string;
   isGenerating: boolean;
   resultUrl: string | null;
 }
@@ -78,45 +77,45 @@ export const Images = () => {
   const productsState: LoadState = isProductsLoading ? "loading" : productsError ? "error" : "ok";
   const products: ProductOption[] = adminProducts.map((p) => ({ id: parseInt(p.id), nombre: p.name, marca: p.brand }));
 
-  // Gallery
-  const [productImages, setProductImages] = useState<ProductImage[]>([]);
-  const [imagesState, setImagesState] = useState<LoadState>("idle");
+  // Gallery — useQuery replaces loadImages + useEffect + productImages + imagesState
+  const { data: productImagesData, isLoading: isImagesLoading, isError: isImagesError } = useQuery({
+    queryKey: ['producto-imagenes', selectedId],
+    queryFn: () =>
+      apiFetch(`/productos/${selectedId}`).then((dto: any) => {
+        const imgs: any[] = dto.imagenes || [];
+        return imgs.map((img: any, idx: number) => ({
+          id: img.id, urlIndex: idx, url: img.url, principal: img.principal,
+        }));
+      }),
+    enabled: !!selectedId,
+  });
+
+  const productImages = productImagesData ?? [];
 
   // Upload zone
   const [dragOver, setDragOver] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
   // Per-card AI panel state
   const [selectedAiImage, setSelectedAiImage] = useState<ProductImage | null>(null);
   const [aiPanels, setAiPanels] = useState<Record<number, AiPanelState>>({});
 
-  // Delete confirmation
+  // Delete confirmation (pure UI state — NOT a mutation)
   const [deleteTarget, setDeleteTarget] = useState<ProductImage | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Set principal
-  const [isSettingPrincipal, setIsSettingPrincipal] = useState<number | null>(null);
+  // Mobile single-image selector
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // ── Load images when product changes
-  const loadImages = useCallback((id: number) => {
-    setImagesState("loading");
-    setProductImages([]);
-    setSelectedAiImage(null);
-    setAiPanels({});
-    apiFetch(`/productos/${id}`)
-      .then((dto: any) => {
-        const imgs: any[] = dto.imagenes || [];
-        setProductImages(
-          imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
-        );
-        setImagesState("ok");
-      })
-      .catch(() => setImagesState("error"));
-  }, []);
-
+  // Keep selectedImageIndex in bounds after data changes
   useEffect(() => {
-    if (selectedId !== null) loadImages(selectedId);
-  }, [selectedId, loadImages]);
+    setSelectedImageIndex(prev => {
+      if (productImages.length === 0) return 0;
+      if (prev >= productImages.length) {
+        const principalIdx = productImages.findIndex(img => img.principal);
+        return principalIdx >= 0 ? principalIdx : 0;
+      }
+      return prev;
+    });
+  }, [productImages]);
 
   // ── Validate file
   const validateFile = (file: File): string | null => {
@@ -126,76 +125,83 @@ export const Images = () => {
     return null;
   };
 
-  // ── Upload a file to the selected product
-  const uploadFile = async (file: File) => {
+  // ── Mutations ─────────────────────────────────────────────────
+
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => {
+      const fd = new FormData();
+      fd.append("imagenes", file);
+      return apiFetch(`/productos/${selectedId}/imagenes`, { method: "POST", body: fd });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['producto-imagenes', selectedId] });
+      toast.success("Imagen subida exitosamente");
+    },
+    onError: (e: any) => {
+      toast.error(e.message || "Error al subir imagen");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (imageId: number) =>
+      apiFetch(`/productos/${selectedId}/imagenes/${imageId}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['producto-imagenes', selectedId] });
+      toast.success("Imagen eliminada");
+      setDeleteTarget(null);
+    },
+    onError: (e: any) => {
+      toast.error(e.message || "Error al eliminar imagen");
+    },
+  });
+
+  const setPrincipalMutation = useMutation({
+    mutationFn: (imageId: number) =>
+      apiFetch(`/productos/${selectedId}/imagenes/${imageId}/principal`, { method: "PATCH" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['producto-imagenes', selectedId] });
+      toast.success("Imagen principal actualizada");
+    },
+    onError: (e: any) => {
+      toast.error(e.message || "Error al establecer imagen principal");
+    },
+  });
+
+  const useAiResultMutation = useMutation({
+    mutationFn: async ({ resultUrl }: { resultUrl: string }) => {
+      const blob = await fetch(resultUrl).then((r) => r.blob());
+      const file = new File([blob], `ia_${Date.now()}.jpg`, { type: "image/jpeg" });
+      const fd = new FormData();
+      fd.append("imagenes", file);
+      return apiFetch(`/productos/${selectedId}/imagenes`, { method: "POST", body: fd });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['producto-imagenes', selectedId] });
+      setSelectedAiImage(null);
+      toast.success("Imagen guardada en el producto");
+    },
+    onError: (e: any) => {
+      toast.error(e.message || "Error al guardar imagen");
+    },
+  });
+
+  // ── Handlers ──────────────────────────────────────────────────
+
+  const uploadFile = (file: File) => {
     if (!selectedId) return;
     const err = validateFile(file);
     if (err) { toast.error(err); return; }
-
-    setIsUploading(true);
-    const tid = toast.loading("Subiendo imagen...");
-    try {
-      const fd = new FormData();
-      fd.append("imagenes", file);
-      const dto = await apiFetch(`/productos/${selectedId}/imagenes`, {
-        method: "POST",
-        body: fd,
-      });
-      const imgs: any[] = dto.imagenes || [];
-      setProductImages(
-        imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
-      );
-      toast.success("Imagen subida exitosamente", { id: tid });
-    } catch (e: any) {
-      toast.error(e.message || "Error al subir imagen", { id: tid });
-    } finally {
-      setIsUploading(false);
-    }
+    uploadMutation.mutate(file);
   };
 
-  // ── Delete image
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!deleteTarget || !selectedId) return;
-    setIsDeleting(true);
-    const tid = toast.loading("Eliminando imagen...");
-    try {
-      await apiFetch(
-        `/productos/${selectedId}/imagenes/${deleteTarget.id}`,
-        { method: "DELETE" }
-      );
-      setProductImages((prev) =>
-        prev
-          .filter((img) => img.url !== deleteTarget.url)
-          .map((img, idx) => ({ ...img, urlIndex: idx, principal: idx === 0 }))
-      );
-      toast.success("Imagen eliminada", { id: tid });
-    } catch (e: any) {
-      toast.error(e.message || "Error al eliminar imagen", { id: tid });
-    } finally {
-      setIsDeleting(false);
-      setDeleteTarget(null);
-    }
+    deleteMutation.mutate(deleteTarget.id);
   };
 
-  // ── Set image as principal
-  const handleSetPrincipal = async (img: ProductImage) => {
+  const handleSetPrincipal = (img: ProductImage) => {
     if (!selectedId) return;
-    setIsSettingPrincipal(img.id);
-    const tid = toast.loading("Estableciendo como principal...");
-    try {
-      await apiFetch(
-        `/productos/${selectedId}/imagenes/${img.id}/principal`,
-        { method: "PATCH" }
-      );
-      setProductImages((prev) =>
-        prev.map((i) => ({ ...i, principal: i.url === img.url }))
-      );
-      toast.success("Imagen principal actualizada", { id: tid });
-    } catch (e: any) {
-      toast.error(e.message || "Error al establecer imagen principal", { id: tid });
-    } finally {
-      setIsSettingPrincipal(null);
-    }
+    setPrincipalMutation.mutate(img.id);
   };
 
   // ── Open AI panel for a card
@@ -204,7 +210,7 @@ export const Images = () => {
     if (!aiPanels[img.urlIndex]) {
       setAiPanels((prev) => ({
         ...prev,
-        [img.urlIndex]: { style: "", prompt: "", isGenerating: false, resultUrl: null },
+        [img.urlIndex]: { style: "", isGenerating: false, resultUrl: null },
       }));
     }
   };
@@ -223,7 +229,7 @@ export const Images = () => {
     updatePanel(img.urlIndex, { isGenerating: true, resultUrl: null });
     const tid = toast.loading("Generando imagen con IA...");
     try {
-      const result = await aiAPI.improveImage(selectedId, img.id, panel.style, panel.prompt);
+      const result = await aiAPI.improveImage(selectedId, img.id, panel.style);
 
       if (result?.edited_image_base64) {
         const dataUri = `data:image/jpeg;base64,${result.edited_image_base64}`;
@@ -239,33 +245,126 @@ export const Images = () => {
   };
 
   // ── Use AI result as a product image
-  const handleUseAiResult = async (img: ProductImage) => {
+  const handleUseAiResult = (img: ProductImage) => {
     const panel = aiPanels[img.urlIndex];
     if (!panel?.resultUrl || !selectedId) return;
-
-    const tid = toast.loading("Guardando imagen generada...");
-    try {
-      const blob = await fetch(panel.resultUrl).then((r) => r.blob());
-      const file = new File([blob], `ia_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const fd = new FormData();
-      fd.append("imagenes", file);
-      const dto = await apiFetch(`/productos/${selectedId}/imagenes`, {
-        method: "POST",
-        body: fd,
-      });
-      const imgs: any[] = dto.imagenes || [];
-      setProductImages(
-        imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
-      );
-      setSelectedAiImage(null);
-      updatePanel(img.urlIndex, { resultUrl: null, style: "", prompt: "" });
-      toast.success("Imagen guardada en el producto", { id: tid });
-    } catch (e: any) {
-      toast.error(e.message || "Error al guardar imagen", { id: tid });
-    }
+    
+    const panelUrl = panel.resultUrl;
+    updatePanel(img.urlIndex, { resultUrl: null, style: "" });
+    useAiResultMutation.mutate({ resultUrl: panelUrl });
   };
 
   const selectedProduct = products.find((p) => p.id === selectedId);
+
+  const renderTopButtons = (img: ProductImage, mode: 'toolbar' | 'overlay') => {
+    const isToolbar = mode === 'toolbar';
+    return (
+      <>
+        <button
+          onClick={(e) => { e.stopPropagation(); setDeleteTarget(img); }}
+          className={
+            isToolbar
+              ? "p-2.5 text-white/90 active:text-red-400"
+              : "p-2.5 text-white/50 hover:text-red-400 hover:bg-red-500/20 backdrop-blur-md border border-transparent hover:border-red-500/30 transition-all duration-300"
+          }
+          title="Eliminar imagen"
+        >
+          <Trash2 size={16} strokeWidth={1.5} />
+        </button>
+        {!img.principal && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleSetPrincipal(img); }}
+            disabled={setPrincipalMutation.isPending && setPrincipalMutation.variables === img.id}
+            className={
+              isToolbar
+                ? `p-2.5 ${
+                    setPrincipalMutation.isPending && setPrincipalMutation.variables === img.id
+                      ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
+                      : "text-white/90"
+                  }`
+                : `p-2.5 backdrop-blur-md border border-transparent transition-all duration-300 ${
+                    setPrincipalMutation.isPending && setPrincipalMutation.variables === img.id
+                      ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
+                      : "text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 hover:border-[#3A4A3F]/30"
+                  }`
+            }
+            title="Establecer como principal"
+          >
+            {setPrincipalMutation.isPending && setPrincipalMutation.variables === img.id ? (
+              <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
+            ) : (
+              <Star size={16} strokeWidth={1.5} />
+            )}
+          </button>
+        )}
+      </>
+    );
+  };
+
+  const renderImageCard = (img: ProductImage, large?: boolean) => (
+    large ? (
+      <div key={img.url} className="flex flex-col">
+        <div className="relative bg-[#EDEDED] dark:bg-white/5 aspect-square overflow-hidden shadow-md">
+          <img
+            src={img.url}
+            alt={`Imagen ${img.urlIndex + 1}`}
+            className="w-full h-full object-cover"
+          />
+          {img.principal && (
+            <div className="absolute top-2 left-2 bg-[#3A4A3F] text-white text-[8px] uppercase tracking-widest px-2 py-1 flex items-center gap-1 z-10 shadow-md">
+              <Star size={8} fill="white" /> Principal
+            </div>
+          )}
+          <div className="absolute bottom-3 right-3 z-20 bg-black/40 backdrop-blur-sm rounded flex items-center gap-1 p-1">
+            {renderTopButtons(img, 'toolbar')}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleAiPanel(img); }}
+              className="p-2.5 text-purple-300"
+              title="Mejorar con IA"
+            >
+              <Sparkles size={16} strokeWidth={1.5} />
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div key={img.url} className="flex flex-col">
+        <div className="relative group bg-[#EDEDED] dark:bg-white/5 aspect-square overflow-hidden shadow-sm">
+          <img
+            src={img.url}
+            alt={`Imagen ${img.urlIndex + 1}`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          {img.principal && (
+            <div className="absolute top-2 left-2 bg-[#3A4A3F] text-white text-[8px] uppercase tracking-widest px-2 py-1 flex items-center gap-1 z-10 shadow-md">
+              <Star size={8} fill="white" /> Principal
+            </div>
+          )}
+          <div className="absolute inset-0 md:bg-gradient-to-t md:from-black/80 md:via-black/30 md:to-black/80 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-4 z-20 md:backdrop-blur-[2px]">
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+              {renderTopButtons(img, 'overlay')}
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleAiPanel(img); }}
+              className="group/ai flex flex-col items-center gap-4 md:translate-y-4 md:group-hover:translate-y-0 transition-all duration-500 delay-75 bg-black/20 md:bg-transparent"
+            >
+              <div className="h-14 w-14 flex items-center justify-center bg-purple-500/10 border border-purple-500/30 text-purple-300 group-hover/ai:bg-purple-600 group-hover/ai:text-white group-hover/ai:border-purple-500 group-hover/ai:scale-110 group-hover/ai:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 backdrop-blur-sm">
+                <Sparkles size={24} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 group-hover/ai:text-white transition-colors duration-300">
+                Mejorar con IA
+              </span>
+            </button>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-[var(--bg-surface)]/90 px-3 py-2 backdrop-blur-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
+            <p className="text-[9px] text-[#2B2B2B] dark:text-white/80 uppercase tracking-widest truncate">
+              imagen_{img.urlIndex + 1}.jpg
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  );
 
   // ─── JSX ──────────────────────────────────────────────────────
   return (
@@ -335,7 +434,7 @@ export const Images = () => {
             if (file) uploadFile(file);
           }}
         >
-          {isUploading ? (
+          {uploadMutation.isPending ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 size={32} className="animate-spin text-[#3A4A3F]" />
               <p className="text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light">
@@ -376,7 +475,7 @@ export const Images = () => {
           <span className="text-[#3A4A3F] dark:text-[#A5BAA8]">
             {selectedProduct?.nombre ?? "—"}
           </span>
-          {imagesState === "ok" && (
+          {!isImagesLoading && !isImagesError && (
             <span className="text-[#2B2B2B]/40 dark:text-white/40 ml-2">
               ({productImages.length})
             </span>
@@ -384,21 +483,21 @@ export const Images = () => {
         </h2>
 
         {/* Loading */}
-        {imagesState === "loading" && (
+        {isImagesLoading && (
           <div className="flex items-center gap-3 justify-center py-16 text-[#2B2B2B]/40 dark:text-white/40 text-sm">
             <Loader2 size={32} className="animate-spin" /> Cargando imágenes...
           </div>
         )}
 
         {/* Error */}
-        {imagesState === "error" && (
+        {isImagesError && (
           <div className="border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-900/10 p-6 text-center text-sm text-red-600 dark:text-red-400">
             No se pudieron cargar las imágenes. Verifica la conexión con el servidor.
           </div>
         )}
 
         {/* Empty */}
-        {imagesState === "ok" && productImages.length === 0 && (
+        {!isImagesLoading && !isImagesError && productImages.length === 0 && (
           <div className="bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 p-16 text-center">
             <ImageIcon size={48} className="mx-auto text-[#2B2B2B]/20 mb-4" />
             <p className="text-sm text-[#2B2B2B]/40 dark:text-white/30">
@@ -407,86 +506,39 @@ export const Images = () => {
           </div>
         )}
 
-        {/* Grid */}
-        {imagesState === "ok" && productImages.length > 0 && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {productImages.map((img) => (
-                <div key={img.url} className="flex flex-col">
-                  {/* Image card */}
-                  <div className="relative group bg-[#EDEDED] dark:bg-white/5 aspect-square overflow-hidden shadow-sm">
-                    <img
-                      src={img.url}
-                      alt={`Imagen ${img.urlIndex + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
-                    {/* Principal badge */}
-                    {img.principal && (
-                      <div className="absolute top-2 left-2 bg-[#3A4A3F] text-white text-[8px] uppercase tracking-widest px-2 py-1 flex items-center gap-1 z-10 shadow-md">
-                        <Star size={8} fill="white" /> Principal
-                      </div>
-                    )}
-
-                    {/* Hover Overlay Actions */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/80 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-4 z-20 backdrop-blur-[2px]">
-
-                      {/* Top Action Row (Delete & Star) */}
-                      <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(img); }}
-                          className="p-2.5 text-white/50 hover:text-red-400 hover:bg-red-500/20 backdrop-blur-md border border-transparent hover:border-red-500/30 transition-all duration-300"
-                          title="Eliminar imagen"
-                        >
-                          <Trash2 size={16} strokeWidth={1.5} />
-                        </button>
-
-                        {!img.principal && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetPrincipal(img);
-                            }}
-                            disabled={isSettingPrincipal === img.id}
-                            className={`p-2.5 backdrop-blur-md border border-transparent transition-all duration-300 ${
-                              isSettingPrincipal === img.id
-                                ? "text-[#3A4A3F] bg-[#3A4A3F]/20 cursor-not-allowed opacity-50"
-                                : "text-white/50 hover:text-[#A5BAA8] hover:bg-[#3A4A3F]/20 hover:border-[#3A4A3F]/30"
-                            }`}
-                            title="Establecer como principal"
-                          >
-                            {isSettingPrincipal === img.id ? (
-                              <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
-                            ) : (
-                              <Star size={16} strokeWidth={1.5} />
-                            )}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Center Action (AI) */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleAiPanel(img); }}
-                        className="group/ai flex flex-col items-center gap-4 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75"
-                      >
-                        <div className="h-14 w-14 flex items-center justify-center bg-purple-500/10 border border-purple-500/30 text-purple-300 group-hover/ai:bg-purple-600 group-hover/ai:text-white group-hover/ai:border-purple-500 group-hover/ai:scale-110 group-hover/ai:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-500 backdrop-blur-sm">
-                          <Sparkles size={24} strokeWidth={1.5} />
-                        </div>
-                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 group-hover/ai:text-white transition-colors duration-300">
-                          Mejorar con IA
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Caption (hides on hover) */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-[var(--bg-surface)]/90 px-3 py-2 backdrop-blur-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
-                      <p className="text-[9px] text-[#2B2B2B] dark:text-white/80 uppercase tracking-widest truncate">
-                        imagen_{img.urlIndex + 1}.jpg
-                      </p>
-                    </div>
-                  </div>
+        {/* Mobile: selector + single image */}
+        {!isImagesLoading && !isImagesError && productImages.length > 0 && (
+          <div className="block md:hidden space-y-4">
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-3">
+                Seleccionar Imagen
+              </label>
+              <div className="relative group">
+                <select
+                  value={selectedImageIndex}
+                  onChange={(e) => setSelectedImageIndex(Number(e.target.value))}
+                  className="w-full bg-[#EDEDED]/50 dark:bg-white/5 border border-transparent hover:border-[#EDEDED] dark:hover:border-white/10 focus:border-[#3A4A3F] dark:focus:border-white/20 text-[#111111] dark:text-white pl-5 pr-12 py-4 text-sm outline-none appearance-none transition-all cursor-pointer rounded-none font-light shadow-sm dark:[color-scheme:dark]"
+                >
+                  {productImages.map((img, idx) => (
+                    <option key={img.id} value={idx} className="bg-white dark:bg-[var(--bg-surface)]">
+                      Imagen {img.urlIndex + 1}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#2B2B2B]/40 dark:text-white/40">
+                  <ChevronDown size={18} strokeWidth={1.5} />
                 </div>
-              ))}
+              </div>
+            </div>
+            {renderImageCard(productImages[selectedImageIndex], true)}
+          </div>
+        )}
+
+        {/* Desktop: grid */}
+        {!isImagesLoading && !isImagesError && productImages.length > 0 && (
+          <div className="hidden md:block space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {productImages.map((img) => renderImageCard(img))}
             </div>
           </div>
         )}
@@ -542,16 +594,9 @@ export const Images = () => {
                     <div className="space-y-3">
                       <input
                         type="text"
-                        placeholder="Estilo (Ej: elegante, oscuro, minimalista)"
+                        placeholder="Estilo / descripción de escena (Ej: elegante, oscuro, fondo de mármol, luces de neón)"
                         value={aiPanels[selectedAiImage.urlIndex]?.style || ""}
                         onChange={(e) => updatePanel(selectedAiImage.urlIndex, { style: e.target.value })}
-                        className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Prompt adicional (Ej: luces de neón, fondo de mármol)"
-                        value={aiPanels[selectedAiImage.urlIndex]?.prompt || ""}
-                        onChange={(e) => updatePanel(selectedAiImage.urlIndex, { prompt: e.target.value })}
                         className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
                       />
                       <button
@@ -619,7 +664,7 @@ export const Images = () => {
         description="¿Estás seguro de que deseas eliminar esta imagen? Esta acción no se puede deshacer."
         onConfirm={handleDelete}
         variant="destructive"
-        confirmLabel={isDeleting ? "Eliminando..." : "Eliminar"}
+        confirmLabel={deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
       />
     </div>
   );

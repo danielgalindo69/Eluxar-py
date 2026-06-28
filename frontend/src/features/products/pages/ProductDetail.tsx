@@ -2,11 +2,12 @@ import { useParams, Link, useNavigate } from "react-router";
 import { Product } from "../types/products";
 import { productsAPI, formatPrice } from "../../../core/api/api";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
-import { Plus, Minus, ArrowLeft, Share2, ShoppingBag, Heart } from "lucide-react";
+import { Plus, Minus, ArrowLeft, ShoppingBag, Heart } from "lucide-react";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { useCart } from "../../cart/context/CartContext";
 import { toast } from "sonner";
+import { RatingStars } from "../../../shared/components/ui/RatingStars";
 import { ProductReviews } from "../components/ProductReviews";
 import { useWishlist } from "../../user/context/WishlistContext";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -178,9 +179,6 @@ export const ProductDetail = () => {
             >
               <Heart size={16} strokeWidth={1.5} className={inWishlist ? "fill-red-500 text-red-500" : ""} />
             </button>
-            <button className="text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#111111] dark:text-white transition-colors">
-              <Share2 size={16} strokeWidth={1.5} />
-            </button>
           </div>
         </div>
 
@@ -217,6 +215,22 @@ export const ProductDetail = () => {
               <p className="text-xl text-[#2B2B2B] dark:text-[#EDEDED] font-medium tracking-tight">
                 {formatPrice(currentPrice)} COP
               </p>
+
+              {(product.reviewCount ?? 0) > 0 ? (
+                <div className="flex items-center gap-2">
+                  <RatingStars rating={product.rating ?? 0} size={16} />
+                  <span className="text-sm font-medium text-[#2B2B2B] dark:text-[#EDEDED]">
+                    {product.rating?.toFixed(1)}
+                  </span>
+                  <span className="text-xs text-[#2B2B2B]/40 dark:text-white/40">
+                    ({product.reviewCount} {product.reviewCount === 1 ? "reseña" : "reseñas"})
+                  </span>
+                </div>
+              ) : (
+                <p className="text-xs text-[#2B2B2B]/40 dark:text-white/40 italic">
+                  Sin calificaciones aún
+                </p>
+              )}
             </div>
 
             <p className="text-[#2B2B2B]/60 dark:text-white/60 text-base font-light leading-relaxed">
@@ -366,6 +380,8 @@ export const ProductDetail = () => {
         {/* --- Sección de Reseñas --- */}
         <ProductReviews
           productId={product.id}
+          rating={product.rating}
+          reviewCount={product.reviewCount}
           onReviewAdded={() => {
             // Invalida la caché del producto para que se recargue con el nuevo rating promedio
             queryClient.invalidateQueries({ queryKey: ['product', id] });

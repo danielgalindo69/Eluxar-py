@@ -24,6 +24,9 @@ export const aiAPI = {
       fechaCreacion: string;
     }>>('/ia/recomendaciones', { method: 'GET' });
   },
+  async deleteRecommendation(id: number) {
+    return apiClient<void>(`/ia/recomendaciones/${id}`, { method: 'DELETE' });
+  },
   async saveRecommendation(productId: number | null, respuestaTexto: string) {
     return apiClient<{
       id: number;
@@ -42,10 +45,10 @@ export const aiAPI = {
     });
     return { reply: result.response, history: result.history };
   },
-  async improveImage(productId: string | number, imagenId: number, style?: string, prompt?: string) {
+  async improveImage(productId: string | number, imagenId: number, style?: string) {
     return apiClient<any>(`/productos/${productId}/imagenes/${imagenId}/mejorar-ia`, {
         method: 'POST',
-        body: JSON.stringify({ style: style || '', additional_prompt: prompt || '' }),
+        body: JSON.stringify({ style: style || '' }),
     });
   },
   async healthCheck() {

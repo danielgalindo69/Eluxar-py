@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { reviewsAPI } from "../../../core/api/api";
+import { RatingStars } from "../../../shared/components/ui/RatingStars";
 import { Star, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Review {
   id: number;
@@ -13,34 +15,37 @@ interface Review {
   creadoEn: string;
 }
 
-export const ProductReviews = ({ productId, onReviewAdded }: { productId: string, onReviewAdded?: () => void }) => {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [rating, setRating] = useState(5);
+export const ProductReviews = ({ productId, rating, reviewCount, onReviewAdded }: { productId: string, rating?: number, reviewCount?: number, onReviewAdded?: () => void }) => {
+  const queryClient = useQueryClient();
+  const [selectedRating, setSelectedRating] = useState(5);
   const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const userStr = localStorage.getItem('eluxar_user');
   const user = userStr ? JSON.parse(userStr) : null;
 
-  const fetchReviews = async () => {
-    try {
-      setIsLoading(true);
-      const data = await reviewsAPI.getByProductId(productId);
-      if (data && data.content) {
-        setReviews(data.content);
-      }
-    } catch (err) {
-      console.error("Error fetching reviews:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: reviewsData, isLoading } = useQuery({
+    queryKey: ['reviews', productId],
+    queryFn: () => reviewsAPI.getByProductId(productId),
+    enabled: !!productId,
+  });
 
-  useEffect(() => {
-    if (productId) fetchReviews();
-  }, [productId]);
+  const reviews = reviewsData?.content ?? [];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const mutation = useMutation({
+    mutationFn: () => reviewsAPI.createOrUpdate(productId, selectedRating, comment),
+    onSuccess: () => {
+      toast.success("Tu valoración ha sido publicada");
+      setComment("");
+      setSelectedRating(5);
+      queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
+      if (onReviewAdded) onReviewAdded();
+    },
+    onError: (err) => {
+      console.error("Error posting review:", err);
+      toast.error("Ocurrió un error al enviar la valoración");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       toast.error("Debes iniciar sesión para dejar una valoración");
@@ -50,22 +55,10 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
       toast.error("El comentario no puede estar vacío");
       return;
     }
-
-    try {
-      setIsSubmitting(true);
-      await reviewsAPI.createOrUpdate(productId, rating, comment);
-      toast.success("Tu valoración ha sido publicada");
-      setComment("");
-      setRating(5);
-      fetchReviews();
-      if (onReviewAdded) onReviewAdded();
-    } catch (err) {
-      console.error("Error posting review:", err);
-      toast.error("Ocurrió un error al enviar la valoración");
-    } finally {
-      setIsSubmitting(false);
-    }
+    mutation.mutate();
   };
+
+  const isSubmitting = mutation.isPending;
 
   return (
     <div className="mt-24 border-t border-[#EDEDED] dark:border-[#2A2A2A] pt-16">
@@ -84,13 +77,13 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
                     <button
                       type="button"
                       key={star}
-                      onClick={() => setRating(star)}
+                      onClick={() => setSelectedRating(star)}
                       className="transition-all hover:scale-110 active:scale-95 group"
                     >
                       <Star 
                         size={28} 
                         strokeWidth={1.5}
-                        className={`transition-colors ${star <= rating ? 'fill-[var(--color-gold)] text-[var(--color-gold)]' : 'text-[#EDEDED] dark:text-white/20 group-hover:text-[var(--color-gold)]'}`} 
+                        className={`transition-colors ${star <= selectedRating ? 'fill-[var(--color-gold)] text-[var(--color-gold)]' : 'text-[#EDEDED] dark:text-white/20 group-hover:text-[var(--color-gold)]'}`} 
                       />
                     </button>
                   ))}
@@ -130,6 +123,24 @@ export const ProductReviews = ({ productId, onReviewAdded }: { productId: string
         {/* Lista de Reseñas */}
         <div className="w-full md:w-2/3">
           <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#111111] dark:text-white mb-6 pb-4 border-b border-[#EDEDED] dark:border-[#2A2A2A]">Valoraciones de Clientes</h3>
+          
+          {(reviewCount ?? 0) > 0 ? (
+            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-[#EDEDED] dark:border-[#2A2A2A]">
+              <RatingStars rating={rating ?? 0} size={22} />
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-[#111111] dark:text-white">
+                  {rating?.toFixed(1)}
+                </span>
+                <span className="text-sm text-[#2B2B2B]/50 dark:text-white/50">
+                  basado en {reviewCount} {reviewCount === 1 ? "reseña" : "reseñas"}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-[#2B2B2B]/40 dark:text-white/40 italic mb-8 pb-6 border-b border-[#EDEDED] dark:border-[#2A2A2A]">
+              Sin calificaciones aún
+            </p>
+          )}
           
           {isLoading ? (
             <div className="flex justify-center py-10">

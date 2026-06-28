@@ -1,36 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { Loader2, Heart, ChevronLeft, ChevronRight } from "lucide-react";
-import { Product } from "../../products/types/products";
+import { useQuery } from "@tanstack/react-query";
 import { wishlistAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
+import { useAuth } from "../../auth/context/AuthContext";
 
 const PAGE_SIZE = 6;
 
 export const Wishlist = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    fetchWishlist();
-  }, []);
+  const { data: productsData, isLoading, isError, refetch } = useQuery({
+    queryKey: ['wishlist', user?.id, 'products'],
+    queryFn: () => wishlistAPI.getAll(),
+    staleTime: 30000,
+    enabled: !!user?.id,
+  });
 
-  const fetchWishlist = async () => {
-    try {
-      setIsLoading(true);
-      const data = await wishlistAPI.getAll();
-      setProducts(data);
-      setError(null);
-    } catch (err: any) {
-      console.error("Error fetching wishlist:", err);
-      setError("No se pudieron cargar tus favoritos.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const products = productsData ?? [];
 
   if (isLoading) {
     return (
@@ -43,12 +33,12 @@ export const Wishlist = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <p className="text-red-500 mb-4">{error}</p>
+        <p className="text-red-500 mb-4">No se pudieron cargar tus favoritos.</p>
         <button 
-          onClick={fetchWishlist}
+          onClick={() => refetch()}
           className="border border-[#111111] dark:border-white px-6 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors"
         >
           Reintentar

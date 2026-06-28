@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { aiAPI } from "../../../core/api/api";
-import { Sparkles, Eye, ShoppingBag, Clock } from "lucide-react";
+import { Sparkles, Eye, ShoppingBag, Clock, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "../../../shared/components/ui/ConfirmDialog";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
 
 interface RecomendacionItem {
@@ -43,46 +46,51 @@ function renderMarkdown(text: string) {
 }
 
 export const Recommendations = () => {
-  const [recomendaciones, setRecomendaciones] = useState<RecomendacionItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const fetchRecommendations = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await aiAPI.getRecommendations();
-      setRecomendaciones(data);
-    } catch (err) {
-      console.error("[Recommendations] Error al cargar recomendaciones:", err);
-      setError("No pudimos cargar las recomendaciones en este momento.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: recomendaciones = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['mis-recomendaciones'],
+    queryFn: () => aiAPI.getRecommendations(),
+    staleTime: 60000,
+  });
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, []);
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => aiAPI.deleteRecommendation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mis-recomendaciones'] });
+      toast.success("Recomendación eliminada");
+      setDeleteId(null);
+    },
+    onError: (err) => {
+      console.error("[Recommendations] Error al eliminar recomendación:", err);
+      toast.error("No se pudo eliminar la recomendación");
+    },
+  });
+
+  const handleDelete = () => {
+    if (deleteId === null) return;
+    deleteMutation.mutate(deleteId);
+  };
 
   if (isLoading) return (
     <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
       <SEOHead title="Eluxar | Mis Recomendaciones" exactTitle />
       <div className="text-center space-y-4">
-        <Sparkles className="mx-auto text-[#3A4A3F] animate-pulse" size={32} />
-        <p className="text-[#2B2B2B] dark:text-[#EDEDED]/40 dark:text-white/30 text-sm font-light uppercase tracking-widest">Cargando tus recomendaciones...</p>
+        <Sparkles className="mx-auto text-[#3A4A3F] dark:text-[#A5BAA8] animate-pulse" size={32} />
+        <p className="text-[#2B2B2B]/60 dark:text-white/80 text-sm font-light uppercase tracking-widest">Cargando tus recomendaciones...</p>
       </div>
     </main>
   );
 
-  if (error) return (
+  if (isError) return (
     <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
       <SEOHead title="Eluxar | Mis Recomendaciones" exactTitle />
       <div className="text-center space-y-6">
-        <p className="text-sm text-red-500 font-light">{error}</p>
+        <p className="text-sm text-red-500 font-light">No pudimos cargar las recomendaciones en este momento.</p>
         <button
-          onClick={fetchRecommendations}
+          onClick={() => refetch()}
           className="border border-[#111111] dark:border-white px-6 py-2 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors"
         >
           Reintentar
@@ -158,6 +166,16 @@ export const Recommendations = () => {
                   </button>
                 )}
               </div>
+
+              {/* Delete button */}
+              <div className="mt-6 pt-4 border-t border-[#EDEDED] dark:border-white/10">
+                <button
+                  onClick={() => setDeleteId(rec.id)}
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-[#2B2B2B]/30 dark:text-white/20 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={12} /> Eliminar
+                </button>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -171,6 +189,16 @@ export const Recommendations = () => {
           </Link>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Eliminar Recomendación"
+        description="¿Estás seguro de que deseas eliminar esta recomendación? Esta acción no se puede deshacer."
+        confirmLabel={deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
+        onConfirm={handleDelete}
+        variant="destructive"
+      />
     </main>
   );
 };
