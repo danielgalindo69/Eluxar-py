@@ -40,7 +40,7 @@ public class AiImageService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, String> mejorarImagenConIA(Long productoId, Long imagenId, String style, String additionalPrompt) throws Exception {
+    public Map<String, String> mejorarImagenConIA(Long productoId, Long imagenId, String style) throws Exception {
         String requestId = UUID.randomUUID().toString().substring(0, 8);
         try {
             log.info("[{}] === INICIO mejorar-ia para imagenId: {}", requestId, imagenId);
@@ -72,7 +72,6 @@ public class AiImageService {
             Map<String, String> payload = new HashMap<>();
             payload.put("image_base64", base64Image);
             payload.put("style", style != null ? style : "");
-            payload.put("additional_prompt", additionalPrompt != null ? additionalPrompt : "");
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

@@ -38,8 +38,7 @@ public class AiImageController {
             @RequestBody Map<String, String> request) {
         try {
             String style = request.get("style");
-            String additionalPrompt = request.get("additional_prompt");
-            Map<String, String> result = aiImageService.mejorarImagenConIA(id, imagenId, style, additionalPrompt);
+            Map<String, String> result = aiImageService.mejorarImagenConIA(id, imagenId, style);
             return ResponseEntity.ok(ApiResponse.success("Imagen generada exitosamente", result));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()

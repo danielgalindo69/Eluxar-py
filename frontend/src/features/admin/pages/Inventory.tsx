@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { inventoryAPI, InventoryMovement, InventoryItem } from "../../../core/api/api";
-import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, Loader2, Search, ChevronDown } from "lucide-react";
+import { inventoryAPI } from "../../../core/api/api";
+import { Plus, ArrowDownCircle, ArrowUpCircle, X, Download, Archive, Filter, Loader2, Search, ChevronDown, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchBar } from "../components/SearchBar";
@@ -35,7 +35,7 @@ export const Inventory = () => {
     motivo: ''
   });
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['admin-inventario', filterDesde, filterHasta],
     queryFn: async () => {
       const [movs, inv] = await Promise.all([
@@ -46,6 +46,8 @@ export const Inventory = () => {
     },
     staleTime: 0,
     gcTime: 60000,
+    refetchInterval: 60000,      // Revalidar cada 60 segundos para capturar SALIDAs por webhook
+    refetchOnWindowFocus: true,  // Revalidar al volver a la pestaña
   });
 
   const movements = data?.movs || [];
@@ -126,7 +128,7 @@ export const Inventory = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0" id="inventory-header">
         <div>
           <h1 className="text-2xl font-light text-[#111111] dark:text-white tracking-tight">Inventario</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/40 mt-1">Bitácora de movimientos de almacén</p>
@@ -146,6 +148,14 @@ export const Inventory = () => {
           >
             <Archive size={13} />
             Archivar Historial
+          </button>
+          <button
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['admin-inventario'] })}
+            disabled={isFetching}
+            className="flex items-center gap-2 bg-[#3A4A3F] text-white px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-60"
+          >
+            <RefreshCw size={13} className={isFetching ? 'animate-spin' : ''} />
+            {isFetching ? 'Actualizando...' : 'Refrescar'}
           </button>
           <button
             onClick={() => setShowForm(true)}
@@ -257,51 +267,78 @@ export const Inventory = () => {
                     <span className="text-xs uppercase tracking-widest">Cargando...</span>
                   </div>
                 </td></tr>
-              ) : paginated.length === 0 ? (
-                <EmptyStateRow
-                  icon={ArrowDownCircle}
-                  title="Sin movimientos"
-                  description={searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "Aún no se han registrado movimientos de inventario"}
-                  colSpan={5}
-                />
-              ) : paginated.map((m, i) => (
-                <motion.tr
-                  key={m.id}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.02 }}
-                  className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 whitespace-nowrap">
-                    {new Date(m.fecha).toLocaleDateString('es-CO', {
-                      year: 'numeric', month: 'short', day: '2-digit',
-                      hour: '2-digit', minute: '2-digit'
-                    })}
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</p>
-                    <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{m.tamanoMl}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
-                      m.tipo === 'ENTRADA'
-                        ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[var(--color-gold)]/10 dark:text-[var(--color-gold)]'
-                        : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
-                    }`}>
-                      {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
-                      {m.tipo}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
-                    <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[var(--color-gold)]' : 'text-red-500'}>
-                      {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 max-w-[260px] truncate">
-                    {m.motivo}
-                  </td>
-                </motion.tr>
-              ))}
+              ) : (() => {
+                const totalPages = Math.ceil(filteredMovements.length / PAGE_SIZE);
+                const paginated = filteredMovements.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+                return (
+                  <>
+                    {paginated.length === 0 ? (
+                      <EmptyStateRow
+                        icon={ArrowDownCircle}
+                        title="Sin movimientos"
+                        description={searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "Aún no se han registrado movimientos de inventario"}
+                        colSpan={5}
+                      />
+                    ) : paginated.map((m, i) => (
+                      <motion.tr
+                        key={m.id}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.02 }}
+                        className="border-b border-[#EDEDED] dark:border-white/8 last:border-0 hover:bg-[#EDEDED]/30 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 whitespace-nowrap">
+                          {new Date(m.fecha).toLocaleDateString('es-CO', {
+                            year: 'numeric', month: 'short', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-medium text-[#111111] dark:text-white">{m.productoNombre}</p>
+                          <p className="text-[10px] text-[#2B2B2B]/40 dark:text-white/30 uppercase tracking-widest">{m.tamanoMl}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 ${
+                            m.tipo === 'ENTRADA'
+                              ? 'bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[var(--color-gold)]/10 dark:text-[var(--color-gold)]'
+                              : m.tipo === 'SALIDA'
+                              ? 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400'
+                              : m.tipo === 'AJUSTE'
+                              ? 'bg-orange-50 text-orange-500 dark:bg-orange-900/20 dark:text-orange-400'
+                              : m.tipo === 'RESERVA'
+                              ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/20 dark:text-blue-400'
+                              : 'bg-[#EDEDED] text-[#2B2B2B]/60 dark:bg-white/10 dark:text-white/40'
+                          }`}>
+                            {m.tipo === 'ENTRADA' ? <ArrowDownCircle size={11} /> : <ArrowUpCircle size={11} />}
+                            {m.tipo}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-[#111111] dark:text-white">
+                          <span className={m.tipo === 'ENTRADA' ? 'text-[#3A4A3F] dark:text-[var(--color-gold)]' : 'text-red-500'}>
+                            {m.tipo === 'ENTRADA' ? '+' : '-'}{m.cantidad}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#2B2B2B]/60 dark:text-white/40 max-w-[260px] truncate">
+                          {m.motivo}
+                        </td>
+                      </motion.tr>
+                    ))}
+                    {totalPages > 1 && (
+                      <tr>
+                        <td colSpan={5} className="p-0">
+                          <AdminPaginator
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            totalItems={filteredMovements.length}
+                            pageSize={PAGE_SIZE}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })()}
             </tbody>
           </table>
         </div>

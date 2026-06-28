@@ -26,7 +26,6 @@ interface ProductImage {
 // State for the per-card AI panel
 interface AiPanelState {
   style: string;
-  prompt: string;
   isGenerating: boolean;
   resultUrl: string | null;
 }
@@ -219,7 +218,7 @@ export const Images = () => {
     if (!aiPanels[img.urlIndex]) {
       setAiPanels((prev) => ({
         ...prev,
-        [img.urlIndex]: { style: "", prompt: "", isGenerating: false, resultUrl: null },
+        [img.urlIndex]: { style: "", isGenerating: false, resultUrl: null },
       }));
     }
   };
@@ -238,7 +237,7 @@ export const Images = () => {
     updatePanel(img.urlIndex, { isGenerating: true, resultUrl: null });
     const tid = toast.loading("Generando imagen con IA...");
     try {
-      const result = await aiAPI.improveImage(selectedId, img.id, panel.style, panel.prompt);
+      const result = await aiAPI.improveImage(selectedId, img.id, panel.style);
 
       if (result?.edited_image_base64) {
         const dataUri = `data:image/jpeg;base64,${result.edited_image_base64}`;
@@ -273,7 +272,7 @@ export const Images = () => {
         imgs.map((img: any, idx: number) => ({ id: img.id, urlIndex: idx, url: img.url, principal: img.principal }))
       );
       setSelectedAiImage(null);
-      updatePanel(img.urlIndex, { resultUrl: null, style: "", prompt: "" });
+      updatePanel(img.urlIndex, { resultUrl: null, style: "" });
       toast.success("Imagen guardada en el producto", { id: tid });
     } catch (e: any) {
       toast.error(e.message || "Error al guardar imagen", { id: tid });
@@ -620,16 +619,9 @@ export const Images = () => {
                     <div className="space-y-3">
                       <input
                         type="text"
-                        placeholder="Estilo (Ej: elegante, oscuro, minimalista)"
+                        placeholder="Estilo / descripción de escena (Ej: elegante, oscuro, fondo de mármol, luces de neón)"
                         value={aiPanels[selectedAiImage.urlIndex]?.style || ""}
                         onChange={(e) => updatePanel(selectedAiImage.urlIndex, { style: e.target.value })}
-                        className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Prompt adicional (Ej: luces de neón, fondo de mármol)"
-                        value={aiPanels[selectedAiImage.urlIndex]?.prompt || ""}
-                        onChange={(e) => updatePanel(selectedAiImage.urlIndex, { prompt: e.target.value })}
                         className="w-full bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/10 px-4 py-3 text-sm outline-none text-[#111111] dark:text-white focus:border-[#3A4A3F] dark:focus:border-[var(--color-gold)] transition-colors"
                       />
                       <button

@@ -42,10 +42,10 @@ export const aiAPI = {
     });
     return { reply: result.response, history: result.history };
   },
-  async improveImage(productId: string | number, imagenId: number, style?: string, prompt?: string) {
+  async improveImage(productId: string | number, imagenId: number, style?: string) {
     return apiClient<any>(`/productos/${productId}/imagenes/${imagenId}/mejorar-ia`, {
         method: 'POST',
-        body: JSON.stringify({ style: style || '', additional_prompt: prompt || '' }),
+        body: JSON.stringify({ style: style || '' }),
     });
   },
   async healthCheck() {
