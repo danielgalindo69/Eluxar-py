@@ -368,7 +368,10 @@ public class PedidoService {
     @Transactional
     public PedidoDTO procesarPagoAprobado(Long pedidoId, String paymentId) {
         log.info("[PedidoService] Procesando pago aprobado para Pedido #{} | PaymentId: {}", pedidoId, paymentId);
-        Pedido pedido = pedidoRepository.findById(pedidoId)
+        // Usamos findByIdWithItems (JOIN FETCH) para cargar los items y variantes de forma EAGER.
+        // Con findById simple, la colección LAZY puede estar vacía en el contexto del webhook
+        // causando que el for-loop nunca descuente el stock del inventario.
+        Pedido pedido = pedidoRepository.findByIdWithItems(pedidoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido", pedidoId));
 
         // Evitar procesar dos veces si ya está confirmado
