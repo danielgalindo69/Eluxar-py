@@ -60,7 +60,7 @@ export const OrderHistory = () => {
               <select
                 value={filterStatus}
                 onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-                className="bg-transparent border border-[#EDEDED] dark:border-white/10 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white px-3 py-2 outline-none"
+                className="bg-transparent dark:bg-[var(--bg-base)] border border-[#EDEDED] dark:border-white/10 text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white px-3 py-2 outline-none dark:[color-scheme:dark]"
               >
                 <option value="">Todos los estados</option>
                 <option value="PENDIENTE">Pendiente</option>

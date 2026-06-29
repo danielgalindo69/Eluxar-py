@@ -17,7 +17,7 @@ export const Footer = () => {
   return (
     <footer className="bg-[#EDEDED] dark:bg-[#111111] py-24 px-6 border-t border-[#EDEDED]/0 dark:border-white/5">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20">
           {/* Brand Info */}
           <div className="flex flex-col space-y-6">
             <span className="text-xl font-light tracking-[0.4em] uppercase text-[#111111] dark:text-white">Eluxar</span>
@@ -54,24 +54,6 @@ export const Footer = () => {
               <li><Link to="/profile/orders" className="hover:text-[#111111] dark:hover:text-white transition-colors">Mis Pedidos</Link></li>
               <li><Link to="/profile/addresses" className="hover:text-[#111111] dark:hover:text-white transition-colors">Direcciones</Link></li>
             </ul>
-          </div>
-
-          {/* Newsletter Section */}
-          <div className="flex flex-col space-y-6">
-            <h4 className="text-xs uppercase tracking-[0.2em] font-semibold text-[#111111] dark:text-white">Suscríbete</h4>
-            <p className="text-[#2B2B2B]/60 dark:text-white/50 text-sm font-light">Únete a nuestra lista para recibir novedades exclusivas y lanzamientos.</p>
-            <form onSubmit={handleNewsletter} className="relative border-b border-[#2B2B2B]/20 dark:border-white/20 pb-2">
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="Tu correo electrónico"
-                className="bg-transparent border-none outline-none text-sm w-full font-light text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30"
-              />
-              <button type="submit" className="absolute right-0 top-1/2 -translate-y-1/2 text-[#2B2B2B] dark:text-white hover:opacity-50 transition-opacity">
-                <ArrowRight size={18} />
-              </button>
-            </form>
           </div>
         </div>
 

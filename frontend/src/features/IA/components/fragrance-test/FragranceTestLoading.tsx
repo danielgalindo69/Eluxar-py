@@ -22,7 +22,7 @@ export const FragranceTestLoading = ({ isAnalyzing }: FragranceTestLoadingProps)
         <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B] dark:text-white/40">
           {isAnalyzing
             ? "Analizando tus preferencias y consultando el catálogo..."
-            : "Preparando el test..."}
+            : "Cargando..."}
         </p>
         {isAnalyzing && (
           <p className="text-[9px] uppercase tracking-widest text-[#2B2B2B]/30 dark:text-white/20 mt-2">

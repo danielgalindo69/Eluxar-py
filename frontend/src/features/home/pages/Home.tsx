@@ -1,7 +1,7 @@
 import { Hero } from "../components/Hero";
 import { ImageWithFallback } from "../../../shared/components/figma/ImageWithFallback";
 import { Link } from "react-router";
-import { Sparkles, Loader2, Star } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { Product } from "../../products/types/products";
 import { productsAPI, aiAPI } from "../../../core/api/api";
 import { ProductCard } from "../../products/components/ProductCard";
@@ -163,23 +163,27 @@ export const Home = () => {
               className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90"
             />
             <div className="absolute inset-0 bg-[#111111]/10 group-hover:bg-[#111111]/20 transition-colors" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">
               <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold">Esenciales</span>
               <h2 className="text-3xl font-light tracking-tight mb-8">Fragancias Neutras</h2>
               <Link to="/catalog" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Ver Todo</Link>
             </div>
           </div>
           <div className="relative aspect-[16/9] group cursor-pointer overflow-hidden bg-[#EDEDED] dark:bg-[var(--bg-surface)]">
-            <ImageWithFallback 
-              src="https://images.unsplash.com/photo-1762815716180-1d3a167828f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwcGVyZnVtZSUyMGJvdHRsZSUyMHN0dWRpbyUyMG5ldXRyYWx8ZW58MXx8fHwxNzcxNzE4NzI5fDA"
-              alt="Ediciones Limitadas"
-              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90"
-            />
-            <div className="absolute inset-0 bg-[#111111]/10 group-hover:bg-[#111111]/20 transition-colors" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
-              <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold">Premium</span>
-              <h2 className="text-3xl font-light tracking-tight mb-8">Ediciones Limitadas</h2>
-              <Link to="/catalog" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Explorar</Link>
+            <div className="relative w-full h-full">
+              <ImageWithFallback 
+                src="https://images.unsplash.com/photo-1762815716180-1d3a167828f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwcGVyZnVtZSUyMGJvdHRsZSUyMHN0dWRpbyUyMG5ldXRyYWx8ZW58MXx8fHwxNzcxNzE4NzI5fDA"
+                alt="Ediciones Limitadas"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90"
+              />
+            </div>
+            <div className="absolute inset-0 bg-black/35" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+              <div className="relative z-10 [text-shadow:0_1px_6px_rgba(0,0,0,0.7)]">
+                <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold text-white">Premium</span>
+                <h2 className="text-3xl font-light tracking-tight mb-8 text-white">Ediciones Limitadas</h2>
+                <Link to="/catalog" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Explorar</Link>
+              </div>
             </div>
           </div>
         </div>
@@ -214,11 +218,7 @@ export const Home = () => {
                   <ProductCard product={product} />
                   {/* Rating Badge Overlay */}
                   {product.rating !== undefined && product.rating > 0 && (
-                     <div className="mt-3 flex items-center justify-center gap-1 text-[#3A4A3F] dark:text-[#A5BAA8]">
-                       <Star size={12} className="fill-current" />
-                       <span className="text-xs font-medium">{product.rating.toFixed(1)}</span>
-                       <span className="text-[10px] text-[#2B2B2B]/40 dark:text-white/40 ml-1">({product.reviewCount})</span>
-                     </div>
+                     <div className="mt-3 flex items-center justify-center gap-1 text-[#3A4A3F] dark:text-[#A5BAA8]"></div>
                   )}
                 </motion.div>
               ))}
@@ -246,10 +246,6 @@ export const Home = () => {
           <div className="w-full md:w-1/2 space-y-10">
             <h3 className="text-3xl font-light text-[#111111] dark:text-white leading-snug">Excelencia Técnica en <br />cada Composición</h3>
             <div className="space-y-8">
-              <div>
-                <h4 className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] mb-3">Concentración Extrait</h4>
-                <p className="text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light leading-relaxed">Nuestras fórmulas utilizan una de las concentraciones más altas permitidas en la industria para garantizar una longevidad excepcional.</p>
-              </div>
               <div>
                 <h4 className="text-[10px] uppercase tracking-widest font-bold text-[#3A4A3F] mb-3">Envases Sostenibles</h4>
                 <p className="text-sm text-[#2B2B2B]/60 dark:text-white/50 font-light leading-relaxed">Vidrio reciclado de alta densidad y cierres magnéticos diseñados para una durabilidad indefinida.</p>
