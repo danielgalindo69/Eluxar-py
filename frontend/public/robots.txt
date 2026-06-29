@@ -1,29 +1,7 @@
-# Eluxar — robots.txt
-# https://eluxar-py-7jov.vercel.app
-
 User-agent: *
 Allow: /
-Allow: /catalog
-Allow: /catalog?*
-Allow: /product/
-Allow: /fragrance-test
-Allow: /chat
-Allow: /search
-
-# Bloquear rutas privadas / admin
 Disallow: /admin
-Disallow: /admin/*
-Disallow: /profile
-Disallow: /profile/*
 Disallow: /checkout
-Disallow: /checkout/*
-Disallow: /cart
-Disallow: /order/*
-Disallow: /auth
-Disallow: /register
-Disallow: /forgot-password
-Disallow: /recommendations
-Disallow: /order-confirmation
+Disallow: /cuenta
 
-# Sitemap
-Sitemap: https://eluxar-py-7jov.vercel.app/sitemap.xml
+Sitemap: https://eluxar.shop/sitemap.xml
