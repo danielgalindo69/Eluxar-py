@@ -122,8 +122,8 @@ export const Cart = () => {
                      <div className="pt-10 border-t border-[#2B2B2B]/10">
                         <h4 className="text-[10px] uppercase tracking-widest font-bold mb-4">¿Tienes un código?</h4>
                         <div className="flex border-b border-[#2B2B2B]/20 dark:border-white/20 pb-2">
-                           <input type="text" placeholder="INTRODUCIR CÓDIGO" className="bg-transparent border-none outline-none text-[10px] w-full font-bold uppercase placeholder:text-[#2B2B2B]/20" />
-                           <button className="text-[10px] font-bold hover:text-[#3A4A3F] transition-colors">Aplicar</button>
+                           <input type="text" placeholder="INTRODUCIR CÓDIGO" className="bg-transparent border-none outline-none text-[10px] w-full font-bold uppercase text-[#111111] dark:text-white placeholder:text-[#2B2B2B]/30 dark:placeholder:text-white/30" />
+                           <button className="text-[10px] font-bold hover:text-[#3A4A3F] dark:hover:text-white/70 transition-colors">Aplicar</button>
                         </div>
                      </div>
                   </div>

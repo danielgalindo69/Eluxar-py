@@ -385,7 +385,7 @@ export const Catalog = () => {
                     <ChevronDown size={14} className={`transition-transform ${showSortMenu ? 'rotate-180' : ''}`} />
                   </button>
                   {showSortMenu && (
-                    <div className="absolute right-0 top-full mt-2 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 shadow-lg z-10 min-w-[200px]">
+                    <div className="absolute right-0 top-full mt-2 bg-white dark:bg-[var(--bg-surface)] border border-[#EDEDED] dark:border-white/8 shadow-lg z-50 min-w-[200px]">
                       {(Object.entries(sortLabels) as [SortOption, string][]).map(([value, label]) => (
                         <button
                           key={value}

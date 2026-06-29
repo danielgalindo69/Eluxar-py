@@ -15,7 +15,7 @@ function renderMarkdown(text: string) {
   return text.split("\n").map((line, i) => {
     const parts = line.split(/(\*\*.*?\*\*)/g).map((part, j) =>
       part.startsWith("**") && part.endsWith("**") ? (
-        <strong key={j} className="font-semibold text-white">
+        <strong key={j} className="font-semibold text-[#111111] dark:text-white">
           {part.slice(2, -2)}
         </strong>
       ) : (
@@ -72,13 +72,13 @@ export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.5 }}
-            className="relative bg-gradient-to-br from-[#1a2a1f] to-[#111111] dark:from-[#1a2a1f] dark:to-[var(--bg-base)] p-8 mb-6 overflow-hidden"
+            className="relative bg-gradient-to-br from-[#F4F6F4] to-white dark:from-[#1a2a1f] dark:to-[var(--bg-base)] border border-[#EDEDED] dark:border-transparent p-8 mb-6 overflow-hidden"
           >
             {/* Decorative glow */}
-            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#3A4A3F]/20 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none" />
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#3A4A3F]/5 dark:bg-[#3A4A3F]/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-emerald-600/5 dark:bg-emerald-600/10 blur-3xl pointer-events-none" />
 
-            <div className="relative text-sm font-light leading-relaxed text-white/80 space-y-0.5">
+            <div className="relative text-sm font-light leading-relaxed text-[#2B2B2B] dark:text-white/80 space-y-0.5">
               {renderMarkdown(state.response || "")}
             </div>
           </motion.div>
@@ -88,14 +88,14 @@ export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps
             {state.productId ? (
               <button
                 onClick={() => navigate(`/product/${state.productId}`)}
-                className="inline-flex items-center gap-2 bg-[#C8A97E] text-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#b09670] transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#111111] text-white dark:bg-[#C8A97E] dark:text-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2B2B2B] dark:hover:bg-[#b09670] transition-all duration-300"
               >
                 <Eye size={13} /> Ver Detalles del Producto
               </button>
             ) : (
               <button
                 onClick={() => navigate("/catalog")}
-                className="inline-flex items-center gap-2 bg-[#C8A97E] text-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#b09670] transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-[#111111] text-white dark:bg-[#C8A97E] dark:text-[#111111] px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#2B2B2B] dark:hover:bg-[#b09670] transition-all duration-300"
               >
                 <ShoppingBag size={13} /> Explorar Colección
               </button>
