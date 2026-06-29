@@ -64,7 +64,7 @@ export const FragranceTestIdle = ({ onStart, errorMsg }: FragranceTestIdleProps)
         <button
           id="start-fragrance-test"
           onClick={onStart}
-          className="group inline-flex items-center gap-3 bg-[#3A4A3F] text-white px-12 py-5 text-[11px] uppercase tracking-widest font-bold hover:bg-[#111111] dark:hover:bg-white dark:hover:text-[#111111] transition-all duration-300 shadow-xl shadow-[#3A4A3F]/20"
+          className="group inline-flex items-center gap-3 bg-[#3A4A3F] text-white px-12 py-5 text-[11px] uppercase tracking-widest font-bold hover:bg-[#2C3830] dark:hover:bg-[#4A5C4F] transition-all duration-300 shadow-xl shadow-[#3A4A3F]/20"
         >
           <Sparkles size={14} />
           Comenzar Test
