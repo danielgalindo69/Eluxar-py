@@ -178,10 +178,10 @@ export const Home = () => {
               />
             </div>
             <div className="absolute inset-0 bg-black/35" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 text-white">
               <div className="relative z-10 [text-shadow:0_1px_6px_rgba(0,0,0,0.7)]">
-                <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold text-white">Premium</span>
-                <h2 className="text-3xl font-light tracking-tight mb-8 text-white">Ediciones Limitadas</h2>
+                <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold ">Premium</span>
+                <h2 className="text-3xl font-light tracking-tight mb-8">Ediciones Limitadas</h2>
                 <Link to="/catalog" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Explorar</Link>
               </div>
             </div>
