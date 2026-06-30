@@ -43,16 +43,16 @@ export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps
     <main className="pt-28 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6">
       <div className="max-w-2xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
         >
           {/* Result header */}
           <div className="text-center mb-10">
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="flex justify-center mb-6"
             >
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#3A4A3F] to-emerald-600 flex items-center justify-center shadow-2xl shadow-[#3A4A3F]/40">
@@ -69,9 +69,9 @@ export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps
 
           {/* Recommendation card */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
             className="relative bg-gradient-to-br from-[#F4F6F4] to-white dark:from-[#1a2a1f] dark:to-[var(--bg-base)] border border-[#EDEDED] dark:border-transparent p-8 mb-6 overflow-hidden"
           >
             {/* Decorative glow */}
@@ -116,7 +116,7 @@ export const FragranceTestResult = ({ state, onReset }: FragranceTestResultProps
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="mb-8 space-y-2"
             >
               <p className="text-[10px] uppercase tracking-widest font-bold text-[#2B2B2B]/40 dark:text-white/20 mb-3">

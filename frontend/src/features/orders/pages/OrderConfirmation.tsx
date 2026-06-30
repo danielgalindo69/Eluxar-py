@@ -36,9 +36,9 @@ export const OrderConfirmation = () => {
       <div className="max-w-2xl mx-auto text-center">
         {/* Success Animation */}
         <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
           className="flex justify-center mb-10"
         >
           <div className="w-24 h-24 bg-[#3A4A3F] flex items-center justify-center">
@@ -46,7 +46,7 @@ export const OrderConfirmation = () => {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}>
           <h1 className="text-4xl font-light text-[#111111] dark:text-white tracking-tight mb-4">¡Pedido Confirmado!</h1>
           <p className="text-sm text-[#2B2B2B]/60 dark:text-white/60 font-light mb-2">
             Tu pedido ha sido procesado exitosamente
@@ -57,7 +57,7 @@ export const OrderConfirmation = () => {
         </motion.div>
 
         {/* Order Summary */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}
           className="bg-[#EDEDED] dark:bg-white/5 p-10 text-left space-y-8 mb-12">
           <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#111111] dark:text-white">Resumen del Pedido</h2>
 
@@ -84,14 +84,14 @@ export const OrderConfirmation = () => {
         </motion.div>
 
         {/* Delivery Info */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}
           className="flex items-center justify-center gap-3 mb-12 text-[#2B2B2B]/60 dark:text-white/60">
           <Package size={18} />
           <span className="text-sm font-light">Entrega estimada: 3-5 días hábiles</span>
         </motion.div>
 
         {/* Actions */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}
           className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/profile/orders"
             className="border border-[#111111] dark:border-white/30 px-10 py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#111111] transition-colors">

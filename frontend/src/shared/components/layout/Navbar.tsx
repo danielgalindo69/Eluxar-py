@@ -17,19 +17,19 @@ interface MinimalHeaderProps {
 
 const MinimalHeader = ({ backTo, trustText, isDark, setTheme }: MinimalHeaderProps) => (
   <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#111111] py-5 border-b border-[#111111]/5 dark:border-white/5">
-    <div className="max-w-7xl mx-auto px-6 grid grid-cols-[auto_1fr_auto] items-center">
+    <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative">
       {/* Left: ← */}
       <Link to={backTo} className="text-[#2B2B2B]/50 dark:text-white/50 hover:text-[#111111] dark:hover:text-white transition-colors">
         <ArrowLeft size={18} strokeWidth={1.5} />
       </Link>
 
       {/* Center: Logo */}
-      <div className="flex justify-center">
+      <div className="absolute left-1/2 -translate-x-1/2">
         <Link to="/" className="text-2xl font-light tracking-[0.3em] uppercase text-[#111111] dark:text-white">Eluxar</Link>
       </div>
 
       {/* Right: Trust + Theme */}
-      <div className="flex items-center justify-end gap-6">
+      <div className="flex items-center gap-6">
         {trustText && (
           <div className="flex items-center gap-2 text-[#3A4A3F] dark:text-[#A5BAA8]">
             <Lock size={14} />
@@ -98,7 +98,7 @@ export const Navbar = () => {
         <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? "bg-white/90 dark:bg-[#111111]/90 backdrop-blur-md py-4 border-[#111111]/5 dark:border-white/5 shadow-sm" : "bg-transparent py-6 border-transparent"}`}
     >
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-[auto_1fr_auto] items-center">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative">
           {/* Left: hamburger + desktop links */}
           <div className="flex items-center">
             <button aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"} className="lg:hidden text-[#2B2B2B] dark:text-[#EDEDED]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -113,12 +113,12 @@ export const Navbar = () => {
           </div>
 
           {/* Center: Logo */}
-          <div className="flex justify-center">
+          <div className="absolute left-1/2 -translate-x-1/2">
             <Link to="/" className="text-2xl font-light tracking-[0.3em] uppercase text-[#111111] dark:text-white">Eluxar</Link>
           </div>
 
           {/* Right: Icons */}
-          <div className="flex items-center justify-end space-x-4">
+          <div className="flex items-center space-x-4">
             {/* SearchBar - visible en desktop */}
             <div className="hidden lg:block">
               <SearchBar />

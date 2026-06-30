@@ -323,19 +323,6 @@ export const Inventory = () => {
                         </td>
                       </motion.tr>
                     ))}
-                    {totalPages > 1 && (
-                      <tr>
-                        <td colSpan={5} className="p-0">
-                          <AdminPaginator
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                            totalItems={filteredMovements.length}
-                            pageSize={PAGE_SIZE}
-                          />
-                        </td>
-                      </tr>
-                    )}
                   </>
                 );
               })()}

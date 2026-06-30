@@ -12,9 +12,9 @@ export const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
           className="flex flex-col items-center"
         >
           <span className="text-[#3A4A3F] dark:text-[#A5BAA8] uppercase tracking-[0.4em] text-xs font-semibold mb-6">

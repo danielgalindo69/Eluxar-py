@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { reviewsAPI } from "../../../core/api/api";
 import { RatingStars } from "../../../shared/components/ui/RatingStars";
 import { Star, Loader2, User } from "lucide-react";
@@ -113,9 +114,9 @@ export const ProductReviews = ({ productId, rating, reviewCount, onReviewAdded }
             <div className="bg-[#F5F5F5] dark:bg-[var(--bg-surface)] p-8 text-center border border-[#DEDEDE] dark:border-[#2A2A2A] rounded-sm">
               <User className="mx-auto text-[#2B2B2B]/30 dark:text-white/30 mb-4" size={32} strokeWidth={1} />
               <p className="text-[11px] uppercase tracking-[0.1em] font-bold text-[#2B2B2B]/60 dark:text-white/60 mb-6 leading-relaxed">Inicia sesión para compartir tu experiencia con la comunidad Eluxar.</p>
-              <a href="/auth" className="inline-block border border-[var(--color-gold)] dark:border-[var(--color-gold)]/70 text-[var(--color-gold)] px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[var(--color-gold)] hover:text-[#111111] dark:hover:bg-[var(--color-gold)] dark:hover:text-[#111111] transition-colors rounded-sm">
+              <Link to="/auth" className="inline-block border border-[var(--color-gold)] dark:border-[var(--color-gold)]/70 text-[var(--color-gold)] px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[var(--color-gold)] hover:text-[#111111] dark:hover:bg-[var(--color-gold)] dark:hover:text-[#111111] transition-colors rounded-sm">
                 Iniciar Sesión
-              </a>
+              </Link>
             </div>
           )}
         </div>

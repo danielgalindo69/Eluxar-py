@@ -10,9 +10,9 @@ export const FragranceTestIdle = ({ onStart, errorMsg }: FragranceTestIdleProps)
   return (
     <main className="pt-32 pb-24 bg-white dark:bg-[var(--bg-base)] min-h-screen px-6 flex items-center justify-center">
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
         className="max-w-lg w-full text-center"
       >
         {/* Icon ring */}
