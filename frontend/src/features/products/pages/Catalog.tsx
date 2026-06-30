@@ -78,6 +78,7 @@ export const Catalog = () => {
     data: products = [],
     isLoading: isLoadingProducts,
     error: productsError,
+    refetch: refetchProducts,
   } = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: () => productsAPI.getAll(),
@@ -406,7 +407,7 @@ export const Catalog = () => {
               <div className="py-20 text-center">
                 <p className="text-sm text-red-500 font-light">{error}</p>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={() => refetchProducts()}
                   className="mt-4 text-[10px] uppercase tracking-widest font-bold border-b border-[#111111] pb-1"
                 >
                   Reintentar
