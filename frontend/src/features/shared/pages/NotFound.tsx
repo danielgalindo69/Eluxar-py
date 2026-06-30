@@ -13,9 +13,9 @@ export const NotFound = () => {
       />
       <div className="max-w-lg w-full text-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
         >
           <p className="text-[10px] uppercase tracking-[0.4em] text-[#3A4A3F] font-bold mb-8">
             Error 404

@@ -12,16 +12,16 @@ export const CheckoutFailure = () => {
   return (
     <main className="min-h-screen bg-white dark:bg-[var(--bg-base)] flex items-center justify-center px-6">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
         className="max-w-md w-full text-center space-y-10"
       >
         {/* Icono de error */}
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
           className="flex items-center justify-center"
         >
           <div className="w-24 h-24 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center">
