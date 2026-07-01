@@ -164,9 +164,9 @@ export const Home = () => {
             />
             <div className="absolute inset-0 bg-[#111111]/10 group-hover:bg-[#111111]/20 transition-colors" />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">
-              <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold">Esenciales</span>
-              <h2 className="text-3xl font-light tracking-tight mb-8">Fragancias Neutras</h2>
-              <Link to="/catalog" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Ver Todo</Link>
+              <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold">Mujer</span>
+                <h2 className="text-3xl font-light tracking-tight mb-8">Perfumes de Mujer</h2>
+                <Link to="/catalog?gender=Femenino" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Explorar</Link>
             </div>
           </div>
           <div className="relative aspect-[16/9] group cursor-pointer overflow-hidden bg-[#EDEDED] dark:bg-[var(--bg-surface)]">
@@ -180,9 +180,9 @@ export const Home = () => {
             <div className="absolute inset-0 bg-black/35" />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 text-white">
               <div className="relative z-10 [text-shadow:0_1px_6px_rgba(0,0,0,0.7)]">
-                <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold ">Premium</span>
-                <h2 className="text-3xl font-light tracking-tight mb-8">Ediciones Limitadas</h2>
-                <Link to="/catalog" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Explorar</Link>
+                <span className="text-[10px] uppercase tracking-[0.4em] mb-4 font-bold ">Hombre</span>
+                  <h2 className="text-3xl font-light tracking-tight mb-8">Perfumes de Hombre</h2>
+                  <Link to="/catalog?gender=Masculino" className="border border-white/30 bg-black/20 backdrop-blur-sm px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-white hover:text-black hover:border-white transition-all duration-300">Explorar</Link>
               </div>
             </div>
           </div>

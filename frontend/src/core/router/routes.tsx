@@ -57,7 +57,7 @@ const Layout = () => {
       <CartDrawer />
       <Suspense fallback={<PageLoader />}>
           <motion.div
-            key={location.key}
+            key={location.pathname}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
