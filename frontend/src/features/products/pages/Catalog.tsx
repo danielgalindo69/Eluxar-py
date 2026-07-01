@@ -1,6 +1,6 @@
 import { ProductCard } from "../components/ProductCard";
 import { Product } from "../types/products";
-import { productsAPI, categoriesAPI, brandsAPI, Category } from "../../../core/api/api";
+import { productsAPI, brandsAPI } from "../../../core/api/api";
 import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles, X } from "lucide-react";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
@@ -21,6 +21,7 @@ export const Catalog = () => {
   // Filtros sincronizados con la URL para que sean indexables y compartibles
   const activeFilter = searchParams.get("category") ?? "Todos";
   const activeGenderFilter = (searchParams.get("gender") ?? "all") as Product['gender'] | 'all';
+  const activeConcentracion = searchParams.get("concentracion") ?? "all";
   const activePriceRange = (searchParams.get("price") ?? "all") as PriceRange;
   const sortOption = (searchParams.get("sort") ?? "default") as SortOption;
 
@@ -51,6 +52,15 @@ export const Catalog = () => {
     });
   };
 
+  const setActiveConcentracion = (value: string) => {
+    setSearchParams(prev => {
+      if (value === "all") prev.delete("concentracion");
+      else prev.set("concentracion", value);
+      prev.delete("page");
+      return prev;
+    });
+  };
+
   const setActivePriceRange = (value: PriceRange) => {
     setSearchParams(prev => {
       if (value === "all") prev.delete("price");
@@ -73,7 +83,7 @@ export const Catalog = () => {
   const [gridSize, setGridSize] = useState<GridSize>(3);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    Categoría: false,
+    Concentración: false,
     Género: false,
     Marca: false,
     Precio: false,
@@ -107,15 +117,13 @@ export const Catalog = () => {
     gcTime: 600000,      // 10 minutos
   });
 
-  const {
-    data: categories = [],
-    isLoading: isLoadingCategories,
-  } = useQuery<Category[]>({
-    queryKey: ['categories'],
-    queryFn: () => categoriesAPI.getAll(),
-    staleTime: 1800000,  // 30 minutos
-    gcTime: 3600000,     // 1 hora
-  });
+  const concentrations = useMemo(() => {
+    const values = new Set<string>();
+    products.forEach(p => {
+      if (p.concentracion) values.add(p.concentracion);
+    });
+    return Array.from(values).sort();
+  }, [products]);
 
   const {
     data: brands = [],
@@ -127,7 +135,7 @@ export const Catalog = () => {
     gcTime: 3600000,     // 1 hora
   });
 
-  const isLoading = isLoadingProducts || isLoadingCategories || isLoadingBrands;
+  const isLoading = isLoadingProducts || isLoadingBrands;
   const error = productsError ? "No se pudo cargar la colección. Por favor, intenta de nuevo." : null;
 
   // Cuando cambian los filtros principales (NO page), no hay que hacer nada extra
@@ -152,6 +160,11 @@ export const Catalog = () => {
       result = result.filter(p => p.gender === activeGenderFilter);
     }
 
+    // Concentration filter
+    if (activeConcentracion !== 'all') {
+      result = result.filter(p => p.concentracion === activeConcentracion);
+    }
+
     // Price filter
     if (activePriceRange !== 'all') {
       result = result.filter(p => {
@@ -170,7 +183,7 @@ export const Catalog = () => {
       if (sortOption === 'name-asc') return a.name.localeCompare(b.name);
       return 0;
     });
-  }, [products, activeFilter, activeGenderFilter, activePriceRange, sortOption]);
+  }, [products, activeFilter, activeGenderFilter, activeConcentracion, activePriceRange, sortOption]);
 
   const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredAndSorted.slice(
@@ -217,37 +230,37 @@ export const Catalog = () => {
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block w-64 shrink-0">
-            {/* Categoría */}
+            {/* Concentración */}
             <div className="border-b border-[#EDEDED] dark:border-white/10">
               <button
-                onClick={() => toggleSection("Categoría")}
+                onClick={() => toggleSection("Concentración")}
                 className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
-                aria-expanded={openSections["Categoría"]}
-                aria-controls="filter-section-categoria"
+                aria-expanded={openSections["Concentración"]}
+                aria-controls="filter-section-concentracion"
               >
-                Categoría
-                <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Categoría"] ? 'rotate-180' : ''}`} />
+                Concentración
+                <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Concentración"] ? 'rotate-180' : ''}`} />
               </button>
-              {openSections["Categoría"] && (
-                <div id="filter-section-categoria" className="pb-8">
+              {openSections["Concentración"] && (
+                <div id="filter-section-concentracion" className="pb-8">
                   <ul className="space-y-2">
                     <li>
                       <button
-                        onClick={() => setActiveFilter("Todos")}
-                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                        onClick={() => setActiveConcentracion("all")}
+                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeConcentracion === "all" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                       >
-                        <span>Todos</span>
-                        {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                        <span>Todas</span>
+                        {activeConcentracion === "all" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                       </button>
                     </li>
-                    {categories.map((cat) => (
-                      <li key={cat.id}>
+                    {concentrations.map((conc) => (
+                      <li key={conc}>
                         <button
-                          onClick={() => setActiveFilter(cat.name)}
-                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                          onClick={() => setActiveConcentracion(conc)}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeConcentracion === conc ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                         >
-                          <span>{cat.name}</span>
-                          {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                          <span>{conc}</span>
+                          {activeConcentracion === conc && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                         </button>
                       </li>
                     ))}
@@ -365,26 +378,26 @@ export const Catalog = () => {
             <div className="lg:hidden mb-8 space-y-4">
               <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none">
                 <button
-                  onClick={() => setActiveFilter("Todos")}
+                  onClick={() => setActiveConcentracion("all")}
                   className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
-                    activeFilter === "Todos"
+                    activeConcentracion === "all"
                       ? "bg-[#3A4A3F] text-white border-[#3A4A3F] dark:bg-[#A5BAA8] dark:text-[#111111] dark:border-[#A5BAA8]"
                       : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
                   }`}
                 >
-                  Categoría: Todos
+                  Concentración: Todas
                 </button>
-                {categories.map((cat) => (
+                {concentrations.map((conc) => (
                   <button
-                    key={cat.id}
-                    onClick={() => setActiveFilter(cat.name)}
+                    key={conc}
+                    onClick={() => setActiveConcentracion(conc)}
                     className={`px-4 py-2 text-[10px] uppercase tracking-widest font-bold border rounded-sm whitespace-nowrap transition-colors ${
-                      activeFilter === cat.name
+                      activeConcentracion === conc
                         ? "bg-[#3A4A3F] text-white border-[#3A4A3F] dark:bg-[#A5BAA8] dark:text-[#111111] dark:border-[#A5BAA8]"
                         : "bg-[#F5F5F5] dark:bg-white/5 text-[#2B2B2B]/60 dark:text-white/60 border-transparent"
                     }`}
                   >
-                    {cat.name}
+                    {conc}
                   </button>
                 ))}
               </div>
@@ -512,7 +525,7 @@ export const Catalog = () => {
                 {paginatedProducts.length === 0 ? (
                   <div className="py-32 text-center">
                     <p className="text-[#2B2B2B]/60 dark:text-white/60 text-sm font-light uppercase tracking-widest">No se encontraron productos con los filtros seleccionados.</p>
-                    <button onClick={() => { setActiveFilter("Todos"); setActiveGenderFilter('all'); setActivePriceRange('all'); }} className="mt-6 text-[10px] uppercase tracking-widest font-bold border-b border-[#111111] pb-1">
+                    <button onClick={() => { setActiveFilter("Todos"); setActiveGenderFilter('all'); setActiveConcentracion('all'); setActivePriceRange('all'); }} className="mt-6 text-[10px] uppercase tracking-widest font-bold border-b border-[#111111] pb-1">
                       Limpiar filtros
                     </button>
                   </div>
@@ -573,37 +586,37 @@ export const Catalog = () => {
             </div>
             
             <div className="flex-1 overflow-y-auto">
-              {/* Categoría */}
+              {/* Concentración */}
               <div className="border-b border-[#EDEDED] dark:border-white/10 px-6">
                 <button
-                  onClick={() => toggleSection("Categoría")}
+                  onClick={() => toggleSection("Concentración")}
                   className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
-                  aria-expanded={openSections["Categoría"]}
-                  aria-controls="mobile-filter-section-categoria"
+                  aria-expanded={openSections["Concentración"]}
+                  aria-controls="mobile-filter-section-concentracion"
                 >
-                  Categoría
-                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Categoría"] ? 'rotate-180' : ''}`} />
+                  Concentración
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Concentración"] ? 'rotate-180' : ''}`} />
                 </button>
-                {openSections["Categoría"] && (
-                  <div id="mobile-filter-section-categoria" className="pb-6">
+                {openSections["Concentración"] && (
+                  <div id="mobile-filter-section-concentracion" className="pb-6">
                     <ul className="space-y-2">
                       <li>
                         <button
-                          onClick={() => setActiveFilter("Todos")}
-                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                          onClick={() => setActiveConcentracion("all")}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeConcentracion === "all" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                         >
-                          <span>Todos</span>
-                          {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                          <span>Todas</span>
+                          {activeConcentracion === "all" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                         </button>
                       </li>
-                      {categories.map((cat) => (
-                        <li key={cat.id}>
+                      {concentrations.map((conc) => (
+                        <li key={conc}>
                           <button
-                            onClick={() => setActiveFilter(cat.name)}
-                            className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                            onClick={() => setActiveConcentracion(conc)}
+                            className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeConcentracion === conc ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
                           >
-                            <span>{cat.name}</span>
-                            {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                            <span>{conc}</span>
+                            {activeConcentracion === conc && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
                           </button>
                         </li>
                       ))}
@@ -721,6 +734,7 @@ export const Catalog = () => {
                 onClick={() => {
                   setActiveFilter("Todos");
                   setActiveGenderFilter("all");
+                  setActiveConcentracion("all");
                   setActivePriceRange("all");
                 }}
                 className="flex-1 px-4 py-3 text-[10px] uppercase tracking-widest font-bold border border-[#2B2B2B]/20 dark:border-white/20 dark:text-white hover:bg-[#F5F5F5] dark:hover:bg-white/5 transition-colors"
