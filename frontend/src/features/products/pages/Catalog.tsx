@@ -2,7 +2,7 @@ import { ProductCard } from "../components/ProductCard";
 import { Product } from "../types/products";
 import { productsAPI, categoriesAPI, brandsAPI, Category } from "../../../core/api/api";
 import { Filter, ChevronDown, Grid, LayoutGrid, Sparkles, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SEOHead } from "../../../shared/components/seo/SEOHead";
@@ -23,6 +23,15 @@ export const Catalog = () => {
   const activeGenderFilter = (searchParams.get("gender") ?? "all") as Product['gender'] | 'all';
   const activePriceRange = (searchParams.get("price") ?? "all") as PriceRange;
   const sortOption = (searchParams.get("sort") ?? "default") as SortOption;
+
+  const isPageChangeRef = useRef(false);
+
+  useEffect(() => {
+    if (isPageChangeRef.current) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      isPageChangeRef.current = false;
+    }
+  }, [searchParams]);
 
   const setActiveFilter = (value: string) => {
     setSearchParams(prev => {
@@ -63,9 +72,21 @@ export const Catalog = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [gridSize, setGridSize] = useState<GridSize>(3);
 
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    Categoría: false,
+    Género: false,
+    Marca: false,
+    Precio: false,
+  });
+
+  const toggleSection = (name: string) => {
+    setOpenSections(prev => ({ ...prev, [name]: !prev[name] }));
+  };
+
   // Paginacion desde URL
   const currentPage = parseInt(searchParams.get("page") ?? "1", 10);
   const setCurrentPage = (page: number | ((p: number) => number)) => {
+    isPageChangeRef.current = true;
     const nextPage = typeof page === "function" ? page(currentPage) : page;
     setSearchParams(prev => {
       if (nextPage === 1) prev.delete("page");
@@ -195,94 +216,146 @@ export const Catalog = () => {
 
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar Filters */}
-          <aside className="hidden lg:block w-64 space-y-12 shrink-0">
-            <div className="border-b border-[#EDEDED] dark:border-white/10 pb-8">
-              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Categoría</h3>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => setActiveFilter("Todos")}
-                    className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                  >
-                    <span>Todos</span>
-                    {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                  </button>
-                </li>
-                {categories.map((cat) => (
-                  <li key={cat.id}>
-                    <button
-                      onClick={() => setActiveFilter(cat.name)}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                    >
-                      <span>{cat.name}</span>
-                      {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+          <aside className="hidden lg:block w-64 shrink-0">
+            {/* Categoría */}
+            <div className="border-b border-[#EDEDED] dark:border-white/10">
+              <button
+                onClick={() => toggleSection("Categoría")}
+                className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                aria-expanded={openSections["Categoría"]}
+                aria-controls="filter-section-categoria"
+              >
+                Categoría
+                <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Categoría"] ? 'rotate-180' : ''}`} />
+              </button>
+              {openSections["Categoría"] && (
+                <div id="filter-section-categoria" className="pb-8">
+                  <ul className="space-y-2">
+                    <li>
+                      <button
+                        onClick={() => setActiveFilter("Todos")}
+                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                      >
+                        <span>Todos</span>
+                        {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                      </button>
+                    </li>
+                    {categories.map((cat) => (
+                      <li key={cat.id}>
+                        <button
+                          onClick={() => setActiveFilter(cat.name)}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                        >
+                          <span>{cat.name}</span>
+                          {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
-            <div className="border-b border-[#EDEDED] dark:border-white/10 pb-8">
-              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Género</h3>
-              <ul className="space-y-2">
-                {([
-                  { value: 'all', label: 'Todos' },
-                  { value: 'Masculino', label: 'Masculino' },
-                  { value: 'Femenino', label: 'Femenino' },
-                  { value: 'Niño', label: 'Niño' },
-                  { value: 'Niña', label: 'Niña' },
-                  { value: 'Unisex', label: 'Unisex' }
-                ] as { value: Product['gender'] | 'all'; label: string }[]).map((genderItem) => (
-                  <li key={genderItem.value}>
-                    <button
-                      onClick={() => setActiveGenderFilter(genderItem.value)}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeGenderFilter === genderItem.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                    >
-                      <span>{genderItem.label}</span>
-                      {activeGenderFilter === genderItem.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            {/* Género */}
+            <div className="border-b border-[#EDEDED] dark:border-white/10">
+              <button
+                onClick={() => toggleSection("Género")}
+                className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                aria-expanded={openSections["Género"]}
+                aria-controls="filter-section-genero"
+              >
+                Género
+                <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Género"] ? 'rotate-180' : ''}`} />
+              </button>
+              {openSections["Género"] && (
+                <div id="filter-section-genero" className="pb-8">
+                  <ul className="space-y-2">
+                    {([
+                      { value: 'all', label: 'Todos' },
+                      { value: 'Masculino', label: 'Masculino' },
+                      { value: 'Femenino', label: 'Femenino' },
+                      { value: 'Niño', label: 'Niño' },
+                      { value: 'Niña', label: 'Niña' },
+                      { value: 'Unisex', label: 'Unisex' }
+                    ] as { value: Product['gender'] | 'all'; label: string }[]).map((genderItem) => (
+                      <li key={genderItem.value}>
+                        <button
+                          onClick={() => setActiveGenderFilter(genderItem.value)}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeGenderFilter === genderItem.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                        >
+                          <span>{genderItem.label}</span>
+                          {activeGenderFilter === genderItem.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
-            <div className="border-b border-[#EDEDED] dark:border-white/10 pb-8">
-              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Marca</h3>
-              <ul className="space-y-2">
-                {brands.map((brand) => (
-                  <li key={brand.id}>
-                    <button
-                      onClick={() => setActiveFilter(brand.name)}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === brand.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                    >
-                      <span>{brand.name}</span>
-                      {activeFilter === brand.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            {/* Marca */}
+            <div className="border-b border-[#EDEDED] dark:border-white/10">
+              <button
+                onClick={() => toggleSection("Marca")}
+                className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                aria-expanded={openSections["Marca"]}
+                aria-controls="filter-section-marca"
+              >
+                Marca
+                <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Marca"] ? 'rotate-180' : ''}`} />
+              </button>
+              {openSections["Marca"] && (
+                <div id="filter-section-marca" className="pb-8">
+                  <ul className="space-y-2">
+                    {brands.map((brand) => (
+                      <li key={brand.id}>
+                        <button
+                          onClick={() => setActiveFilter(brand.name)}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === brand.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                        >
+                          <span>{brand.name}</span>
+                          {activeFilter === brand.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
-            <div>
-              <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-5">Precio</h3>
-              <ul className="space-y-2">
-                {([
-                  { value: 'all', label: 'Todos los precios' },
-                  { value: 'under150', label: 'Menos de $150.000' },
-                  { value: '150to200', label: '$150.000 – $200.000' },
-                  { value: 'over200', label: 'Más de $200.000' },
-                ] as { value: PriceRange; label: string }[]).map((item) => (
-                  <li key={item.value}>
-                    <button
-                      onClick={() => setActivePriceRange(item.value)}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activePriceRange === item.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                    >
-                      <span>{item.label}</span>
-                      {activePriceRange === item.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            {/* Precio */}
+            <div className="border-b border-[#EDEDED] dark:border-white/10">
+              <button
+                onClick={() => toggleSection("Precio")}
+                className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                aria-expanded={openSections["Precio"]}
+                aria-controls="filter-section-precio"
+              >
+                Precio
+                <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Precio"] ? 'rotate-180' : ''}`} />
+              </button>
+              {openSections["Precio"] && (
+                <div id="filter-section-precio" className="pb-8">
+                  <ul className="space-y-2">
+                    {([
+                      { value: 'all', label: 'Todos los precios' },
+                      { value: 'under150', label: 'Menos de $150.000' },
+                      { value: '150to200', label: '$150.000 – $200.000' },
+                      { value: 'over200', label: 'Más de $200.000' },
+                    ] as { value: PriceRange; label: string }[]).map((item) => (
+                      <li key={item.value}>
+                        <button
+                          onClick={() => setActivePriceRange(item.value)}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activePriceRange === item.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                        >
+                          <span>{item.label}</span>
+                          {activePriceRange === item.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </aside>
 
@@ -499,98 +572,146 @@ export const Catalog = () => {
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 space-y-8">
-              {/* Categoria */}
-              <div>
-                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Categoría</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <button
-                      onClick={() => setActiveFilter("Todos")}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                    >
-                      <span>Todos</span>
-                      {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                    </button>
-                  </li>
-                  {categories.map((cat) => (
-                    <li key={cat.id}>
-                      <button
-                        onClick={() => setActiveFilter(cat.name)}
-                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                      >
-                        <span>{cat.name}</span>
-                        {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+            <div className="flex-1 overflow-y-auto">
+              {/* Categoría */}
+              <div className="border-b border-[#EDEDED] dark:border-white/10 px-6">
+                <button
+                  onClick={() => toggleSection("Categoría")}
+                  className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                  aria-expanded={openSections["Categoría"]}
+                  aria-controls="mobile-filter-section-categoria"
+                >
+                  Categoría
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Categoría"] ? 'rotate-180' : ''}`} />
+                </button>
+                {openSections["Categoría"] && (
+                  <div id="mobile-filter-section-categoria" className="pb-6">
+                    <ul className="space-y-2">
+                      <li>
+                        <button
+                          onClick={() => setActiveFilter("Todos")}
+                          className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === "Todos" ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                        >
+                          <span>Todos</span>
+                          {activeFilter === "Todos" && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                        </button>
+                      </li>
+                      {categories.map((cat) => (
+                        <li key={cat.id}>
+                          <button
+                            onClick={() => setActiveFilter(cat.name)}
+                            className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === cat.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                          >
+                            <span>{cat.name}</span>
+                            {activeFilter === cat.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
-              {/* Genero */}
-              <div>
-                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Género</h3>
-                <ul className="space-y-2">
-                  {([
-                    { value: 'all', label: 'Todos' },
-                    { value: 'Masculino', label: 'Masculino' },
-                    { value: 'Femenino', label: 'Femenino' },
-                    { value: 'Niño', label: 'Niño' },
-                    { value: 'Niña', label: 'Niña' },
-                    { value: 'Unisex', label: 'Unisex' }
-                  ] as { value: Product['gender'] | 'all'; label: string }[]).map((genderItem) => (
-                    <li key={genderItem.value}>
-                      <button
-                        onClick={() => setActiveGenderFilter(genderItem.value)}
-                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeGenderFilter === genderItem.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                      >
-                        <span>{genderItem.label}</span>
-                        {activeGenderFilter === genderItem.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              {/* Género */}
+              <div className="border-b border-[#EDEDED] dark:border-white/10 px-6">
+                <button
+                  onClick={() => toggleSection("Género")}
+                  className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                  aria-expanded={openSections["Género"]}
+                  aria-controls="mobile-filter-section-genero"
+                >
+                  Género
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Género"] ? 'rotate-180' : ''}`} />
+                </button>
+                {openSections["Género"] && (
+                  <div id="mobile-filter-section-genero" className="pb-6">
+                    <ul className="space-y-2">
+                      {([
+                        { value: 'all', label: 'Todos' },
+                        { value: 'Masculino', label: 'Masculino' },
+                        { value: 'Femenino', label: 'Femenino' },
+                        { value: 'Niño', label: 'Niño' },
+                        { value: 'Niña', label: 'Niña' },
+                        { value: 'Unisex', label: 'Unisex' }
+                      ] as { value: Product['gender'] | 'all'; label: string }[]).map((genderItem) => (
+                        <li key={genderItem.value}>
+                          <button
+                            onClick={() => setActiveGenderFilter(genderItem.value)}
+                            className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeGenderFilter === genderItem.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                          >
+                            <span>{genderItem.label}</span>
+                            {activeGenderFilter === genderItem.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Marca */}
-              <div>
-                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Marca</h3>
-                <ul className="space-y-2">
-                  {brands.map((brand) => (
-                    <li key={brand.id}>
-                      <button
-                        onClick={() => setActiveFilter(brand.name)}
-                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === brand.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                      >
-                        <span>{brand.name}</span>
-                        {activeFilter === brand.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              <div className="border-b border-[#EDEDED] dark:border-white/10 px-6">
+                <button
+                  onClick={() => toggleSection("Marca")}
+                  className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                  aria-expanded={openSections["Marca"]}
+                  aria-controls="mobile-filter-section-marca"
+                >
+                  Marca
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Marca"] ? 'rotate-180' : ''}`} />
+                </button>
+                {openSections["Marca"] && (
+                  <div id="mobile-filter-section-marca" className="pb-6">
+                    <ul className="space-y-2">
+                      {brands.map((brand) => (
+                        <li key={brand.id}>
+                          <button
+                            onClick={() => setActiveFilter(brand.name)}
+                            className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activeFilter === brand.name ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                          >
+                            <span>{brand.name}</span>
+                            {activeFilter === brand.name && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Precio */}
-              <div>
-                <h3 className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 mb-4">Precio</h3>
-                <ul className="space-y-2">
-                  {([
-                    { value: 'all', label: 'Todos los precios' },
-                    { value: 'under150', label: 'Menos de $150.000' },
-                    { value: '150to200', label: '$150.000 – $200.000' },
-                    { value: 'over200', label: 'Más de $200.000' },
-                  ] as { value: PriceRange; label: string }[]).map((item) => (
-                    <li key={item.value}>
-                      <button
-                        onClick={() => setActivePriceRange(item.value)}
-                        className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activePriceRange === item.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
-                      >
-                        <span>{item.label}</span>
-                        {activePriceRange === item.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              <div className="border-b border-[#EDEDED] dark:border-white/10 px-6">
+                <button
+                  onClick={() => toggleSection("Precio")}
+                  className="w-full flex items-center justify-between py-5 text-[9px] uppercase tracking-[0.3em] font-bold text-[#2B2B2B]/40 dark:text-white/40 hover:text-[#2B2B2B]/60 dark:hover:text-white/60 transition-colors"
+                  aria-expanded={openSections["Precio"]}
+                  aria-controls="mobile-filter-section-precio"
+                >
+                  Precio
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections["Precio"] ? 'rotate-180' : ''}`} />
+                </button>
+                {openSections["Precio"] && (
+                  <div id="mobile-filter-section-precio" className="pb-6">
+                    <ul className="space-y-2">
+                      {([
+                        { value: 'all', label: 'Todos los precios' },
+                        { value: 'under150', label: 'Menos de $150.000' },
+                        { value: '150to200', label: '$150.000 – $200.000' },
+                        { value: 'over200', label: 'Más de $200.000' },
+                      ] as { value: PriceRange; label: string }[]).map((item) => (
+                        <li key={item.value}>
+                          <button
+                            onClick={() => setActivePriceRange(item.value)}
+                            className={`w-full text-left px-4 py-2.5 text-[10px] uppercase tracking-widest transition-all rounded-sm flex items-center justify-between ${activePriceRange === item.value ? "bg-[#3A4A3F]/10 text-[#3A4A3F] dark:bg-[#A5BAA8]/10 dark:text-[#A5BAA8] font-bold border border-[#3A4A3F]/20 dark:border-[#A5BAA8]/20" : "text-[#2B2B2B]/60 dark:text-white/50 hover:bg-[#F5F5F5] dark:hover:bg-white/5 border border-transparent"}`}
+                          >
+                            <span>{item.label}</span>
+                            {activePriceRange === item.value && <span className="w-1.5 h-1.5 rounded-full bg-[#3A4A3F] dark:bg-[#A5BAA8]" />}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -42,6 +42,19 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
     return match ? parseInt(match[0], 10) : 100;
   };
 
+  const handleNumericFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value === '0') {
+      e.target.select();
+    }
+  };
+
+  const handleNumericChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const cleaned = raw.replace(/^0+(?=\d)/, '');
+    const num = cleaned === '' ? 0 : Number(cleaned);
+    setFormData(prev => ({ ...prev, [field]: num }));
+  };
+
   const [formData, setFormData] = useState({
     nombre: product?.name || "",
     descripcion: product?.description || "",
@@ -239,12 +252,8 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                       required
                       min={0}
                       value={formData.precio}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          precio: Number(e.target.value),
-                        })
-                      }
+                      onFocus={handleNumericFocus}
+                      onChange={handleNumericChange('precio')}
                       className={INPUT_CLS}
                     />
                   </div>
@@ -255,7 +264,8 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                       required
                       min={1}
                       value={formData.tamanoMl}
-                      onChange={(e) => setFormData({ ...formData, tamanoMl: Number(e.target.value) })}
+                      onFocus={handleNumericFocus}
+                      onChange={handleNumericChange('tamanoMl')}
                       className={INPUT_CLS}
                     />
                   </div>
@@ -266,12 +276,8 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                       required
                       min={0}
                       value={formData.stock}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          stock: Number(e.target.value),
-                        })
-                      }
+                      onFocus={handleNumericFocus}
+                      onChange={handleNumericChange('stock')}
                       className={INPUT_CLS}
                     />
                   </div>
@@ -317,16 +323,6 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
                     className={INPUT_CLS}
                   />
                 </div>
-
-                <label className="flex items-center gap-2 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    checked={formData.destacado}
-                    onChange={(e) => setFormData({ ...formData, destacado: e.target.checked })}
-                    className="w-4 h-4 accent-[var(--color-gold)]"
-                  />
-                  <span className="text-[12px] font-normal text-[#2B2B2B]/60 dark:text-[#9090a8]">Destacado</span>
-                </label>
               </div>
             </div>
           </div>
@@ -520,9 +516,10 @@ export const ProductModal = ({ product, onClose, onSuccess }: ProductModalProps)
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full md:flex-[2] bg-[#b8946a] dark:bg-[#c8a062] hover:bg-[var(--color-gold)] dark:hover:bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-md disabled:opacity-50"
+              className="w-full md:flex-[2] bg-[#b8946a] dark:bg-[#c8a062] hover:bg-[var(--color-gold)] dark:hover:bg-[var(--color-gold)] text-[#111111] py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-colors rounded-md disabled:opacity-60 disabled:cursor-wait inline-flex items-center justify-center gap-2.5"
             >
-              {isLoading ? <Loader2 size={16} className="animate-spin" /> : <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>}
+              {isLoading && <Loader2 size={18} className="animate-spin shrink-0" />}
+              <span>{product ? "Actualizar Perfume" : "Crear Perfume"}</span>
             </button>
           </div>
         </form>

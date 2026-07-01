@@ -227,19 +227,16 @@ export const Images = () => {
     if (!panel || !selectedId) return;
 
     updatePanel(img.urlIndex, { isGenerating: true, resultUrl: null });
-    const tid = toast.loading("Generando imagen con IA...");
     try {
       const result = await aiAPI.improveImage(selectedId, img.id, panel.style);
 
       if (result?.edited_image_base64) {
         const dataUri = `data:image/jpeg;base64,${result.edited_image_base64}`;
         updatePanel(img.urlIndex, { resultUrl: dataUri, isGenerating: false });
-        toast.success("Imagen generada", { id: tid });
       } else {
         throw new Error("Sin respuesta de la IA");
       }
     } catch (e: any) {
-      toast.error(e.message || "No se pudo generar la imagen", { id: tid });
       updatePanel(img.urlIndex, { isGenerating: false });
     }
   };
